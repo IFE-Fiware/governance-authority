@@ -1,0 +1,29 @@
+users-roles:
+  image:
+    tag: "0.0.1"
+
+simpl-cloud-gateway:
+  image:
+    tag: "0.0.1"
+
+onboarding:
+  image:
+    tag: "0.0.1"
+  enabled: true
+  ejbca:
+    credentialsFolder: ovh
+    keystore:
+      name: keystore.p12
+      password: "yXD9xoRHJEQ+dNX3r3/CiTIh"
+    truststore:
+      name: truststore.jks
+      password: "1473jhsu9075kopw"
+
+global:
+  profile: authority
+  hostBe: authority.be.int.simpl-europe.eu
+  hostFe: authority.fe.int.simpl-europe.eu
+  cors:
+    allowOrigin: https://authority.be.int.simpl-europe.eu,https://authority.fe.int.simpl-europe.eu,http://localhost:4202,http://localhost:3000
+  ingress:
+    issuer: dev-prod
