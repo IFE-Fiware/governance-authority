@@ -1,0 +1,15 @@
+primary:
+  initdb:
+    scripts:
+      init.sql: |
+        CREATE USER ejbca WITH PASSWORD 'ejbca2123' CREATEDB;
+        CREATE DATABASE ejbca OWNER ejbca;
+        CREATE USER keycloak WITH PASSWORD 'keycloak' CREATEDB;
+        CREATE DATABASE keycloak OWNER keycloak;
+        CREATE USER users WITH PASSWORD 'users' CREATEDB;
+        CREATE DATABASE users OWNER users;
+        CREATE USER onboarding WITH PASSWORD 'onboarding' CREATEDB;
+        CREATE DATABASE onboarding OWNER onboarding;
+        CREATE USER usersroles WITH PASSWORD 'usersroles' CREATEDB;
+        CREATE DATABASE usersroles OWNER usersroles;
+
