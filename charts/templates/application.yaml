@@ -1,0 +1,173 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.argocd.appname }}
+  namespace: {{ .Values.argocd.namespace }}
+spec:
+  project: default
+  destination:
+    server: {{ .Values.cluster.address }}
+    namespace: {{ .Values.cluster.namespace }}
+  sources:
+  - repoURL: {{ .Values.values.repo_URL }}
+    targetRevision: {{ .Values.values.branch }}
+    ref: values
+  - repoURL: {{ .Values.postgresql.repo_URL }}
+    path: {{ .Values.postgresql.folder }}
+    targetRevision: {{ .Values.postgresql.branch }}
+    helm:
+      valueFiles:
+        {{- range .Values.postgresql.valueFiles }}
+        - $values/app-values/Postgresql/{{ . }}
+        {{- end }}
+      values: |
+        fullnameOverride: {{ .Values.postgresql.fullnameOverride }}
+  - repoURL: {{ .Values.ejbca.repo_URL }}
+    path: {{ .Values.ejbca.folder }}
+    targetRevision: {{ .Values.ejbca.branch }}
+    helm:
+      valueFiles:
+        {{- range .Values.ejbca.valueFiles }}
+        - $values/app-values/ejbca/{{ . }}
+        {{- end }}
+      values: |
+        fullnameOverride: {{ .Values.ejbca.fullnameOverride }}       
+  - repoURL: {{ .Values.keycloak.repo_URL }}
+    path: {{ .Values.keycloak.folder }}
+    targetRevision: {{ .Values.keycloak.branch }}
+    helm:
+      valueFiles:
+        {{- range .Values.keycloak.valueFiles }}
+        - $values/app-values/Keycloak/{{ . }}
+        {{- end }}
+      values: |
+        fullnameOverride: {{ .Values.keycloak.fullnameOverride }}
+        apiUrl: "https://authority.be.{{ .Values.namespaceTag }}.int.simpl-europe.eu"
+        extraEnvVars:
+        - name: KC_HOSTNAME_ADMIN_URL
+          value: "https://authority.be.{{ .Values.namespaceTag }}.int.simpl-europe.eu/auth"
+        - name: KC_HOSTNAME_URL
+          value: "https://authority.be.{{ .Values.namespaceTag }}.int.simpl-europe.eu/auth"        
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_cloud_gateway.projectID }}/packages/helm/stable"
+    path: ''
+    targetRevision: {{ .Values.simpl_cloud_gateway.targetRevision }}
+    chart: {{ .Values.simpl_cloud_gateway.chart_name }}
+    helm:
+      valueFiles:
+        {{- range .Values.simpl_cloud_gateway.valueFiles }}
+        - $values/app-values/Simpl-Cloud-Gateway/{{ . }}
+        {{- end }}
+      values: |
+        microservices:
+          usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+          securityAttributesProviderUrl: http://security-attributes-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+          keycloakUrl: http://keycloak.{{ .Values.cluster.namespace }}.svc.cluster.local
+          onboardingUrl: http://onboarding.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+          ejbcaUrl: http://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30080
+        global:
+          hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          authorityUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          keystore:
+            password: "authority"
+          cors:
+            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000     
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_fe.projectID }}/packages/helm/stable"
+    path: ''
+    targetRevision: {{ .Values.simpl_fe.targetRevision }}
+    chart: {{ .Values.simpl_fe.chart_name }}
+    helm:
+      valueFiles:
+        {{- range .Values.simpl_fe.valueFiles }}
+        - $values/app-values/Simpl-fe/{{ . }}
+        {{- end }}
+      values: |
+        image:
+          tag: {{ .Values.simpl_fe.targetRevision }}
+        hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+        hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+        cors:
+          #allowOrigin: https://authority.fe.authority1.int.simpl-europe.eu,https://participant.fe.authority1.int.simpl-europe.eu,http://localhost:4202,http://localhost:4203,http://localhost:3000
+          #allowOrigin: https://participant.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:4203,http://localhost:3000
+          allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:4203,http://localhost:3000
+        ingress:
+          issuer: dev-prod
+        env:
+        - name: APPLICATION
+          value: authority-utility
+        - name: API_URL
+          value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
+        - name: KEYCLOAK_URL
+          value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
+        - name: KEYCLOAK_REALM
+          value: "authority"
+        - name: KEYCLOAK_CLIENT_ID
+          value: "frontend-cli"
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.users_roles.projectID }}/packages/helm/stable"
+    path: ''
+    targetRevision: {{ .Values.users_roles.targetRevision }}
+    chart: {{ .Values.users_roles.chart_name }}
+    helm:
+      valueFiles:
+        {{- range .Values.users_roles.valueFiles }}
+        - $values/app-values/Users-Roles/{{ . }}
+        {{- end }}
+      values: |
+        global:
+          hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          authorityUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          keystore:
+            password: "authority"
+          cors:
+            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+          env:
+            SPRING_DATASOURCE_URL: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/usersroles"
+  - repoURL: {{ .Values.redis.repo_URL }}
+    targetRevision: {{ .Values.redis.targetRevision }}
+    chart: {{ .Values.redis.chart_name }}
+    helm:
+      valueFiles:
+        {{- range .Values.redis.valueFiles }}
+        - $values/app-values/Redis/{{ . }}
+        {{- end }}
+      values: |
+        fullnameOverride: {{ .Values.redis.nameOverride }}
+  - repoURL: {{ .Values.xsfc_data_catalogue.repo_URL }}
+    targetRevision: {{ .Values.xsfc_data_catalogue.branch }}
+    path: {{ .Values.xsfc_data_catalogue.path }}
+    helm:
+      valueFiles:
+        {{- range .Values.xsfc_data_catalogue.valueFiles }}
+        - $values/app-values/xsfc-data-catalogue/{{ . }}
+        {{- end }}
+      values: |
+        podSecurityContext: 
+          allowPrivilegeEscalation: false
+  - repoURL: {{ .Values.xsfc_infra_catalogue.repo_URL }}
+    targetRevision: {{ .Values.xsfc_infra_catalogue.branch }}
+    path: {{ .Values.xsfc_infra_catalogue.path }}
+    helm:
+      valueFiles:
+        {{- range .Values.xsfc_infra_catalogue.valueFiles }}
+        - $values/app-values/xsfc-infra-catalogue/{{ . }}
+        {{- end }}
+      values: |
+        podSecurityContext: 
+          allowPrivilegeEscalation: false
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.onboarding.projectID }}/packages/helm/stable"
+    path: ''
+    targetRevision: {{ .Values.onboarding.targetRevision }}
+    chart: {{ .Values.onboarding.chart_name }}
+    helm:
+      valueFiles:
+        {{- range .Values.onboarding.valueFiles }}
+        - $values/app-values/onboarding/{{ . }}
+        {{- end }}
+      values: |
+        global:
+          hostTls: "https://onboarding.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
+          keystore:
+            password: "your-keystore-password"

@@ -1,0 +1,18 @@
+hostBe: authority.be.authority1.int.simpl-europe.eu
+hostFe: authority.fe.authority1.int.simpl-europe.eu
+cors:
+  allowOrigin: https://authority.fe.authority1.int.simpl-europe.eu,https://authority.fe.authority1.int.simpl-europe.eu,http://localhost:4202,http://localhost:4203,http://localhost:3000
+ingress:
+  issuer: dev-prod
+
+env:
+- name: APPLICATION
+  value: onboarding
+- name: API_URL
+  value: "https://authority.be.authority1.int.simpl-europe.eu"
+- name: KEYCLOAK_URL
+  value: "https://authority.be.authority1.int.simpl-europe.eu/auth"
+- name: KEYCLOAK_REALM
+  value: "authority"
+- name: KEYCLOAK_CLIENT_ID
+  value: "frontend-cli"
