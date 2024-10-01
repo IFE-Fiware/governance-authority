@@ -1,0 +1,96 @@
+namespaceTag: ${NAMESPACETAG}
+domainSuffix: ${DOMAINSUFFIX}
+
+argocd:
+  appname:  ${NAMESPACE}
+  namespace: argocd
+
+cluster:
+  address: https://kubernetes.default.svc
+  namespace: ${NAMESPACE}
+
+values:
+  repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git
+  branch: develop
+
+postgresql:
+  repo_URL: https://code.europa.eu/simpl/simpl-open/development/iaa/charts.git
+  branch: feature/integration-refactor
+  folder: postgresql
+  fullnameOverride: postgresql
+  valueFiles:
+    - values.yaml
+    - values-authority.yaml
+
+keycloak:
+  repo_URL: https://code.europa.eu/simpl/simpl-open/development/iaa/charts.git
+  branch: feature/integration-refactor
+  folder: keycloak
+  fullnameOverride: keycloak
+  valueFiles:
+    - values.yaml
+    - values-authority.yaml
+
+simpl_cloud_gateway:
+  projectID: "772"
+  targetRevision: 0.0.4
+  chart_name: simpl-cloud-gateway
+  valueFiles:
+    - values.yaml
+    - values-authority.yaml
+
+simpl_fe:
+  projectID: "769"
+  targetRevision: 0.0.4
+  chart_name: simpl-fe
+  valueFiles:
+    - values.yaml
+
+users_roles:
+  projectID: "771"
+  targetRevision: 0.0.4
+  chart_name: users-roles
+  valueFiles:
+    - values.yaml
+
+redis:
+  repo_URL: 'https://charts.bitnami.com/bitnami'
+  targetRevision: 20.1.0
+  chart_name: redis
+  nameOverride: redis
+  valueFiles:
+    - values.yaml
+    
+xsfc_data_catalogue:
+  repo_URL: 'https://code.europa.eu/simpl/simpl-open/development/gaia-x-edc/simpl-fc-service.git'
+  branch: main
+  #targetRevision: 0.1.4
+  chart_name: data-catalogue-fc-service
+  path: "deployment/helm/fc-service"
+  valueFiles:
+    - values.yaml
+    
+xsfc_infra_catalogue:
+  repo_URL: 'https://code.europa.eu/simpl/simpl-open/development/gaia-x-edc/simpl-fc-service.git'
+  branch: main
+  #targetRevision: 0.1.4
+  chart_name: data-catalogue-fc-service
+  path: "deployment/helm/fc-service"
+  valueFiles:
+    - values.yaml
+
+ejbca:
+  repo_URL: https://code.europa.eu/simpl/simpl-open/development/iaa/charts.git
+  branch: feature/integration-refactor
+  folder: ejbca-community-helm
+  fullnameOverride: ejbca-community-helm
+  valueFiles:
+    - values.yaml
+    - values-authority.yaml
+
+onboarding:
+  projectID: "770"
+  targetRevision: 0.0.5-256.hotfix.219d6217
+  chart_name: onboarding
+  valueFiles:
+    - values.yaml
