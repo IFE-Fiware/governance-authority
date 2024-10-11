@@ -1,8 +1,9 @@
+project: ${PROJECT}
 namespaceTag: ${NAMESPACETAG}
 domainSuffix: ${DOMAINSUFFIX}
 
 argocd:
-  appname:  ${NAMESPACE}
+  appname: ${NAMESPACE}
   namespace: argocd
 
 cluster:
@@ -14,22 +15,29 @@ values:
   branch: develop
 
 postgresql:
-  repo_URL: https://code.europa.eu/simpl/simpl-open/development/iaa/charts.git
-  branch: feature/integration-refactor
-  folder: postgresql
+  repo_URL: https://charts.bitnami.com/bitnami
+  chart_name: postgresql
+  targetRevision: 15.2.5
   fullnameOverride: postgresql
   valueFiles:
     - values.yaml
     - values-authority.yaml
 
 keycloak:
-  repo_URL: https://code.europa.eu/simpl/simpl-open/development/iaa/charts.git
-  branch: feature/integration-refactor
-  folder: keycloak
+  repo_URL: https://charts.bitnami.com/bitnami
+  chart_name: keycloak
+  targetRevision: "21.2.2"
   fullnameOverride: keycloak
   valueFiles:
     - values.yaml
-    - values-authority.yaml
+
+redis:
+  repo_URL: 'https://charts.bitnami.com/bitnami'
+  targetRevision: 19.6.0
+  chart_name: redis
+  fullnameOverride: redis
+  valueFiles:
+    - values.yaml
 
 simpl_cloud_gateway:
   projectID: "772"
@@ -41,23 +49,23 @@ simpl_cloud_gateway:
 
 simpl_fe:
   projectID: "769"
-  targetRevision: 0.0.4
+  targetRevision: 0.0.4-620.hotfix.48569299
   chart_name: simpl-fe
+  valueFiles:
+    - values.yaml
+    - values-authority.yaml
+
+sap:
+  projectID: "861"
+  targetRevision: 0.0.4
+  chart_name: security-attributes-provider
   valueFiles:
     - values.yaml
 
 users_roles:
   projectID: "771"
-  targetRevision: 0.0.4
+  targetRevision: 0.0.41-591.hotfix.b1dfc6f7
   chart_name: users-roles
-  valueFiles:
-    - values.yaml
-
-redis:
-  repo_URL: 'https://charts.bitnami.com/bitnami'
-  targetRevision: 20.1.0
-  chart_name: redis
-  nameOverride: redis
   valueFiles:
     - values.yaml
     
@@ -92,5 +100,20 @@ onboarding:
   projectID: "770"
   targetRevision: 0.0.5-256.hotfix.219d6217
   chart_name: onboarding
+  valueFiles:
+    - values.yaml
+
+poc_gaia_edc:
+  projectID: "759"
+  targetRevision: 0.1.7
+  chart_name: poc-charts
+  fullnameOverride: catalogue
+  valueFiles:
+    - values.yaml
+
+tls_gateway:
+  projectID: "860"
+  targetRevision: 0.0.5-106.hotfix.9753e494
+  chart_name: tls-gateway
   valueFiles:
     - values.yaml

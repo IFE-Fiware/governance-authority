@@ -86,13 +86,6 @@ envFrom:
   - configMapRef:
       name: simpl-cloud-gateway-configmap
 
-microservices:
-  usersRolesUrl: http://users-roles.{{ .Release.Namespace }}.svc.cluster.local:8080
-  securityAttributesProviderUrl: http://security-attributes-provider.{{ .Release.Namespace }}.svc.cluster.local:8080
-  keycloakUrl: http://keycloak.{{ .Release.Namespace }}.svc.cluster.local
-  onboardingUrl: http://onboarding.{{ .Release.Namespace }}.svc.cluster.local:8080
-  ejbcaUrl: http://ejbca-community-helm.{{ .Release.Namespace }}.svc.cluster.local:30080
-
 nodeSelector: {}
 
 tolerations: []
