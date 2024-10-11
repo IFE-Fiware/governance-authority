@@ -1,0 +1,123 @@
+server-port: &server-port 443
+replicaCount: 1
+image:
+  repository: code.europa.eu:4567/simpl/simpl-open/development/iaa/tls-gateway
+  pullPolicy: Always
+  tag: 0.0.5-106.hotfix.9753e494
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: LoadBalancer
+  port: *server-port
+
+resources: 
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+livenessProbe:
+  httpGet:
+    path: "/actuator/health/liveness"
+    port: 8080
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  failureThreshold: 10
+readinessProbe:
+  httpGet:
+    path: "/actuator/health/readiness"
+    port: 8080
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  failureThreshold: 10
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: 
+  - name: tls-gateway-server-cert
+    secret:
+      secretName: tls-certificate-secret
+      items:
+      - key: server-cert
+        path: keystore.p12
+  - name: tls-gateway-server-truststore
+    secret:
+      secretName: tls-certificate-secret
+      items:
+      - key: ca-truststore
+        path: truststore.jks
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts:  
+  - name: tls-gateway-server-cert
+    mountPath: "/etc/certs/keystore.p12"
+    subPath: "keystore.p12"
+    readOnly: true
+  - name: tls-gateway-server-truststore
+    mountPath: "/etc/certs/truststore.jks"
+    subPath: "truststore.jks"
+    readOnly: true
+
+envFrom:
+  - configMapRef:
+      name: tls-gateway-configmap
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+ssl:
+  keyStore:
+    base64: "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"
+    password: "your-keystore-password"
+  trustStore:
+    base64: "/u3+7QAAAAIAAAABAAAAAgAWb25ib2FyZGluZ2NhIChzaW1wbGNhKQAAAZJ1nMiFAAVYLjUwOQAAAZUwggGRMIIBN6ADAgECAhR9vIcb2AxgZawMZE4pkMcVFt6J9jAKBggqhkjOPQQDAjASMRAwDgYDVQQDDAdTaW1wbENBMB4XDTI0MTAwMjA5MjQzM1oXDTM5MDkyOTA5MjQzMlowFzEVMBMGA1UEAwwMT25Cb2FyZGluZ0NBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEWzDvsU4pI5tK7YhoNnjFEh9tLyucH3m7kOxTG5m68baIwKlaf5n4Std41YdHST6DYKAxPDKNxCNjhf8gViM8WaNmMGQwEgYDVR0TAQH/BAgwBgEB/wIBADAfBgNVHSMEGDAWgBQdR2RfirSfdVDxf8Lu4KOq5oJCbTAdBgNVHQ4EFgQUJqjGGQkjEmXRh7Atsymql6muRRgwDgYDVR0PAQH/BAQDAgGGMAoGCCqGSM49BAMCA0gAMEUCIQDO8owqgQ8Un8mA7/bXU/I2DQbBucWWOeJU84+uNosRuwIgaz6TWoJgKzesnlYEn07RUlM/7HncPjWNNtq87BtN3NJmARtiMd3JtmkSfhyMeb9rSLki6g=="
+    password: "your-truststore-password"
+
+global:
+  profile: authority

@@ -1,14 +1,8 @@
 replicaCount: 1
 image:
-  repository: code.europa.eu:4567/simpl/simpl-open/development/iaa/users-roles
+  repository: code.europa.eu:4567/simpl/simpl-open/development/iaa/security-attributes-provider
   pullPolicy: Always
   tag: 0.0.4
-
-global:
-  profile: authority
-  ingress:
-    issuer: dev-prod
-
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -105,7 +99,7 @@ volumeMounts: {}
 
 envFrom:
   - configMapRef:
-      name: users-roles-configmap
+      name: security-attributes-provider-configmap
 
 nodeSelector: {}
 
@@ -113,10 +107,10 @@ tolerations: []
 
 affinity: {}
 
-
 env:
-  SPRING_DATASOURCE_USERNAME: "usersroles"
-  SPRING_DATASOURCE_PASSWORD: "usersroles"
+  SPRING_DATASOURCE_USERNAME: "securityattributesprovider"
+  SPRING_DATASOURCE_PASSWORD: "securityattributesprovider"
   SPRING_DATA_REDIS_PORT: "6379"
   SPRING_DATA_REDIS_USERNAME: "default"
   SPRING_DATA_REDIS_PASSWORD: "admin"
+  SIMPL_EPHEMERAL_PROOF_EXPIRE_AFTER: "3D"
