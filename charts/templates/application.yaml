@@ -13,8 +13,8 @@ spec:
     targetRevision: {{ .Values.values.branch }}
     ref: values
   - repoURL: {{ .Values.postgresql.repo_URL }}
-    path: {{ .Values.postgresql.folder }}
-    targetRevision: {{ .Values.postgresql.branch }}
+    targetRevision: {{ .Values.postgresql.targetRevision }}
+    chart: {{ .Values.postgresql.chart_name }}
     helm:
       valueFiles:
         {{- range .Values.postgresql.valueFiles }}
@@ -22,19 +22,9 @@ spec:
         {{- end }}
       values: |
         fullnameOverride: {{ .Values.postgresql.fullnameOverride }}
-  - repoURL: {{ .Values.ejbca.repo_URL }}
-    path: {{ .Values.ejbca.folder }}
-    targetRevision: {{ .Values.ejbca.branch }}
-    helm:
-      valueFiles:
-        {{- range .Values.ejbca.valueFiles }}
-        - $values/app-values/ejbca/{{ . }}
-        {{- end }}
-      values: |
-        fullnameOverride: {{ .Values.ejbca.fullnameOverride }}       
   - repoURL: {{ .Values.keycloak.repo_URL }}
-    path: {{ .Values.keycloak.folder }}
-    targetRevision: {{ .Values.keycloak.branch }}
+    targetRevision: {{ .Values.keycloak.targetRevision }}
+    chart: {{ .Values.keycloak.chart_name }}
     helm:
       valueFiles:
         {{- range .Values.keycloak.valueFiles }}
@@ -47,7 +37,24 @@ spec:
         - name: KC_HOSTNAME_ADMIN_URL
           value: "https://authority.be.{{ .Values.namespaceTag }}.int.simpl-europe.eu/auth"
         - name: KC_HOSTNAME_URL
-          value: "https://authority.be.{{ .Values.namespaceTag }}.int.simpl-europe.eu/auth"        
+          value: "https://authority.be.{{ .Values.namespaceTag }}.int.simpl-europe.eu/auth"
+  - repoURL: {{ .Values.ejbca.repo_URL }}
+    path: {{ .Values.ejbca.folder }}
+    targetRevision: {{ .Values.ejbca.branch }}
+    helm:
+      valueFiles:
+        {{- range .Values.ejbca.valueFiles }}
+        - $values/app-values/ejbca/{{ . }}
+        {{- end }}
+      values: |
+        fullnameOverride: {{ .Values.ejbca.fullnameOverride }}
+        hostname: &hostname ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local
+        ejbca:
+          env:
+            HTTPSERVER_HOSTNAME: *hostname
+            DATABASE_JDBC_URL: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/ejbca"
+        nginx:
+          host: *hostname 
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_cloud_gateway.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.simpl_cloud_gateway.targetRevision }}
@@ -88,14 +95,12 @@ spec:
         hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         cors:
-          #allowOrigin: https://authority.fe.authority1.int.simpl-europe.eu,https://participant.fe.authority1.int.simpl-europe.eu,http://localhost:4202,http://localhost:4203,http://localhost:3000
-          #allowOrigin: https://participant.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:4203,http://localhost:3000
           allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:4203,http://localhost:3000
         ingress:
           issuer: dev-prod
         env:
         - name: APPLICATION
-          value: authority-utility
+          value: onboarding
         - name: API_URL
           value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
         - name: KEYCLOAK_URL
@@ -104,6 +109,25 @@ spec:
           value: "authority"
         - name: KEYCLOAK_CLIENT_ID
           value: "frontend-cli"
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.sap.projectID }}/packages/helm/stable"
+    path: ''
+    targetRevision: {{ .Values.sap.targetRevision }}
+    chart: {{ .Values.sap.chart_name }}
+    helm:
+      valueFiles:
+        {{- range .Values.sap.valueFiles }}
+        - $values/app-values/SAP/{{ . }}
+        {{- end }}
+      values: |
+        global:
+          hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          keystore:
+            password: "authority"
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/securityattributesprovider
+          SPRING_DATA_REDIS_HOST: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
+          MICROSERVICE_USERS_ROLES_URL: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+          MICROSERVICE_ONBOARDING_URL: http://onboarding.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.users_roles.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.users_roles.targetRevision }}
@@ -123,8 +147,9 @@ spec:
             password: "authority"
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
-          env:
-            SPRING_DATASOURCE_URL: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/usersroles"
+        env:
+          SPRING_DATASOURCE_URL: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/usersroles"
+          SPRING_DATA_REDIS_HOST: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
   - repoURL: {{ .Values.redis.repo_URL }}
     targetRevision: {{ .Values.redis.targetRevision }}
     chart: {{ .Values.redis.chart_name }}
@@ -134,7 +159,7 @@ spec:
         - $values/app-values/Redis/{{ . }}
         {{- end }}
       values: |
-        fullnameOverride: {{ .Values.redis.nameOverride }}
+        fullnameOverride: {{ .Values.redis.fullnameOverride }}
   - repoURL: {{ .Values.xsfc_data_catalogue.repo_URL }}
     targetRevision: {{ .Values.xsfc_data_catalogue.branch }}
     path: {{ .Values.xsfc_data_catalogue.path }}
@@ -146,6 +171,16 @@ spec:
       values: |
         podSecurityContext: 
           allowPrivilegeEscalation: false
+        ingress:
+          hosts:
+            - host: xsfc-data-server-service.{{ .Values.namespaceTag }}.int.simpl-europe.eu
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: xsfc-data-server-tls
+              hosts:
+                - xsfc-data-server-service.{{ .Values.namespaceTag }}.int.simpl-europe.eu
   - repoURL: {{ .Values.xsfc_infra_catalogue.repo_URL }}
     targetRevision: {{ .Values.xsfc_infra_catalogue.branch }}
     path: {{ .Values.xsfc_infra_catalogue.path }}
@@ -157,6 +192,16 @@ spec:
       values: |
         podSecurityContext: 
           allowPrivilegeEscalation: false
+        ingress:
+          hosts:
+            - host: xsfc-infra-server-service.{{ .Values.namespaceTag }}.int.simpl-europe.eu
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: xsfc-infra-server-tls
+              hosts:
+                - xsfc-infra-server-service.{{ .Values.namespaceTag }}.int.simpl-europe.eu
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.onboarding.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.onboarding.targetRevision }}
@@ -171,3 +216,23 @@ spec:
           hostTls: "https://onboarding.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
           keystore:
             password: "your-keystore-password"
+        env:
+          SPRING_DATASOURCE_URL: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/onboarding"
+        ejbca:
+          enrollConfig:
+            url: "https://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30443"
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.tls_gateway.projectID }}/packages/helm/stable"
+    path: ''
+    targetRevision: {{ .Values.tls_gateway.targetRevision }}
+    chart: {{ .Values.tls_gateway.chart_name }}
+    helm:
+      valueFiles:
+        {{- range .Values.tls_gateway.valueFiles }}
+        - $values/app-values/tls-gateway/{{ . }}
+        {{- end }}
+      values: |
+        microservices:
+          securityAttributesProviderUrl: http://security-attributes-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        global:  
+          cors:
+            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
