@@ -1,8 +1,4 @@
 replicaCount: 1
-image:
-  repository: code.europa.eu:4567/simpl/simpl-open/development/iaa/users-roles
-  pullPolicy: Always
-  tag: 0.0.4
 
 global:
   profile: authority
