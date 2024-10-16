@@ -55,7 +55,7 @@ ejbca:
 services:
   directHttp:
     enabled: true
-    type: NodePort
+    type: ClusterIP
     httpPort: 30080
     httpsPort: 30443
 
@@ -79,7 +79,7 @@ nginx:
   enabled: false
   host: *hostname
   service:
-    type: NodePort
+    type: ClusterIP
     httpPort: 30080
     httpsPort: 30443
   conf: |

@@ -1,14 +1,14 @@
-project: ${PROJECT}
-namespaceTag: ${NAMESPACETAG}
-domainSuffix: ${DOMAINSUFFIX}
+project: default
+namespaceTag: authority2
+domainSuffix: int.simpl-europe.eu
 
 argocd:
-  appname: ${NAMESPACE}
+  appname: authority2-test
   namespace: argocd
 
 cluster:
   address: https://kubernetes.default.svc
-  namespace: ${NAMESPACE}
+  namespace: authority2-test
 
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git
