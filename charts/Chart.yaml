@@ -1,2 +1,2 @@
 name: authority
-version: v0.1.4
+version: ${PROJECT_RELEASE_VERSION}
