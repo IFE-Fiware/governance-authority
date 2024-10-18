@@ -10,6 +10,10 @@ cluster:
   address: https://kubernetes.default.svc
   namespace: ${NAMESPACE}
 
+secretEngine: ${SECRETENGINE}
+hashicorp:
+  service: "http://vault.vault.svc.cluster.local:8200"
+
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git
   branch: develop
@@ -100,6 +104,12 @@ onboarding:
   projectID: "770"
   targetRevision: 0.0.5-256.hotfix.219d6217
   chart_name: onboarding
+  keystore:
+    base64: "dGVzdA=="
+    password: "password"
+  truststore: 
+    base64: "dGVzdA=="
+    password: "password"
   valueFiles:
     - values.yaml
 
