@@ -32,12 +32,12 @@ spec:
         {{- end }}
       values: |
         fullnameOverride: {{ .Values.keycloak.fullnameOverride }}
-        apiUrl: "https://authority.be.{{ .Values.namespaceTag }}.int.simpl-europe.eu"
+        apiUrl: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
         extraEnvVars:
         - name: KC_HOSTNAME_ADMIN_URL
-          value: "https://authority.be.{{ .Values.namespaceTag }}.int.simpl-europe.eu/auth"
+          value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
         - name: KC_HOSTNAME_URL
-          value: "https://authority.be.{{ .Values.namespaceTag }}.int.simpl-europe.eu/auth"
+          value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
   - repoURL: {{ .Values.ejbca.repo_URL }}
     path: {{ .Values.ejbca.folder }}
     targetRevision: {{ .Values.ejbca.branch }}
@@ -81,7 +81,7 @@ spec:
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000     
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_fe.projectID }}/packages/helm/stable"
-    path: ''
+    path: "''"
     targetRevision: {{ .Values.simpl_fe.targetRevision }}
     chart: {{ .Values.simpl_fe.chart_name }}
     helm:
@@ -173,14 +173,17 @@ spec:
           allowPrivilegeEscalation: false
         ingress:
           hosts:
-            - host: xsfc-data-server-service.{{ .Values.namespaceTag }}.int.simpl-europe.eu
+            - host: xsfc-data-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
               paths:
                 - path: /
                   pathType: Prefix
           tls:
             - secretName: xsfc-data-server-tls
               hosts:
-                - xsfc-data-server-service.{{ .Values.namespaceTag }}.int.simpl-europe.eu
+                - xsfc-data-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+        hashicorp:
+          service: {{ .Values.hashicorp.service }}
+        secretEngine: {{ .Values.secretEngine }}
   - repoURL: {{ .Values.xsfc_infra_catalogue.repo_URL }}
     targetRevision: {{ .Values.xsfc_infra_catalogue.branch }}
     path: {{ .Values.xsfc_infra_catalogue.path }}
@@ -194,14 +197,17 @@ spec:
           allowPrivilegeEscalation: false
         ingress:
           hosts:
-            - host: xsfc-infra-server-service.{{ .Values.namespaceTag }}.int.simpl-europe.eu
+            - host: xsfc-infra-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
               paths:
                 - path: /
                   pathType: Prefix
           tls:
             - secretName: xsfc-infra-server-tls
               hosts:
-                - xsfc-infra-server-service.{{ .Values.namespaceTag }}.int.simpl-europe.eu
+                - xsfc-infra-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+        hashicorp:
+          service: {{ .Values.hashicorp.service }}
+        secretEngine: {{ .Values.secretEngine }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.onboarding.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.onboarding.targetRevision }}
@@ -221,6 +227,12 @@ spec:
         ejbca:
           enrollConfig:
             url: "https://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30443"
+          keystore:
+            base64: {{ .Values.onboarding.keystore.base64 }}
+            password: {{ .Values.onboarding.keystore.password }}
+          truststore: 
+            base64: {{ .Values.onboarding.truststore.base64 }}
+            password: {{ .Values.onboarding.truststore.password }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.tls_gateway.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.tls_gateway.targetRevision }}
