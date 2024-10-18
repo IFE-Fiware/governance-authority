@@ -47,7 +47,7 @@ hashicorp:
 
 service:
   type: ClusterIP
-  port: 8082
+  port: 8081
 
 ingress:
   enabled: true
