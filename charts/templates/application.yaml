@@ -248,3 +248,21 @@ spec:
         global:  
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.poc_gaia_edc.projectID }}/packages/helm/stable"
+    path: ''
+    targetRevision: {{ .Values.poc_gaia_edc.targetRevision }}
+    chart: {{ .Values.poc_gaia_edc.chart_name }}
+    helm:
+      releaseName: {{ .Values.poc_gaia_edc.fullnameOverride }}
+      valueFiles:
+        {{- range .Values.poc_gaia_edc.valueFiles }}
+        - $values/app-values/poc-gaia-edc/{{ . }}
+        {{- end }}
+      values: |
+        podSecurityContext: 
+          allowPrivilegeEscalation: false
+        ingress:
+          host: adapter.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          tls:
+            secretName: adapter-simpl-backend-tls
+        secretEngine: {{ .Values.secretEngine }}
