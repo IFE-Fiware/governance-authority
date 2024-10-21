@@ -117,7 +117,7 @@ poc_gaia_edc:
   projectID: "759"
   targetRevision: 0.1.7
   chart_name: poc-charts
-  fullnameOverride: catalogue
+  fullnameOverride: adapter
   valueFiles:
     - values.yaml
 
