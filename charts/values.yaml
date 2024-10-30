@@ -72,22 +72,18 @@ users_roles:
   chart_name: users-roles
   valueFiles:
     - values.yaml
-    
+
 xsfc_data_catalogue:
-  repo_URL: 'https://code.europa.eu/simpl/simpl-open/development/gaia-x-edc/simpl-fc-service.git'
-  branch: main
-  #targetRevision: 0.1.4
-  chart_name: data-catalogue-fc-service
-  path: "deployment/helm/fc-service"
+  projectID: "820"
+  targetRevision: 0.2.6
+  chart_name: fc-service
   valueFiles:
     - values.yaml
-    
+
 xsfc_infra_catalogue:
-  repo_URL: 'https://code.europa.eu/simpl/simpl-open/development/gaia-x-edc/simpl-fc-service.git'
-  branch: main
-  #targetRevision: 0.1.4
-  chart_name: data-catalogue-fc-service
-  path: "deployment/helm/fc-service"
+  projectID: "820"
+  targetRevision: 0.2.6
+  chart_name: fc-service
   valueFiles:
     - values.yaml
 
