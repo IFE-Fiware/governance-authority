@@ -160,9 +160,10 @@ spec:
         {{- end }}
       values: |
         fullnameOverride: {{ .Values.redis.fullnameOverride }}
-  - repoURL: {{ .Values.xsfc_data_catalogue.repo_URL }}
-    targetRevision: {{ .Values.xsfc_data_catalogue.branch }}
-    path: {{ .Values.xsfc_data_catalogue.path }}
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.xsfc_data_catalogue.projectID }}/packages/helm/stable"
+    path: ''
+    targetRevision: {{ .Values.xsfc_data_catalogue.targetRevision }}
+    chart: {{ .Values.xsfc_data_catalogue.chart_name }}
     helm:
       valueFiles:
         {{- range .Values.xsfc_data_catalogue.valueFiles }}
@@ -184,9 +185,10 @@ spec:
         hashicorp:
           service: {{ .Values.hashicorp.service }}
         secretEngine: {{ .Values.secretEngine }}
-  - repoURL: {{ .Values.xsfc_infra_catalogue.repo_URL }}
-    targetRevision: {{ .Values.xsfc_infra_catalogue.branch }}
-    path: {{ .Values.xsfc_infra_catalogue.path }}
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.xsfc_infra_catalogue.projectID }}/packages/helm/stable"
+    path: ''
+    targetRevision: {{ .Values.xsfc_infra_catalogue.targetRevision }}
+    chart: {{ .Values.xsfc_infra_catalogue.chart_name }}
     helm:
       valueFiles:
         {{- range .Values.xsfc_infra_catalogue.valueFiles }}
