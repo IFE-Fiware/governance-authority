@@ -1,3 +1,4 @@
+fullnameOverride: redis
 replica:
   replicaCount: 0
 architecture: standalone

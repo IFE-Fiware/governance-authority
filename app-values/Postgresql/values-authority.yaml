@@ -1,3 +1,5 @@
+fullnameOverride: postgresql
+
 primary:
   initdb:
     scripts:

@@ -1,6 +1,9 @@
 project: ${PROJECT}
 namespaceTag: ${NAMESPACETAG}
 domainSuffix: ${DOMAINSUFFIX}
+t1hostname: "authority.be"
+t2hostname: "authority.fe"
+certificateIssuer: "dev-prod"
 
 argocd:
   appname: ${NAMESPACE}
@@ -36,7 +39,7 @@ keycloak:
     - values.yaml
 
 redis:
-  repo_URL: 'https://charts.bitnami.com/bitnami'
+  repo_URL: "https://charts.bitnami.com/bitnami"
   targetRevision: 19.6.0
   chart_name: redis
   fullnameOverride: redis
@@ -103,7 +106,7 @@ onboarding:
   keystore:
     base64: "dGVzdA=="
     password: "password"
-  truststore: 
+  truststore:
     base64: "dGVzdA=="
     password: "password"
   valueFiles:

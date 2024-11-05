@@ -1,1 +1,7 @@
-apiUrl: "https://authority.be.authority1.int.simpl-europe.eu"
+fullnameOverride: keycloak
+apiUrl: "https://{{ .Values.t1hostname }}.{{ .Release.Namespace }}.{{ .Values.domainSuffix }}"
+extraEnvVars:
+  - name: KC_HOSTNAME_ADMIN_URL
+    value: "https://{{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
+  - name: KC_HOSTNAME_URL
+    value: "https://{{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"

@@ -32,12 +32,12 @@ spec:
         {{- end }}
       values: |
         fullnameOverride: {{ .Values.keycloak.fullnameOverride }}
-        apiUrl: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
+        apiUrl: "https://{{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
         extraEnvVars:
         - name: KC_HOSTNAME_ADMIN_URL
-          value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
+          value: "https://{{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
         - name: KC_HOSTNAME_URL
-          value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
+          value: "https://{{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
   - repoURL: {{ .Values.ejbca.repo_URL }}
     path: {{ .Values.ejbca.folder }}
     targetRevision: {{ .Values.ejbca.branch }}
@@ -72,14 +72,14 @@ spec:
           onboardingUrl: http://onboarding.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           ejbcaUrl: http://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30080
         global:
-          hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostBe: {{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          authorityUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostFe: {{ .Values.t2hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          authorityUrl: https://{{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           keystore:
             password: "authority"
           cors:
-            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000     
+            allowOrigin: https://{{ .Values.t2hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000     
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_fe.projectID }}/packages/helm/stable"
     path: "''"
     targetRevision: {{ .Values.simpl_fe.targetRevision }}
@@ -92,8 +92,8 @@ spec:
       values: |
         image:
           tag: {{ .Values.simpl_fe.targetRevision }}
-        hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-        hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+        hostBe: {{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+        hostFe: {{ .Values.t2hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         cors:
           allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:4203,http://localhost:3000
         ingress:
@@ -102,9 +102,9 @@ spec:
         - name: APPLICATION
           value: onboarding
         - name: API_URL
-          value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
+          value: "https://{{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
         - name: KEYCLOAK_URL
-          value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
+          value: "https://{{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
         - name: KEYCLOAK_REALM
           value: "authority"
         - name: KEYCLOAK_CLIENT_ID
@@ -139,14 +139,14 @@ spec:
         {{- end }}
       values: |
         global:
-          hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostBe: {{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          authorityUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostFe: {{ .Values.t2hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          authorityUrl: https://{{ .Values.t1hostname }}{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           keystore:
             password: "authority"
           cors:
-            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+            allowOrigin: https://{{ .Values.t2hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
         env:
           SPRING_DATASOURCE_URL: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/usersroles"
           SPRING_DATA_REDIS_HOST: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
@@ -249,7 +249,7 @@ spec:
           securityAttributesProviderUrl: http://security-attributes-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         global:  
           cors:
-            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+            allowOrigin: https://{{ .Values.t2hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.poc_gaia_edc.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.poc_gaia_edc.targetRevision }}

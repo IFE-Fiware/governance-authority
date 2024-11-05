@@ -1,0 +1,16 @@
+project: ${PROJECT}
+namespaceTag: ${NAMESPACETAG}
+domainSuffix: ${DOMAINSUFFIX}
+t1hostname: "authority.be"
+t2hostname: "authority.fe"
+certificateIssuer: "dev-prod"
+
+global:
+  hostBe: "{{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
+  hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+  hostFe: "{{ .Values.t2hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
+  authorityUrl: "{{ .Values.t1hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
+  keystore:
+    password: "authority"
+  cors:
+    allowOrigin: https://{{ .Values.t2hostname }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
