@@ -5,7 +5,7 @@ users-roles:
 simpl-cloud-gateway:
   image:
     tag: "0.0.1"
-  authorityUrl: https://authority.be.int.simpl-europe.eu  
+  authorityUrl: https://{{ .Values.t1hostname }}.{{ .Release.Namespace }}.{{ .Values.domainSuffix }}
 
 onboarding:
   image:
@@ -22,9 +22,9 @@ onboarding:
 
 global:
   profile: authority
-  hostBe: authority.be.authority2.int.simpl-europe.eu
-  hostFe: authority.fe.authority2.int.simpl-europe.eu
+  hostBe: "{{ .Values.t1hostname }}.{{ .Release.Namespace }}.{{ .Values.domainSuffix }}"
+  hostFe: "{{ .Values.t2hostname }}.{{ .Release.Namespace }}.{{ .Values.domainSuffix }}"
   cors:
-    allowOrigin: https://authority.be.authority2.int.simpl-europe.eu,https://authority.fe.authority2.int.simpl-europe.eu,http://localhost:4202,http://localhost:3000
+    allowOrigin: https://{{ .Values.t1hostname }}.{{ .Release.Namespace }}.{{ .Values.domainSuffix }},https://authority.fe.{{ .Release.Namespace }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
   ingress:
     issuer: dev-prod

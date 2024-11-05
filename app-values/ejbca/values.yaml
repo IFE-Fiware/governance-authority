@@ -1,7 +1,7 @@
 # Default values for ejbca-community-helm.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-hostname: &hostname "authority.be.authority1.int.simpl-europe.eu"
+hostname: &hostname "{{ .Values.t1hostname }}.{{ .Release.Namespace }}.{{ .Values.domainSuffix }}"
 ejbca:
   useEphemeralH2Database: false
   useH2Persistence: false
@@ -21,7 +21,7 @@ ejbca:
   #superadminPasswordOverride: "foo123"
   env:
     TLS_SETUP_ENABLED: "true"
-    DATABASE_JDBC_URL: jdbc:postgresql://postgresql.authority1-iaa.svc.cluster.local:5432/ejbca
+    DATABASE_JDBC_URL: jdbc:postgresql://postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/ejbca
     DATABASE_USER: "ejbca"
     DATABASE_PASSWORD: "ejbca2123"
     HTTPSERVER_HOSTNAME: *hostname
@@ -41,9 +41,8 @@ ejbca:
       configMap:
         name: ejbca-custom-config
         items:
-        - key: ejbca.properties
-          path: ejbca.properties
-
+          - key: ejbca.properties
+            path: ejbca.properties
 
   # Extra volume mounts to be added to the deployment
   volumeMounts:
@@ -154,7 +153,8 @@ ingress:
     #nginx.ingress.kubernetes.io/affinity: "cookie"
     #nginx.ingress.kubernetes.io/session-cookie-name: "ejbcaCOOKIE"
     #nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
-  hosts: []
+  hosts:
+    []
     #- host: ""
     #  paths:
     #    - path: /ejbca
@@ -184,10 +184,12 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL

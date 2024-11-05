@@ -13,13 +13,13 @@ creationWizardApiContainerPort: 8080
 creationWizardFrontendContainerPort: 80
 
 #specify 'dev' for dev environment or 'dev-int' for integration environment
-vaultEnvIdentifier: dev-int
+vaultEnvIdentifier: dev
 
-#specify 'dev' for dev environment or 'int' for integration environment 
-domainUrlEnvIdentifier: int
+#specify 'dev' for dev environment or 'int' for integration environment
+domainUrlEnvIdentifier: dev
 
 #Domain associated with Dev Cluster (don't modify it)
-domain: int.simpl-europe.eu
+domain: dev.simpl-europe.eu
 
 #Tag of namespace added in the address
 namespaceTag: authority1
@@ -31,14 +31,13 @@ schemaPvcMountPath: /data
 
 #Configuration for connectivity between SD-Tooling-Api-Be and SD-Tooling-Api-Validation
 validation:
-  config:
-    enabled: true
-#domain is the URL of SD-Tooling-Api-Validation service 
-#(sd-creation-wizard-api-validation is name of Kube service associated. Check it!)
-    domain: "http://sd-creation-wizard-api-validation:8080"
-# Name of Validation API Method
-    validationapi: "/validate-ttl"
-    
+    config:
+        enabled: true
+        #domain is the URL of SD-Tooling-Api-Validation service
+        #(sd-creation-wizard-api-validation is name of Kube service associated. Check it!)
+        domain: "http://sd-creation-wizard-api-validation:8080"
+        # Name of Validation API Method
+        validationapi: "/validate-ttl"
 #fewizard:
 #  env:
 #    apiUrl: test
