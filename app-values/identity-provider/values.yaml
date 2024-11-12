@@ -28,6 +28,7 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1001
 
+
 service:
   type: ClusterIP
   port: 8080
@@ -76,26 +77,45 @@ readinessProbe:
   failureThreshold: 10
 
 autoscaling:
-  enabled: false
+  enabled: true
   minReplicas: 1
   maxReplicas: 1
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
 # Additional volumes on the output Deployment definition.
-volumes: {}
-
+volumes:
+  - name: ejbca-rest-api-client-cert
+    secret:
+      secretName: ejbca-rest-api-secret
+      items:
+        - key: client-cert
+          path: keystore.p12
+  - name: ejbca-rest-api-truststore
+    secret:
+      secretName: ejbca-rest-api-secret
+      items:
+        - key: ca-truststore
+          path: truststore.jks
 # - name: foo
 #   secret:
 #     secretName: mysecret
 #     optional: false
 
 # Additional volumeMounts on the output Deployment definition.
-volumeMounts: {}
+volumeMounts:
+  - name: ejbca-rest-api-client-cert
+    mountPath: "/etc/certs/keystore.p12"
+    subPath: "keystore.p12"
+    readOnly: true
+  - name: ejbca-rest-api-truststore
+    mountPath: "/etc/certs/truststore.jks"
+    subPath: "truststore.jks"
+    readOnly: true
 
 envFrom:
   - configMapRef:
-      name: security-attributes-provider-configmap
+      name: identity-provider-configmap
 
 nodeSelector: {}
 
@@ -103,6 +123,20 @@ tolerations: []
 
 affinity: {}
 
+ejbca:
+  enrollConfig:
+    profileName: "Onboarding TLS Profile"
+    endEntityName: "TLS Server Profile"
+    caName: "OnBoardingCA"
+
 db:
-  username: "securityattributesprovider"
-  password: "securityattributesprovider"
+  username: "identityprovider"
+  password: "identityprovider"
+
+redis:
+  port: "6379"
+  username: "default"
+  password: "admin"
+
+ephemeralProof:
+  expireAfter: "3D"
