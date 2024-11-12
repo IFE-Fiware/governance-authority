@@ -1,3 +1,7 @@
 replica:
   replicaCount: 0
 architecture: standalone
+
+auth:
+  # Defaults to a random 10-character alphanumeric string if not set
+  password: "admin" 
