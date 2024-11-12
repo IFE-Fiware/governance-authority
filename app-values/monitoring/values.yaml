@@ -1,0 +1,467 @@
+# version of all elastic applications 
+elasticVersion: 8.15.1
+
+namespaceTag: "test-namespace"
+
+# This suffix will be used to create subdomain of following template:
+# kibana.NAMESPACE.NAMESPACE_TAG.DOMAIN_SUFFIX
+domainSuffix: "int.simpl-europe.eu"
+
+#ClusterIssuer to generate Kibana SSL front certificate
+clusterIssuer: "dev-prod"
+
+elasticsearch:
+  image: docker.elastic.co/elasticsearch/elasticsearch
+  # Elasticsearch's image tag, by default it equals to elasticVersion
+  imageTag: ""
+  cert:
+    duration: 2160h0m0s # 90d
+    renewBefore: 360h0m0s # 15d  
+  #Usage from cli: 
+  # --set "elasticsearch.env[0].name=VARIABLE_NAME" --set "elasticsearch.env[0].value=VARIABLE_VALUE" 
+  env: []
+  name: node
+  count: 3
+  diskSpace: 60Gi
+  storageClassName: csi-cinder-high-speed
+  resources:
+    requests:
+      memory: 4Gi
+    limits:
+      memory: 4Gi
+      cpu: "1"
+
+kibana: 
+  count: 1
+  image: docker.elastic.co/kibana/kibana
+  #Branch name to donwload dashboards
+  dashboardsBranch: "main"
+  # Kibana's image tag, by default it equals to elasticVersion
+  imageTag: ""
+  # name of helm release where elasticsearch is installed. If you install kibana together with elasticsearch, leave it empty.
+  elasticsearchReleaseName: ""
+  cert:
+    duration: 2160h0m0s # 90d
+    renewBefore: 360h0m0s # 15d
+  # Additional kibana's config according to this link: https://www.elastic.co/guide/en/kibana/current/settings.html
+  config: 
+    xpack.reporting.roles.enabled: false
+  resources:
+    requests:
+      memory: 1Gi
+    limits:
+      memory: 1Gi
+  #Environment variables to set in kibana pod 
+  #Usage from cli: 
+  # --set "kibana.env[0].name=VARIABLE_NAME" --set "kibana.env[0].value=VARIABLE_VALUE" 
+  env: []
+
+logstash:
+  ilm:
+    business:
+      hot:
+        max_age: 30d
+        max_primary_shard_size: 1gb
+      delete:
+        min_age: 30d
+    technical:
+      hot:
+        max_age: 30d
+        max_primary_shard_size: 1gb
+      delete:
+        min_age: 30d
+  count_beats: 1
+  count_syslog: 0
+  image: docker.elastic.co/logstash/logstash
+  diskSpace: 3Gi
+  # name of StorageClass that will be used to create VolumeClaims. (StorageClass must exist)
+  storageClassName: csi-cinder-high-speed
+  imageTag: ""
+  env:
+    ls_java_opts: "-Xms3g -Xmx3g"
+  resources:
+    requests:
+      memory: 4Gi
+    limits:
+      memory: 4Gi
+  cert:
+    duration: 2160h0m0s # 90d
+    renewBefore: 360h0m0s # 15d
+  pipelines_yml_config: |-
+    - pipeline.id: main
+      path.config: "/app/elastic/logstash/config/pipelines/*.config"  
+      pipeline.workers: 1
+      pipeline.batch.size: 125
+  beats:
+    pipelines_group_name: "beats"
+    pipelines:
+    - name: "beats-pipeline"
+      input: |-
+        input {
+          beats {
+            port => 5044
+            ssl => true
+            ssl_certificate_authorities => ["/usr/share/logstash/certs-logstash/ca.crt"]
+            ssl_certificate => "/usr/share/logstash/certs-logstash/tls.crt"
+            ssl_key => "/usr/share/logstash/certs-logstash/tls.key"
+            ssl_verify_mode => "force_peer"
+          }
+        }
+      filter: |-
+        filter {
+          if [kubernetes][container][name] == "ejbca-community-helm" {
+            grok {
+              match => { 
+                "message" => [
+                  '%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{WORD:loglevel}%{SPACE}\[%{JAVACLASS:logger}\]%{SPACE}\(%{DATA:thread}\)%{SPACE}%{GREEDYDATA:message}', 
+                  '%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{WORD:loglevel}%{SPACE}\[%{PATH:path}\]%{SPACE}\(%{DATA:thread}\)%{SPACE}%{GREEDYDATA:message}'
+                  ] 
+              }
+              overwrite => [ "message" ]
+            }
+          }
+          if [kubernetes][container][name] == "keycloak" {
+            grok {
+              match => { 
+                "message" => [
+                  '%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{WORD:loglevel}%{SPACE}\[%{JAVACLASS:logger}\]%{SPACE}\(%{DATA:thread}\)%{SPACE}%{GREEDYDATA:message}'
+                  ]
+              }
+              overwrite => [ "message" ]
+            }
+          }
+          if [kubernetes][container][name] == "onboarding" {
+            grok {
+              pattern_definitions => { "JAVA" => "[0-9A-Za-z\[\]\.\$]*" }
+              match => { 
+                "message" => [
+                  '%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{WORD:loglevel}%{SPACE}\[%{JAVACLASS:logger}\]%{SPACE}\(%{DATA:thread}\)%{SPACE}%{GREEDYDATA:message}', 
+                  '%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{WORD:loglevel}%{SPACE}\[%{PATH:path}\]%{SPACE}\(%{DATA:thread}\)%{SPACE}%{GREEDYDATA:message}',
+                  '%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{LOGLEVEL:loglevel}%{SPACE}%{NUMBER:pid}%{SPACE}---%{SPACE}\[%{DATA:thread}\]%{SPACE}%{JAVACLASS:logger}%{SPACE}:%{SPACE}\[%{DATA:request_id}\]%{SPACE}HTTP%{SPACE}%{WORD:http_method}%{SPACE}"%{DATA:uri}"',
+                  '%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{LOGLEVEL:loglevel}%{SPACE}%{NUMBER:pid}%{SPACE}---%{SPACE}\[%{DATA:thread}\]%{SPACE}%{JAVA:logger}%{SPACE}:%{SPACE}%{GREEDYDATA:message}',
+                  '%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{LOGLEVEL:loglevel}%{SPACE}%{NUMBER:pid}%{SPACE}---%{SPACE}\[%{DATA:thread}\]%{SPACE}%{DATA:logger}%{SPACE}:%{SPACE}\[%{DATA:request_id}\]%{SPACE}%{GREEDYDATA:message}'
+                ] 
+              }
+              overwrite => [ "message" ]
+            }
+          }
+          if [kubernetes][container][name] == "postgresql" {
+            grok {
+              match => { 
+                "message" => [
+                    '%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{WORD:timezone}%{SPACE}\[%{NUMBER:pid}\]%{SPACE}%{WORD:log_level}:%{SPACE}%{GREEDYDATA:message}' 
+                  ]
+              }
+              overwrite => [ "message" ]
+            }
+          }
+          if [kubernetes][container][name] == "vault" or [kubernetes][container][name] == "vault-agent-init" or [kubernetes][container][name] == "sidecar-injector" {
+            grok {
+              match => { 
+                "message" => [
+                    '%{TIMESTAMP_ISO8601:timestamp}%{SPACE}\[%{LOGLEVEL:loglevel}\]%{SPACE}%{DATA:handler}:%{SPACE}%{GREEDYDATA:message}' 
+                   
+
+                ]
+              }
+              overwrite => [ "message" ]
+            }
+          }
+          if [kubernetes][container][name] == "simpl-cloud-gateway" or [kubernetes][container][name] == "users-roles" {
+            grok {
+              match => { 
+                "message" => [
+                    '%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{LOGLEVEL:loglevel}%{SPACE}%{NUMBER:pid}%{SPACE}---%{SPACE}\[%{DATA:thread}\]%{SPACE}%{JAVACLASS:logger}%{SPACE}:%{SPACE}%{GREEDYDATA:message}' 
+                ]
+              }
+              overwrite => [ "message" ]
+            }
+          }
+          if [kubernetes][container][name] == "neo4j" {
+            grok {
+              match => { 
+                "message" => [
+                    '%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{LOGLEVEL:loglevel}%{SPACE}%{GREEDYDATA:message}' 
+                ]
+              }
+              overwrite => [ "message" ]
+            }
+          }
+          if [kubernetes][container][name] == "redis" {  
+            grok {
+              match => { 
+                "message" => [
+                     '%{NUMBER:process_id}:%{WORD:process_type}%{SPACE}%{MONTHDAY:day}%{SPACE}%{MONTH:month}%{SPACE}%{YEAR:year}%{SPACE}%{TIME:time}\.%{INT:milliseconds}%{SPACE}\*%{SPACE}%{GREEDYDATA:message}'
+                  ]
+                }
+              overwrite => [ "message" ]
+              add_field => {
+                "timestamp" => "%{day} %{month} %{year} %{time}.%{milliseconds}"
+              }
+            }
+            
+            
+          }
+
+           if [fields][logtype] == "logs-sample-business" {
+            grok {
+              match => { "message" => '%{TIMESTAMP_ISO8601:timestamp}\|%{WORD:origin}\|%{WORD:destination}\|%{WORD:business_operation}\|%{DATA:message_type}\|%{WORD:correlation_id}' }
+            }
+          }  
+          
+            date {
+              match => [ "timestamp", "yyyy-MM-dd HH:mm:ss.SSS", "ISO8601", "yyyy-MM-dd HH:mm:ss", "dd MMM yyyy HH:mm:ss.SSS" ]
+            } 
+        }
+      output: |-
+        output {
+          if [fields][logtype] == "logs-sample-business" {
+            elasticsearch {
+            hosts => [ "${ELASTIC_ELASTICSEARCH_ES_HOSTS}" ]
+            user => "${LOGSTASH_USER}"
+            password => "${LOGSTASH_PASSWORD}"
+            ssl_enabled => "true"
+            ssl_verification_mode => "full"
+            ssl_certificate_authorities => "/usr/share/logstash/config/certs/ca.crt"
+            index => "business-logs"
+            template_name => "business-template"
+            action => "create"
+            }
+          }
+          else if [fields][logtype] == "logs-sample-wrapper" {
+            elasticsearch {
+            hosts => [ "${ELASTIC_ELASTICSEARCH_ES_HOSTS}" ]
+            user => "${LOGSTASH_USER}"
+            password => "${LOGSTASH_PASSWORD}"
+            ssl_enabled => "true"
+            ssl_verification_mode => "full"
+            ssl_certificate_authorities => "/usr/share/logstash/config/certs/ca.crt"
+            #data_stream => "true"
+            #data_stream_type => "logs"
+            #data_stream_dataset => "business"
+            index => "business-logs"
+            template_name => "business-template"
+            action => "create"            
+            }
+          }
+          else {
+            elasticsearch {
+              hosts => [ "${ELASTIC_ELASTICSEARCH_ES_HOSTS}" ]
+              user => "${LOGSTASH_USER}"
+              password => "${LOGSTASH_PASSWORD}"
+              ssl_enabled => "true"
+              ssl_verification_mode => "full"
+              ssl_certificate_authorities => "/usr/share/logstash/config/certs/ca.crt"
+              #data_stream => "true"
+              #data_stream_type => "logs"
+              #data_stream_dataset => "technical"
+              index => "technical-logs"
+              template_name => "technical-template"
+              action => "create"
+            }
+          }
+          #stdout { 
+          #  codec => rubydebug
+          #}
+        }
+  syslog:
+    pipelines_group_name: "syslog"
+    pipelines:
+    - name: "syslog-pipeline"
+      input: |-
+        input {
+          syslog {
+            port => 514
+          }
+        }
+      filter: |-
+        filter {
+        }
+
+      output: |-
+        output {
+          elasticsearch {
+            hosts => [ "${ELASTIC_ELASTICSEARCH_ES_HOSTS}" ]
+            index => "%{[@metadata][beat]}-%{[@metadata][version]}"
+            user => "${LOGSTASH_USER}"
+            password => "${LOGSTASH_PASSWORD}"
+            ssl_enabled => "true"
+            ssl_verification_mode => "full"
+            ssl_certificate_authorities => "${ELASTIC_ELASTICSEARCH_ES_SSL_CERTIFICATE_AUTHORITY}"
+          }
+          stdout { 
+            codec => rubydebug
+          }
+        }
+    
+filebeat:
+  image: docker.elastic.co/beats/filebeat
+  count: 1
+  # name of StorageClass that will be used to create VolumeClaims. (StorageClass must exist)
+  imageTag: ""
+  # Total number of the sample messages to generate. Provide negative number to generate infinitely
+  totalMessages: 604800  
+  # Number of messages per minute. Provide negative number to generate messages without time limit.
+  messagesPerMinute: 30
+  cert:
+    duration: 2160h0m0s # 90d
+    renewBefore: 360h0m0s # 15d
+  # Filebeat configuration file - input 
+  input: |
+    filebeat.inputs:
+    - type: filestream
+      paths:
+        - /mnt/repo/log_samples/onboarding/*.txt
+      fields:
+        logtype: logs-sample-onboarding
+      parsers:
+      - multiline:
+          type: pattern
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+          negate: true
+          match: after
+    - type: filestream
+      paths:
+        - /mnt/repo/log_samples/catalogue/signer/signer.txt
+      fields:
+        logtype: logs-sample-signer
+    - type: filestream
+      paths:
+        - /mnt/repo/log_samples/catalogue/sdtooling/sdtooling.txt
+      fields:
+        logtype: logs-sample-sdtooling
+      parsers:
+      - multiline:
+          type: pattern
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+          negate: true
+          match: after
+    - type: filestream
+      paths:
+        - /mnt/repo/log_samples/catalogue/*.txt
+      fields:
+        logtype: logs-sample-catalogue
+      parsers:
+      - multiline:
+          type: pattern
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+          negate: true
+          match: after
+    - type: filestream
+      paths:
+        - /usr/share/filebeat/logs/example.log
+      fields:
+        logtype: logs-sample-business
+    - type: filestream
+      paths:
+        - /mnt/repo/log_samples/wrapper/*.log
+      fields:
+        logtype: logs-sample-wrapper
+    filebeat.config.modules:
+      path: ${path.config}/modules.d/*.yml
+      reload.enabled: false
+  output: |
+    output.logstash:
+      hosts: ["${LOGSTASH_HOSTS}"]
+      ssl.enabled: true
+      ssl.certificate_authorities: ["/usr/share/filebeat/es-certs/ca.crt"]
+      ssl.verification_mode: full
+      ssl.certificate: "/usr/share/filebeat/certs/tls.crt"
+      ssl.key: "/usr/share/filebeat/certs/tls.key"
+    monitoring.enabled: "true"
+    monitoring.elasticsearch:
+      hosts: ["${ELASTIC_ELASTICSEARCH_ES_HOSTS}"]
+      ssl.certificate_authorities: ["/usr/share/filebeat/es-certs/ca.crt"]
+      username: "${MONITORING_USER}"
+      password: "${MONITORING_PASSWORD}"
+
+
+filebeat4agents:
+  image: docker.elastic.co/beats/filebeat
+  imageTag: ""
+  cert:
+    duration: 2160h0m0s # 90d
+    renewBefore: 360h0m0s # 15d
+  # Filebeat configuration file - input 
+  input: |
+    filebeat.autodiscover:
+      providers:
+        - type: kubernetes
+          templates:
+            - condition:
+                or: 
+                  - equals:
+                      kubernetes.namespace: "${MONITORED_NAMESPACE}"
+              config:
+                - type: container
+                  paths:
+                    - /var/log/containers/*-${data.kubernetes.container.id}.log
+                  multiline:
+                    type: pattern
+                    pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+                    negate: true
+                    match: after
+            - condition:
+                equals:
+                  kubernetes.container.name: "redis"  
+              config:
+                - type: container
+                  paths:
+                    - /var/log/containers/*-${data.kubernetes.container.id}.log
+                  multiline:
+                    pattern: '^\d+:\w+\s+\d{2}\s+\w{3}\s+\d{4}'  
+                    negate: true
+                    match: after
+    processors:
+      - add_cloud_metadata: {}
+      - add_host_metadata: {}
+  output: |
+    output.logstash:
+      hosts: ["${LOGSTASH_HOSTS}"]
+      ssl.enabled: true
+      ssl.certificate_authorities: ["/usr/share/filebeat/es-certs/ca.crt"]
+      ssl.verification_mode: full
+      ssl.certificate: "/usr/share/filebeat/certs/tls.crt"
+      ssl.key: "/usr/share/filebeat/certs/tls.key"
+
+metricbeat:
+  ilm:
+    hot:
+      max_age: 30d
+      max_primary_shard_size: 1gb
+    delete:
+      min_age: 30d
+  resources:
+    requests:
+      memory: 500Mi
+
+    limits:
+      memory: 500Mi
+      cpu: 300m
+  #Hostname to receive status_pod metrics
+  kubeStateHost: kube-state-metrics.kube-state-metrics.svc.cluster.local:8080
+
+heartbeat:
+  ilm:
+    hot:
+      max_age: 30d
+      max_primary_shard_size: 100mb
+    delete:
+      min_age: 30d
+  services:
+    heartbeat.monitors:
+    - type: tcp
+      name: Elasticsearch Service
+      id: elasticsearch:9200
+      schedule: '@every 5s'
+      hosts: ["elastic-elasticsearch-es-http.observability.svc:9200"]
+    - type: tcp
+      name: Kibana GUI
+      id: kibana:443
+      schedule: '@every 5s'
+      hosts: ["kibana.dev.simpl-europe.eu:443"]
+    - type: icmp
+      id: kibana/icmp
+      name: Kibana ICMP
+      hosts: ["elastic-kibana-kb-http.observability.svc"]
+      schedule: '*/5 * * * * * *'
