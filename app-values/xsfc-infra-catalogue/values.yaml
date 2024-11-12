@@ -1,9 +1,4 @@
 replicaCount: 1
-image:
-  # repository: code.europa.eu:4567/simpl/simpl-open/development/iaa/users-roles
-  repository: code.europa.eu:4567/simpl/simpl-open/development/gaia-x-edc/simpl-fc-service
-  pullPolicy: Always
-  tag: 0.0.1
 
 global:
   profile: authority

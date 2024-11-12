@@ -1,6 +1,13 @@
 project: ${PROJECT}
 namespaceTag: ${NAMESPACETAG}
 domainSuffix: ${DOMAINSUFFIX}
+ejbca:
+  keystore:
+    base64: ${BASE64SUPERADMINKEYSTORE}
+    password: ${SUPERADMINKEYSTOREPASS}
+  truststore: 
+    base64: ${BASE64SUPERADMINTRUSTSTORE}
+    password: ${SUPERADMINTRUSTSTOREPASS}
 
 argocd:
   appname: ${NAMESPACE}
@@ -9,10 +16,11 @@ argocd:
 cluster:
   address: https://kubernetes.default.svc
   namespace: ${NAMESPACE}
+  kubeStateHost: kube-prometheus-stack-kube-state-metrics.devsecopstools.svc.cluster.local:8080
 
 secretEngine: ${SECRETENGINE}
 hashicorp:
-  service: "http://vault.vault.svc.cluster.local:8200"
+  service: "http://vault-ha.vault-ha.svc.cluster.local:8200"
 
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git
@@ -28,9 +36,9 @@ postgresql:
     - values-authority.yaml
 
 keycloak:
-  repo_URL: https://charts.bitnami.com/bitnami
+  repo_URL: 'https://charts.bitnami.com/bitnami'
   chart_name: keycloak
-  targetRevision: "21.2.2"
+  targetRevision: 22.2.5
   fullnameOverride: keycloak
   valueFiles:
     - values.yaml
@@ -43,17 +51,25 @@ redis:
   valueFiles:
     - values.yaml
 
+ejbca:
+  repo_URL: 'https://keyfactor.github.io/ejbca-community-helm'
+  targetRevision: 1.0.3
+  chart_name: ejbca-community-helm
+  fullnameOverride: ejbca-community-helm
+  valueFiles:
+    - values.yaml
+
 simpl_cloud_gateway:
   projectID: "772"
-  targetRevision: 0.0.4
+  targetRevision: 0.6.1
   chart_name: simpl-cloud-gateway
   valueFiles:
     - values.yaml
-    - values-authority.yaml
+    - values-routes.yaml
 
 simpl_fe:
   projectID: "769"
-  targetRevision: 0.0.4-620.hotfix.48569299
+  targetRevision: 0.6.2
   chart_name: simpl-fe
   valueFiles:
     - values.yaml
@@ -61,14 +77,14 @@ simpl_fe:
 
 sap:
   projectID: "861"
-  targetRevision: 0.0.4
+  targetRevision: 0.6.0
   chart_name: security-attributes-provider
   valueFiles:
     - values.yaml
 
 users_roles:
   projectID: "771"
-  targetRevision: 0.0.41-591.hotfix.b1dfc6f7
+  targetRevision: 0.6.5
   chart_name: users-roles
   valueFiles:
     - values.yaml
@@ -87,25 +103,10 @@ xsfc_infra_catalogue:
   valueFiles:
     - values.yaml
 
-ejbca:
-  repo_URL: https://code.europa.eu/simpl/simpl-open/development/iaa/charts.git
-  branch: feature/integration-refactor
-  folder: ejbca-community-helm
-  fullnameOverride: ejbca-community-helm
-  valueFiles:
-    - values.yaml
-    - values-authority.yaml
-
 onboarding:
   projectID: "770"
-  targetRevision: 0.0.5-256.hotfix.219d6217
+  targetRevision: 0.6.1
   chart_name: onboarding
-  keystore:
-    base64: "dGVzdA=="
-    password: "password"
-  truststore: 
-    base64: "dGVzdA=="
-    password: "password"
   valueFiles:
     - values.yaml
 
@@ -119,7 +120,32 @@ poc_gaia_edc:
 
 tls_gateway:
   projectID: "860"
-  targetRevision: 0.0.5-106.hotfix.9753e494
+  targetRevision: 0.6.1
   chart_name: tls-gateway
+  valueFiles:
+    - values.yaml
+    - values-routes-authority.yaml
+
+monitoring:
+  enabled: true
+  operator:
+    repo_URL: https://helm.elastic.co/
+    chart_name: eck-operator
+    targetRevision: "2.14.0"
+    nameOverride: eck-operator
+    valueFiles:
+      - values.yaml
+  projectID: "828"
+  targetRevision: v0.1.2
+  chart_name: eck-monitoring
+  fullnameOverride: elastic
+  valueFiles:
+    - values.yaml
+
+identity_provider:
+  projectID: "913"
+  targetRevision: 0.6.1
+  chart_name: identity-provider
+  fullnameOverride: identity-provider
   valueFiles:
     - values.yaml

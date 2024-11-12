@@ -10,13 +10,13 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
+  # Specifies whether a services account should be created
   create: true
   # Automatically mount a ServiceAccount's API credentials?
   automount: true
-  # Annotations to add to the service account
+  # Annotations to add to the services account
   annotations: {}
-  # The name of the service account to use.
+  # The name of the services account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
@@ -26,13 +26,13 @@ podLabels: {}
 podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1001
 
 service:
   type: ClusterIP
@@ -109,10 +109,16 @@ tolerations: []
 
 affinity: {}
 
+db:
+  username: "usersroles"
+  password: "usersroles"
 
-env:
-  SPRING_DATASOURCE_USERNAME: "usersroles"
-  SPRING_DATASOURCE_PASSWORD: "usersroles"
-  SPRING_DATA_REDIS_PORT: "6379"
-  SPRING_DATA_REDIS_USERNAME: "default"
-  SPRING_DATA_REDIS_PASSWORD: "admin"
+redis:
+  port: "6379"
+  username: "default"
+  password: "admin"
+
+keycloak:
+  master:
+    user: "admin"
+    password: "admin"
