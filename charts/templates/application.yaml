@@ -41,7 +41,7 @@ spec:
         - name: KC_HOSTNAME
           value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
         - name: USERS_ROLES_BASE_URL
-          value: "http://users-roles.<namespace>.svc.cluster.local:8080"
+          value: "http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080"
         - name: KEYCLOAK_BASE_URL
           value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
         - name: REALM
@@ -348,8 +348,8 @@ spec:
           enrollConfig:
             url: "https://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30443"
           keystore:
-            base64: {{ .Values.ejbca.keystore.base64 }}
-            password: {{ .Values.ejbca.keystore.password }}
+            base64: {{ .Values.ejbcakeys.keystore.base64 }}
+            password: {{ .Values.ejbcakeys.keystore.password }}
           truststore: 
-            base64: {{ .Values.ejbca.truststore.base64 }}
-            password: {{ .Values.ejbca.truststore.password }}
+            base64: {{ .Values.ejbcakeys.truststore.base64 }}
+            password: {{ .Values.ejbcakeys.truststore.password }}
