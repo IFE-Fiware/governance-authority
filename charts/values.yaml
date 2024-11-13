@@ -1,7 +1,7 @@
 project: ${PROJECT}
 namespaceTag: ${NAMESPACETAG}
 domainSuffix: ${DOMAINSUFFIX}
-ejbca:
+ejbcakeys:
   keystore:
     base64: ${BASE64SUPERADMINKEYSTORE}
     password: ${SUPERADMINKEYSTOREPASS}
@@ -91,14 +91,14 @@ users_roles:
 
 xsfc_data_catalogue:
   projectID: "820"
-  targetRevision: 0.2.6
+  targetRevision: 0.2.7-SNAPSHOT.219.959e7088
   chart_name: fc-service
   valueFiles:
     - values.yaml
 
 xsfc_infra_catalogue:
   projectID: "820"
-  targetRevision: 0.2.6
+  targetRevision: 0.2.7-SNAPSHOT.219.959e7088
   chart_name: fc-service
   valueFiles:
     - values.yaml
@@ -112,7 +112,7 @@ onboarding:
 
 poc_gaia_edc:
   projectID: "759"
-  targetRevision: 0.1.7
+  targetRevision: v0.1.9-SNAPSHOT.367.71b3c578
   chart_name: poc-charts
   fullnameOverride: adapter
   valueFiles:
