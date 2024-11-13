@@ -9,7 +9,7 @@ deployment:
 
 serviceAccount:
   enabled: true
-  name: {{ .Release.Name }}-sa
+  name: "{{ .Release.Name }}-sa"
 
 hashicorp:
   role: "gaiax-edc_role"
