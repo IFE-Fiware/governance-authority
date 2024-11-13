@@ -41,7 +41,7 @@ spec:
         - name: KC_HOSTNAME
           value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
         - name: USERS_ROLES_BASE_URL
-          value: "http://users-roles.<namespace>.svc.cluster.local:8080"
+          value: "http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080"
         - name: KEYCLOAK_BASE_URL
           value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
         - name: REALM
