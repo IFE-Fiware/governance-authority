@@ -28,9 +28,7 @@ podSecurityContext: {}
 
 serviceAccountEnabled: true
 
-serviceAccount:
-  enabled: true
-  name: "{{ .Release.Name }}-sa"
+
 
 securityContext: {}
 #  # capabilities:
