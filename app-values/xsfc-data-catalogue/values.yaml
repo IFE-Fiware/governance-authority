@@ -30,7 +30,7 @@ serviceAccountEnabled: "true"
 
 serviceAccount:
   enabled: true
-  name: "{{ .Release.Name }}-sa"
+  name: "xsfc-data-service-sa"
 
 securityContext: {}
 #  # capabilities:
