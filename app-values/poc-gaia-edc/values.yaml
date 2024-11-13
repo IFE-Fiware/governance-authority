@@ -6,3 +6,10 @@ secretConfigPath: "{{ .Values.secretEngine }}/{{ .Release.Namespace }}-adapter-s
 
 deployment:
   label: poc
+
+serviceAccount:
+  enabled: true
+  name: {{ .Release.Name }}-sa
+
+hashicorp:
+  role: "gaiax-edc_role"

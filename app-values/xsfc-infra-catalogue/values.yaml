@@ -26,7 +26,9 @@ secretConfigPath: "{{ .Values.secretEngine }}/{{ .Release.Namespace }}-xsfc-infr
 podSecurityContext: {}
   # fsGroup: 2000
 
-serviceAccountEnabled: true
+serviceAccount:
+  enabled: true
+  name: {{ .Release.Name }}-sa
 
 securityContext: {}
 #  # capabilities:
