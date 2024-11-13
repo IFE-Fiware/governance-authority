@@ -1,7 +1,7 @@
 project: ${PROJECT}
 namespaceTag: ${NAMESPACETAG}
 domainSuffix: ${DOMAINSUFFIX}
-ejbca:
+ejbcakeys:
   keystore:
     base64: ${BASE64SUPERADMINKEYSTORE}
     password: ${SUPERADMINKEYSTOREPASS}
