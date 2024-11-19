@@ -172,7 +172,7 @@ spec:
         hashicorp:
           service: "http://vault-ha.vault-ha.svc.cluster.local:8200"  # local service path to your vault
         secretEngine: dev-int                                         # container for your secrets in vault
-        ejbca:
+        ejbcakeys:
           keystore:
             base64: base64encodedsuperadminkeystore                   # the whole base64 encoded string of superadmin keystore
             password: superadminkeystorepass                          # password to superadmin keystore
@@ -200,7 +200,7 @@ The ejbca section needs to be entered after you've gotten through the whole EJBC
 project: default                                  # Project to which the namespace is attached
 namespaceTag: authority1                          # identifier of deployment and part of fqdn
 domainSuffix: int.simpl-europe.eu                 # last part of fqdn
-ejbca:
+ejbcakeys:
   keystore:
     base64: base64encodedsuperadminkeystore       # the whole base64 encoded string of superadmin keystore
     password: superadminkeystorepass              # password to superadmin keystore
