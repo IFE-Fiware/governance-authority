@@ -11,3 +11,6 @@ microfrontends:
 - name: usersroles
   application: usersandroles
   path: "/users-roles"
+- name: participant
+  application: participant-utility
+  path: "/participant-utility"

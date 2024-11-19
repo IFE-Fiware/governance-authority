@@ -81,7 +81,8 @@ routes:
     # TODO Protect with APPLICANT and NOTARY roles
     - method: GET
       path: "/public/onboarding-api/onboarding-request"
-
+    - method: GET
+      path: "/public/user-api/credential/public-key"
     - method: POST
       path: "/ocsp"
     - method: GET
