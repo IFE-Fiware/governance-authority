@@ -46,6 +46,121 @@
     "quickLoginCheckMilliSeconds": 1000,
     "maxDeltaTimeSeconds": 43200,
     "failureFactor": 30,
+    "users": [
+      {
+        "username": "m.f",
+        "firstName": "Maria",
+        "lastName": "Fox",
+        "email": "m.f@email.com",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "type": "password",
+            "value": "password"
+          }
+        ],
+        "clientRoles": {
+          "frontend-cli": [
+            "T1UAR_M"
+          ]
+        }
+      },
+      {
+        "username": "m.m",
+        "firstName": "Mike",
+        "lastName": "Miller",
+        "email": "m.m@email.com",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "type": "password",
+            "value": "password"
+          }
+        ],
+        "clientRoles": {
+          "frontend-cli": [
+            "IATTR_M"
+          ]
+        }
+      },
+      {
+        "username": "e.j",
+        "firstName": "Emily",
+        "lastName": "Johnson",
+        "email": "e.j@email.com",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "type": "password",
+            "value": "password"
+          }
+        ],
+        "clientRoles": {
+          "frontend-cli": [
+            "T2IAA_M"
+          ]
+        }
+      },
+      {
+        "username": "m.t",
+        "firstName": "Micheal",
+        "lastName": "Thompson",
+        "email": "m.t@email.com",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "type": "password",
+            "value": "password"
+          }
+        ],
+        "clientRoles": {
+          "frontend-cli": [
+            "NOTARY"
+          ]
+        }
+      },
+      {
+        "username": "s.d",
+        "firstName": "Sarah",
+        "lastName": "Davis",
+        "email": "s.d@email.com",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "type": "password",
+            "value": "password"
+          }
+        ]
+      },
+      {
+        "username": "catalogue",
+        "firstName": "Catalogue",
+        "lastName": "User",
+        "email": "catalogue@email.com",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "type": "password",
+            "value": "password"
+          }
+        ],
+        "clientRoles": {
+          "federated-catalogue": [
+            "Ro-MU-A",
+            "Ro-MU-CA",
+            "Ro-PA-A",
+            "Ro-SD-A",
+            "uma_protection"
+          ]
+        }
+      }
+    ],
     "roles": {
       "realm": [
         {
@@ -618,34 +733,6 @@
     "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": false,
     "webAuthnPolicyPasswordlessAcceptableAaguids": [],
     "webAuthnPolicyPasswordlessExtraOrigins": [],
-    "users": [
-      {
-        "id": "25b4615a-b7e1-4554-be7d-85f50b2151cf",
-        "username": "service-account-federated-catalogue",
-        "emailVerified": false,
-        "createdTimestamp": 1656986465494,
-        "enabled": true,
-        "totp": false,
-        "serviceAccountClientId": "federated-catalogue",
-        "disableableCredentialTypes": [],
-        "requiredActions": [],
-        "realmRoles": [
-          "default-roles-authority"
-        ],
-        "clientRoles": {
-          "realm-management": [
-            "view-users",
-            "manage-users",
-            "view-clients"
-          ],
-          "federated-catalogue": [
-            "uma_protection"
-          ]
-        },
-        "notBefore": 0,
-        "groups": []
-      }
-    ],
     "clientScopeMappings": {
       "account": [
         {
