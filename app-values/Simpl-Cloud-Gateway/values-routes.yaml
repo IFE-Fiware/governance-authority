@@ -60,7 +60,7 @@ swaggerUrls:
     name: Identity Provider Service
 
 routes:
-  public-urls:
+  publicUrls:
     - method: GET
       path: "/swagger-ui.html"
     - method: GET
@@ -81,8 +81,10 @@ routes:
     # TODO Protect with APPLICANT and NOTARY roles
     - method: GET
       path: "/public/onboarding-api/onboarding-request"
+    
     - method: GET
       path: "/public/user-api/credential/public-key"
+
     - method: POST
       path: "/ocsp"
     - method: GET
@@ -189,22 +191,27 @@ routes:
       method: POST
       roles:
         - IATTR_M
+        - NOTARY
     - path: "private/sap-api/identity-attribute/*"
       method: GET
       roles:
         - IATTR_M
+        - NOTARY
     - path: "private/sap-api/identity-attribute/*"
       method: PUT
       roles:
         - IATTR_M
+        - NOTARY
     - path: "private/sap-api/identity-attribute/*"
       method: DELETE
       roles:
         - IATTR_M
+        - NOTARY
     - path: "private/sap-api/identity-attribute/assignable/*"
       method: PUT
       roles:
         - IATTR_M
+        - NOTARY
     - path: "private/sap-api/identity-attribute/add-participant-type/*"
       method: PUT
       roles:
