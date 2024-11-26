@@ -82,7 +82,7 @@ ejbca:
 
 simpl_cloud_gateway:
   projectID: "772"
-  targetRevision: 0.6.1
+  targetRevision: 0.7.0
   chart_name: simpl-cloud-gateway
   resources:
     requests:
@@ -94,7 +94,7 @@ simpl_cloud_gateway:
 
 simpl_fe:
   projectID: "769"
-  targetRevision: 0.6.2
+  targetRevision: 0.7.1
   chart_name: simpl-fe
   resources:
     requests:
@@ -106,7 +106,7 @@ simpl_fe:
 
 sap:
   projectID: "861"
-  targetRevision: 0.6.0
+  targetRevision: 0.7.0
   chart_name: security-attributes-provider
   resources:
     requests:
@@ -117,7 +117,7 @@ sap:
 
 users_roles:
   projectID: "771"
-  targetRevision: 0.6.5
+  targetRevision: 0.7.2
   chart_name: users-roles
   resources:
     requests:
@@ -142,7 +142,7 @@ xsfc_infra_catalogue:
 
 onboarding:
   projectID: "770"
-  targetRevision: 0.6.1
+  targetRevision: 0.7.0
   chart_name: onboarding
   resources:
     requests:
@@ -161,7 +161,7 @@ poc_gaia_edc:
 
 tls_gateway:
   projectID: "860"
-  targetRevision: 0.6.1
+  targetRevision: 0.7.2
   chart_name: tls-gateway
   resources:
     requests:
@@ -170,6 +170,29 @@ tls_gateway:
   valueFiles:
     - values.yaml
     - values-routes-authority.yaml
+
+identity_provider:
+  projectID: "913"
+  targetRevision: 0.7.0
+  chart_name: identity-provider
+  fullnameOverride: identity-provider
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
+  valueFiles:
+    - values.yaml
+
+auth_provider:
+  projectID: "939"
+  targetRevision: 0.7.0
+  chart_name: authentication-provider
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
+  valueFiles:
+    - values.yaml
 
 monitoring:
   enabled: true
@@ -181,20 +204,8 @@ monitoring:
     valueFiles:
       - values.yaml
   projectID: "828"
-  targetRevision: v0.1.2
+  targetRevision: v0.1.3
   chart_name: eck-monitoring
   fullnameOverride: elastic
-  valueFiles:
-    - values.yaml
-
-identity_provider:
-  projectID: "913"
-  targetRevision: 0.6.1
-  chart_name: identity-provider
-  fullnameOverride: identity-provider
-  resources:
-    requests:
-      cpu: "0"
-      memory: "0"
   valueFiles:
     - values.yaml
