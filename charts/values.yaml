@@ -73,6 +73,10 @@ ejbca:
   targetRevision: 1.0.3
   chart_name: ejbca-community-helm
   fullnameOverride: ejbca-community-helm
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
 
@@ -140,6 +144,10 @@ onboarding:
   projectID: "770"
   targetRevision: 0.6.1
   chart_name: onboarding
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
 
@@ -155,6 +163,10 @@ tls_gateway:
   projectID: "860"
   targetRevision: 0.6.1
   chart_name: tls-gateway
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
     - values-routes-authority.yaml
@@ -180,5 +192,9 @@ identity_provider:
   targetRevision: 0.6.1
   chart_name: identity-provider
   fullnameOverride: identity-provider
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml

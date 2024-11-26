@@ -73,11 +73,10 @@ spec:
             HTTPSERVER_HOSTNAME: *hostname
             DATABASE_JDBC_URL: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/ejbca"
         nginx:
-          host: *hostname 
-        resources:
-          requests:
-            cpu: "0"
-            memory: "0"
+          host: *hostname
+        {{- if .Values.ejbca.resources }}
+        resources: {{- toYaml .Values.ejbca.resources | nindent 10 }}
+        {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_cloud_gateway.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.simpl_cloud_gateway.targetRevision }}
@@ -262,6 +261,9 @@ spec:
         microservices:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        {{- if .Values.onboarding.resources }}
+        resources: {{- toYaml .Values.onboarding.resources | nindent 10 }}
+        {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.tls_gateway.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.tls_gateway.targetRevision }}
@@ -282,6 +284,9 @@ spec:
         global:  
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+        {{- if .Values.tls_gateway.resources }}
+        resources: {{- toYaml .Values.tls_gateway.resources | nindent 10 }}
+        {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.poc_gaia_edc.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.poc_gaia_edc.targetRevision }}
@@ -383,3 +388,6 @@ spec:
           truststore: 
             base64: {{ .Values.ejbcakeys.truststore.base64 }}
             password: {{ .Values.ejbcakeys.truststore.password }}
+        {{- if .Values.identity_provider.resources }}
+        resources: {{- toYaml .Values.identity_provider.resources | nindent 10 }}
+        {{- end }}
