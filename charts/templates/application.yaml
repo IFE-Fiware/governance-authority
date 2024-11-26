@@ -22,6 +22,9 @@ spec:
         {{- end }}
       values: |
         fullnameOverride: {{ .Values.postgresql.fullnameOverride }}
+        {{- if .Values.postgresql.primary }}
+        primary: {{- toYaml .Values.postgresql.primary | nindent 10 }}
+        {{- end }}
   - repoURL: {{ .Values.keycloak.repo_URL }}
     targetRevision: {{ .Values.keycloak.targetRevision }}
     chart: {{ .Values.keycloak.chart_name }}
