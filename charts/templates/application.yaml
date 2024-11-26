@@ -71,6 +71,10 @@ spec:
             DATABASE_JDBC_URL: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/ejbca"
         nginx:
           host: *hostname 
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_cloud_gateway.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.simpl_cloud_gateway.targetRevision }}

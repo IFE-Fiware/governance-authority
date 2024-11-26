@@ -31,6 +31,12 @@ postgresql:
   chart_name: postgresql
   targetRevision: 15.2.5
   fullnameOverride: postgresql
+  primary:
+    resourcesPreset: "none"
+    resources:
+      requests:
+        cpu: "0"
+        memory: "0"
   valueFiles:
     - values.yaml
     - values-authority.yaml
@@ -40,6 +46,11 @@ keycloak:
   chart_name: keycloak
   targetRevision: 22.2.5
   fullnameOverride: keycloak
+  resourcesPreset: "none"
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
 
@@ -48,6 +59,12 @@ redis:
   targetRevision: 19.6.0
   chart_name: redis
   fullnameOverride: redis
+  master:
+    resourcesPreset: "none"
+    resources:
+      requests:
+        cpu: "0"
+        memory: "0"
   valueFiles:
     - values.yaml
 
@@ -63,6 +80,10 @@ simpl_cloud_gateway:
   projectID: "772"
   targetRevision: 0.6.1
   chart_name: simpl-cloud-gateway
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
     - values-routes.yaml
@@ -71,6 +92,10 @@ simpl_fe:
   projectID: "769"
   targetRevision: 0.6.2
   chart_name: simpl-fe
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
     - values-authority.yaml
@@ -79,6 +104,10 @@ sap:
   projectID: "861"
   targetRevision: 0.6.0
   chart_name: security-attributes-provider
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
 
@@ -86,6 +115,10 @@ users_roles:
   projectID: "771"
   targetRevision: 0.6.5
   chart_name: users-roles
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
 
