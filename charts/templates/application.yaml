@@ -90,7 +90,7 @@ spec:
           keystore:
             password: "authority"
           cors:
-            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_fe.projectID }}/packages/helm/stable"
     path: "''"
     targetRevision: {{ .Values.simpl_fe.targetRevision }}
