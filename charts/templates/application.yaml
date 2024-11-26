@@ -48,6 +48,12 @@ spec:
           value: "authority"
         - name: KEYCLOAK_EXTRA_ARGS
           value: --import-realm
+        {{- if .Values.keycloak.resourcesPreset }}
+        resourcesPreset: {{ .Values.keycloak.resourcesPreset }}
+        {{- end }}
+        {{- if .Values.keycloak.resources }}
+        resources: {{- toYaml .Values.keycloak.resources | nindent 10 }}
+        {{- end }}
   - repoURL: {{ .Values.ejbca.repo_URL }}
     targetRevision: {{ .Values.ejbca.targetRevision }}
     chart: {{ .Values.ejbca.chart_name }}
@@ -91,6 +97,9 @@ spec:
             password: "authority"
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+        {{- if .Values.simpl_cloud_gateway.resources }}
+        resources: {{- toYaml .Values.simpl_cloud_gateway.resources | nindent 10 }}
+        {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_fe.projectID }}/packages/helm/stable"
     path: "''"
     targetRevision: {{ .Values.simpl_fe.targetRevision }}
@@ -113,6 +122,9 @@ spec:
           value: "authority"
         - name: KEYCLOAK_CLIENT_ID
           value: "frontend-cli"
+        {{- if .Values.simpl_fe.resources }}
+        resources: {{- toYaml .Values.simpl_fe.resources | nindent 10 }}
+        {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.sap.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.sap.targetRevision }}
@@ -132,6 +144,9 @@ spec:
         microservices:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           onboardingUrl: http://onboarding.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        {{- if .Values.sap.resources }}
+        resources: {{- toYaml .Values.sap.resources | nindent 10 }}
+        {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.users_roles.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.users_roles.targetRevision }}
@@ -155,6 +170,9 @@ spec:
           host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
         microservices:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        {{- if .Values.users_roles.resources }}
+        resources: {{- toYaml .Values.users_roles.resources | nindent 10 }}
+        {{- end }}
   - repoURL: {{ .Values.redis.repo_URL }}
     targetRevision: {{ .Values.redis.targetRevision }}
     chart: {{ .Values.redis.chart_name }}
@@ -165,6 +183,9 @@ spec:
         {{- end }}
       values: |
         fullnameOverride: {{ .Values.redis.fullnameOverride }}
+        {{- if .Values.redis.master }}
+        master: {{- toYaml .Values.redis.master | nindent 10 }}
+        {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.xsfc_data_catalogue.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.xsfc_data_catalogue.targetRevision }}
