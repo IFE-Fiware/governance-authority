@@ -3,7 +3,7 @@ appConfig:
   spring:
     cloud:
       gateway:
-        routes:
+        routes: 
           - id: keycloak
             uri: ${keycloak.url}
             predicates:
@@ -32,6 +32,12 @@ appConfig:
             uri: ${identity-provider.url}
             predicates:
               - Path=/*/identity-api/**
+            filters:
+              - StripPrefix=2
+          - id: authentication-provider
+            uri: ${authentication-provider.url}
+            predicates:
+              - Path=/*/auth-api/**
             filters:
               - StripPrefix=2
           - id: ocsp
@@ -64,6 +70,8 @@ appConfig:
           name: Users & Roles Service
         - url: /public/identity-api/v3/api-docs
           name: Identity Provider Service
+        - url: /public/auth-api/v3/api-docs
+          name: Authentication Provider Service
 
   routes:
     public-urls:
@@ -76,21 +84,6 @@ appConfig:
       - method: GET
         path: "/actuator/**"
 
-      # TODO Protect with NOTARY role
-      - method: GET
-        path: "/public/onboarding-api/onboarding-template/*"
-      - method: PUT
-        path: "/public/onboarding-api/onboarding-template/*"
-
-      - method: POST
-        path: "/public/onboarding-api/credential-request"
-      # TODO Protect with APPLICANT and NOTARY roles
-      - method: GET
-        path: "/public/onboarding-api/onboarding-request"
-      
-      - method: GET
-        path: "/public/user-api/credential/public-key"
-
       - method: POST
         path: "/ocsp"
       - method: GET
@@ -98,6 +91,12 @@ appConfig:
       - method: GET
         path: "/crl/**"
 
+      - method: GET
+        path: "/public/user-api/credential/public-key" #TODO remove this
+
+      - method: POST
+        path: "/public/onboarding-api/credential-request"
+      
     denied-urls:
       - method: GET
         path: "*/auth-api/keypair"
@@ -136,11 +135,49 @@ appConfig:
       - path: "private/onboarding-api/mime-type/*"
         roles:
           - T2IAA_M
+      - path: "/private/onboarding-api/onboarding-request"
+        method: GET
+        roles:
+          - APPLICANT
+          - NOTARY
+      - path: "/private/onboarding-api/onboarding-request"
+        method: POST
+        roles:
+          - APPLICANT
+          - NOTARY
+      - path: "/private/onboarding-api/onboarding-request"
+        method: PATCH
+        roles:
+          - APPLICANT
+          - NOTARY
+      - path: "/private/onboarding-api/onboarding-request/*"
+        method: GET
+        roles:
+          - APPLICANT
+          - NOTARY
+      - path: "/private/onboarding-api/onboarding-request/*/id-document"
+        method: PATCH
+        roles:
+          - APPLICANT
+          - NOTARY
+      - path: "/private/onboarding-api/onboarding-request/*/document/*"
+        method: GET
+        roles:
+          - APPLICANT
+          - NOTARY
+      - path: "/private/onboarding-api/onboarding-request/*/expiration-timeframe"
+        method: PATCH
+        roles:
+          - NOTARY
         ###
       - path: "private/identity-api/participant/*"
         method: PUT
         roles:
           - NOTARY
+      - method: POST
+        path: "private/identity-api/csr/*"
+        roles:
+          - APPLICANT
       - path: "private/user-api/agent/identity-attributes"
         method: GET
         roles:
@@ -153,6 +190,7 @@ appConfig:
         method: GET
         roles:
           - T1UAR_M
+          - NOTARY
       - path: "private/user-api/role/*"
         method: GET
         roles:
@@ -185,11 +223,11 @@ appConfig:
         method: POST
         roles:
           - T1UAR_M
-      - path: "private/user-api/user/*"
+      - path: "private/user-api/user/**"
         method: GET
         roles:
           - T1UAR_M
-      - path: "private/user-api/user/*"
+      - path: "private/user-api/user/**"
         method: PUT
         roles:
           - T1UAR_M
