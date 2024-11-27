@@ -56,7 +56,9 @@ initContainers:
         value: realm
       - name: URL
         # uncomment below if you are deploying an authority
-        value: https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/raw/develop/samples/keycloak-realms/0.7.1/authority-realm-export.json?ref_type=heads
+        # value: https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/raw/develop/samples/keycloak-realms/0.7.1/authority-realm-export.json?ref_type=heads
+        # uncomment below if you are deploying an authority (realm with federated-catalogue client)
+        value: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority/-/raw/feature/SIMPL-7561/app-values/Keycloak/0.4.x/realm-export.json         
         # uncomment below if you are deploying a participant
         # value: https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/raw/develop/samples/keycloak-realms/0.7.1/participant-realm-export.json?ref_type=heads
     args:
