@@ -276,3 +276,13 @@ appConfig:
         method: PUT
         roles:
           - NOTARY
+
+    logging:
+      business:
+        - method: GET
+          path: /some/path/*
+          config:
+            message: Businesslogsmessage
+            operations:
+              - OP1
+              - OP2
