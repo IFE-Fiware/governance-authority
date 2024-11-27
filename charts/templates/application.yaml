@@ -57,3 +57,32 @@ spec:
         {{- if .Values.keycloak.resources }}
         resources: {{- toYaml .Values.keycloak.resources | nindent 10 }}
         {{- end }}
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_cloud_gateway.projectID }}/packages/helm/stable"
+    path: ''
+    targetRevision: {{ .Values.simpl_cloud_gateway.targetRevision }}
+    chart: {{ .Values.simpl_cloud_gateway.chart_name }}
+    helm:
+      valueFiles:
+        {{- range .Values.simpl_cloud_gateway.valueFiles }}
+        - $values/app-values/Simpl-Cloud-Gateway/{{ . }}
+        {{- end }}
+      values: |
+        usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        securityAttributesProviderUrl: http://security-attributes-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        keycloakUrl: http://keycloak.{{ .Values.cluster.namespace }}.svc.cluster.local
+        onboardingUrl: http://onboarding.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        ejbcaUrl: http://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30080
+        identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        global:
+          hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          authorityUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          keystore:
+            password: "authority"
+          cors:
+            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+        {{- if .Values.simpl_cloud_gateway.resources }}
+        resources: {{- toYaml .Values.simpl_cloud_gateway.resources | nindent 10 }}
+        {{- end }}
