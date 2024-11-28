@@ -279,10 +279,18 @@ appConfig:
 
     logging:
       business:
-        - method: GET
-          path: /some/path/*
+        - method: POST
+          path: /public/onboarding-api/onboarding-request
           config:
-            message: Businesslogsmessage
             operations:
-              - OP1
-              - OP2
+              - ONBOARDING_REQUEST
+        - method: POST
+          path: /private/onboarding-api/onboarding-request/*/approve
+          config:
+            operations:
+              - APPROVE_ONBOARDING_REQUEST
+        - method: POST
+          path: /private/onboarding-api/onboarding-request/*/reject
+          config:
+            operations:
+              - REJECT_ONBOARDING_REQUEST
