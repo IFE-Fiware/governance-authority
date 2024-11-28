@@ -254,6 +254,7 @@ spec:
         global:  
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+        hostT2: "tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.poc_gaia_edc.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.poc_gaia_edc.targetRevision }}
