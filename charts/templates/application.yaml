@@ -332,6 +332,7 @@ spec:
           securityAttributesProviderUrl: http://security-attributes-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           onboardingUrl: http://onboarding.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        hostT2: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         ejbca:
           enrollConfig:
             url: "https://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30443"
