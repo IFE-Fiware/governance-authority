@@ -55,12 +55,7 @@ initContainers:
       - name: REALM_NAME
         value: realm
       - name: URL
-        # uncomment below if you are deploying an authority
-        # value: https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/raw/develop/keycloak/kc-init/authority-realm-export.json?ref_type=heads
-        # uncomment below if you are deploying an authority (realm with federated-catalogue client)
-        value: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority/-/raw/develop/app-values/Keycloak/realm-export.json?ref_type=heads
-        # uncomment below if you are deploying a participant
-        # value: https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/raw/develop/keycloak/kc-init/participant-realm-export.json?ref_type=heads
+        value: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority/-/raw/develop/app-values/Keycloak/0.3.x/realm-export.json?ref_type=heads
     args:
       - |
         curl -o /config/${REALM_NAME}.json ${URL};
