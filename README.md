@@ -1,5 +1,28 @@
 # Governance Authority Agent
 
+<!-- TOC -->
+* [Governance Authority Agent](#governance-authority-agent)
+  * [Description](#description)
+  * [Pre-Requisites](#pre-requisites)
+  * [Installation](#installation)
+    * [Prerequisites](#prerequisites)
+      * [Create the Namespace](#create-the-namespace)
+      * [Verify the Namespace](#verify-the-namespace)
+      * [Vault related tasks](#vault-related-tasks)
+        * [Preliminal activites (done once)](#preliminal-activites-done-once)
+        * [Secrets for FC-Service](#secrets-for-fc-service)
+        * [Secret for Catalog Query Mapper Adapter](#secret-for-catalog-query-mapper-adapter)
+    * [Deployment using ArgoCD](#deployment-using-argocd)
+    * [Manual deployment](#manual-deployment)
+        * [Files preparation](#files-preparation)
+        * [Deployment](#deployment)
+    * [Monitoring](#monitoring)
+  * [Additional steps](#additional-steps)
+        * [Upgrade the agent](#upgrade-the-agent)
+  * [Delete the deployment:](#delete-the-deployment)
+* [Troubleshooting](#troubleshooting)
+<!-- TOC -->
+
 ## Description
 This project contains the configuration files required for deploying an application using Helm and ArgoCD. 
 - the deployment will be done by master helm chart allowing to deploy a **Governance Authority** agent using a single command.
@@ -192,7 +215,10 @@ spec:
 
 The suggested way for deployment, is to unpack the released package to a folder on a host where you have kubectl and helm available and configured. 
 
-There is basically one file that you need to modify - values.yaml. 
+There are just a few values.yaml files you need to change.
+The first are the values.yaml files from the `xsfc-data-catalogue` and `xsfc-infra-catalogue` components. Make sure that `hostAliases.ip` points to your ingress controller cluster ip.  
+
+The last one to modify is main values.yaml. 
 There are a couple of variables you need to replace - described below. The rest you don't need to change.
 The ejbca section needs to be entered after you've gotten through the whole EJBCA configuration process and have the keystore and truststore, then just update the deployment. 
 
@@ -246,9 +272,9 @@ Default user is "elastic", its password can be extracted by kubectl command. `ku
 
 :rotating_light: :rotating_light: :rotating_light: **Attention!!!** :rotating_light: :rotating_light: :rotating_light: <br>
 <b><i>After installing the agent, there are services that connect using the TLS protocol (e.g. EJBCA). In the current phase of application development, this element must be configured manually.
-The entire procedure is described in confuence:</i></b>
+The entire procedure is described in the following gitlab page:</i></b>
 
-https://confluence.simplprogramme.eu/display/SIMPL/EJBCA+Configuration
+[EJBCA Configuration](https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/blob/develop/doc/0.7.x/EJBCA.md?ref_type=heads#ejbca-configuration---simplca-and-onboardingca)
 
 <b><i>For the authority agent to work correctly, it is necessary to perform the actions described in the link above.</i></b>
 
