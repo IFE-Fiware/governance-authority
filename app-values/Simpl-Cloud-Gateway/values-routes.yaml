@@ -95,7 +95,7 @@ appConfig:
         path: "/user-api/credential/public-key" #TODO remove this
 
       - method: POST
-        path: "/onboarding-api/credential-request"
+        path: "/onboarding-api/onboarding-request"
       - method: GET
         path: "/onboarding-api/participant-type"
 
@@ -139,11 +139,6 @@ appConfig:
           - T2IAA_M
       - path: "/onboarding-api/onboarding-request"
         method: GET
-        roles:
-          - APPLICANT
-          - NOTARY
-      - path: "/onboarding-api/onboarding-request"
-        method: POST
         roles:
           - APPLICANT
           - NOTARY
