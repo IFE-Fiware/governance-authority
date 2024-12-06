@@ -128,7 +128,7 @@ users_roles:
 
 xsfc_catalogue:
   projectID: "820"
-  targetRevision: 0.2.7-SNAPSHOT.219.959e7088
+  targetRevision: 0.2.7
   chart_name: fc-service
   valueFiles:
     - values.yaml
@@ -146,7 +146,7 @@ onboarding:
 
 adapter:
   projectID: "759"
-  targetRevision: 0.1.10
+  targetRevision: 0.1.11-SNAPSHOT.440.8ea9076c
   chart_name: poc-charts
   fullnameOverride: adapter
   valueFiles:
