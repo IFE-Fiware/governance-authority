@@ -36,13 +36,3 @@ appConfig:
       - method: POST
         path: "/user-api/mtls/ephemeral-proof"
         disable-ephemeral-proof-check: true
-
-    logging:
-      business:
-        - method: GET
-          path: /some/path/*
-          config:
-            message: Businesslogsmessage
-            operations:
-              - OP1
-              - OP2

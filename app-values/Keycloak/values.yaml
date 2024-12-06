@@ -40,7 +40,7 @@ initContainers:
       - name: ARTIFACT
         value: keycloak-authenticator
       - name: URL
-        value: https://code.europa.eu/api/v4/projects/915/packages/maven/com/aruba/simpl/keycloak-authenticator/0.7.2/keycloak-authenticator-0.7.2.jar
+        value: https://code.europa.eu/api/v4/projects/915/packages/maven/com/aruba/simpl/keycloak-authenticator/0.8.0/keycloak-authenticator-0.8.0.jar
     args:
       - |
         curl -o /custom-spi/${ARTIFACT}.jar ${URL};
@@ -55,7 +55,7 @@ initContainers:
       - name: REALM_NAME
         value: realm
       - name: URL
-        value: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority/-/raw/feature/SIMPL-7561/app-values/Keycloak/0.4.x/realm-export.json
+        value: https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/raw/develop/samples/keycloak-realms/0.8.0/authority-realm-export.json?ref_type=heads
     args:
       - |
         curl -o /config/${REALM_NAME}.json ${URL};

@@ -87,6 +87,11 @@ spec:
         - $values/app-values/Simpl-Cloud-Gateway/{{ . }}
         {{- end }}
       values: |
+        global:
+          cors:
+            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+          hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         securityAttributesProviderUrl: http://security-attributes-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         keycloakUrl: http://keycloak.{{ .Values.cluster.namespace }}.svc.cluster.local
@@ -94,15 +99,6 @@ spec:
         ejbcaUrl: http://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30080
         identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
-        global:
-          hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          authorityUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          keystore:
-            password: "authority"
-          cors:
-            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
         {{- if .Values.simpl_cloud_gateway.resources }}
         resources: {{- toYaml .Values.simpl_cloud_gateway.resources | nindent 10 }}
         {{- end }}
@@ -141,10 +137,6 @@ spec:
         - $values/app-values/SAP/{{ . }}
         {{- end }}
       values: |
-        global:
-          hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          keystore:
-            password: "authority"
         db:
           url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/securityattributesprovider"
         microservices:
@@ -173,8 +165,8 @@ spec:
         redis:
           host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
         microservices:
-          identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+          identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         {{- if .Values.users_roles.resources }}
         resources: {{- toYaml .Values.users_roles.resources | nindent 10 }}
         {{- end }}
@@ -191,53 +183,28 @@ spec:
         {{- if .Values.redis.master }}
         master: {{- toYaml .Values.redis.master | nindent 10 }}
         {{- end }}
-  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.xsfc_data_catalogue.projectID }}/packages/helm/stable"
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.xsfc_catalogue.projectID }}/packages/helm/stable"
     path: ''
-    targetRevision: {{ .Values.xsfc_data_catalogue.targetRevision }}
-    chart: {{ .Values.xsfc_data_catalogue.chart_name }}
+    targetRevision: {{ .Values.xsfc_catalogue.targetRevision }}
+    chart: {{ .Values.xsfc_catalogue.chart_name }}
     helm:
       valueFiles:
-        {{- range .Values.xsfc_data_catalogue.valueFiles }}
-        - $values/app-values/xsfc-data-catalogue/{{ . }}
+        {{- range .Values.xsfc_catalogue.valueFiles }}
+        - $values/app-values/xsfc-catalogue/{{ . }}
         {{- end }}
       values: |
         podSecurityContext: 
           allowPrivilegeEscalation: false
         ingress:
           hosts:
-            - host: xsfc-data-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+            - host: xsfc-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
               paths:
                 - path: /
                   pathType: Prefix
           tls:
-            - secretName: xsfc-data-server-tls
+            - secretName: xsfc-server-tls
               hosts:
-                - xsfc-data-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-        hashicorp:
-          service: {{ .Values.hashicorp.service }}
-        secretEngine: {{ .Values.secretEngine }}
-  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.xsfc_infra_catalogue.projectID }}/packages/helm/stable"
-    path: ''
-    targetRevision: {{ .Values.xsfc_infra_catalogue.targetRevision }}
-    chart: {{ .Values.xsfc_infra_catalogue.chart_name }}
-    helm:
-      valueFiles:
-        {{- range .Values.xsfc_infra_catalogue.valueFiles }}
-        - $values/app-values/xsfc-infra-catalogue/{{ . }}
-        {{- end }}
-      values: |
-        podSecurityContext: 
-          allowPrivilegeEscalation: false
-        ingress:
-          hosts:
-            - host: xsfc-infra-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-              paths:
-                - path: /
-                  pathType: Prefix
-          tls:
-            - secretName: xsfc-infra-server-tls
-              hosts:
-                - xsfc-infra-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+                - xsfc-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         hashicorp:
           service: {{ .Values.hashicorp.service }}
         secretEngine: {{ .Values.secretEngine }}
@@ -251,10 +218,6 @@ spec:
         - $values/app-values/onboarding/{{ . }}
         {{- end }}
       values: |
-        global:
-          hostTls: "https://onboarding.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
-          keystore:
-            password: "authority"
         db:
           url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/onboarding"
         microservices:
@@ -273,6 +236,9 @@ spec:
         - $values/app-values/tls-gateway/{{ . }}
         {{- end }}
       values: |
+        global:  
+          cors:
+            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
         microservices:
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           keycloakUrl: http://keycloak.{{ .Values.cluster.namespace }}.svc.cluster.local
@@ -281,22 +247,19 @@ spec:
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         redis:
           host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
-        global:  
-          cors:
-            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
         hostT2: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         {{- if .Values.tls_gateway.resources }}
         resources: {{- toYaml .Values.tls_gateway.resources | nindent 10 }}
         {{- end }}
-  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.poc_gaia_edc.projectID }}/packages/helm/stable"
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.adapter.projectID }}/packages/helm/stable"
     path: ''
-    targetRevision: {{ .Values.poc_gaia_edc.targetRevision }}
-    chart: {{ .Values.poc_gaia_edc.chart_name }}
+    targetRevision: {{ .Values.adapter.targetRevision }}
+    chart: {{ .Values.adapter.chart_name }}
     helm:
-      releaseName: {{ .Values.poc_gaia_edc.fullnameOverride }}
+      releaseName: {{ .Values.adapter.fullnameOverride }}
       valueFiles:
-        {{- range .Values.poc_gaia_edc.valueFiles }}
-        - $values/app-values/poc-gaia-edc/{{ . }}
+        {{- range .Values.adapter.valueFiles }}
+        - $values/app-values/adapter/{{ . }}
         {{- end }}
       values: |
         podSecurityContext: 
@@ -319,16 +282,16 @@ spec:
         {{- end }}
       values: |
         hostT2: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+        db:
+          url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/identityprovider"
+        redis:
+          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
         global:
           hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           authorityUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
-        db:
-          url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/identityprovider"
-        redis:
-          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
         microservices:
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           securityAttributesProviderUrl: http://security-attributes-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080

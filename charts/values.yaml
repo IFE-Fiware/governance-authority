@@ -82,7 +82,7 @@ ejbca:
 
 simpl_cloud_gateway:
   projectID: "772"
-  targetRevision: 0.7.0
+  targetRevision: 0.8.0
   chart_name: simpl-cloud-gateway
   resources:
     requests:
@@ -94,7 +94,7 @@ simpl_cloud_gateway:
 
 simpl_fe:
   projectID: "769"
-  targetRevision: 0.7.1
+  targetRevision: 0.8.0
   chart_name: simpl-fe
   resources:
     requests:
@@ -106,7 +106,7 @@ simpl_fe:
 
 sap:
   projectID: "861"
-  targetRevision: 0.7.0
+  targetRevision: 0.8.0
   chart_name: security-attributes-provider
   resources:
     requests:
@@ -117,7 +117,7 @@ sap:
 
 users_roles:
   projectID: "771"
-  targetRevision: 0.7.2
+  targetRevision: 0.8.1
   chart_name: users-roles
   resources:
     requests:
@@ -126,14 +126,7 @@ users_roles:
   valueFiles:
     - values.yaml
 
-xsfc_data_catalogue:
-  projectID: "820"
-  targetRevision: 0.2.7-SNAPSHOT.219.959e7088
-  chart_name: fc-service
-  valueFiles:
-    - values.yaml
-
-xsfc_infra_catalogue:
+xsfc_catalogue:
   projectID: "820"
   targetRevision: 0.2.7-SNAPSHOT.219.959e7088
   chart_name: fc-service
@@ -142,7 +135,7 @@ xsfc_infra_catalogue:
 
 onboarding:
   projectID: "770"
-  targetRevision: 0.7.0
+  targetRevision: 0.8.0
   chart_name: onboarding
   resources:
     requests:
@@ -151,9 +144,9 @@ onboarding:
   valueFiles:
     - values.yaml
 
-poc_gaia_edc:
+adapter:
   projectID: "759"
-  targetRevision: v0.1.9-SNAPSHOT.367.71b3c578
+  targetRevision: 0.1.10
   chart_name: poc-charts
   fullnameOverride: adapter
   valueFiles:
@@ -161,7 +154,7 @@ poc_gaia_edc:
 
 tls_gateway:
   projectID: "860"
-  targetRevision: 0.7.2
+  targetRevision: 0.8.0
   chart_name: tls-gateway
   resources:
     requests:
@@ -173,7 +166,7 @@ tls_gateway:
 
 identity_provider:
   projectID: "913"
-  targetRevision: 0.7.0
+  targetRevision: 0.8.0
   chart_name: identity-provider
   fullnameOverride: identity-provider
   resources:
@@ -185,7 +178,7 @@ identity_provider:
 
 auth_provider:
   projectID: "939"
-  targetRevision: 0.7.0
+  targetRevision: 0.8.0
   chart_name: authentication-provider
   resources:
     requests:
