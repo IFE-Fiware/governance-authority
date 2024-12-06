@@ -208,6 +208,10 @@ spec:
         hashicorp:
           service: {{ .Values.hashicorp.service }}
         secretEngine: {{ .Values.secretEngine }}
+        neo4j:
+          {{- if .Values.xsfc_catalogue.resources }}
+          resources: {{- toYaml .Values.xsfc_catalogue.resources | nindent 10 }}
+          {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.onboarding.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.onboarding.targetRevision }}

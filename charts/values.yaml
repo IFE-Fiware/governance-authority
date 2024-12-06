@@ -130,6 +130,10 @@ xsfc_catalogue:
   projectID: "820"
   targetRevision: 0.2.7
   chart_name: fc-service
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
 
