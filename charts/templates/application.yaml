@@ -303,7 +303,7 @@ spec:
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         ejbca:
           enrollConfig:
-            url: "https://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30443"
+            url: "http://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30443"
           keystore:
             base64: {{ .Values.ejbcakeys.keystore.base64 }}
             password: {{ .Values.ejbcakeys.keystore.password }}
