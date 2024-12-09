@@ -123,6 +123,8 @@ Its content is (to be revised):
 
 ```
 {
+  "FEDERATED_CATALOOGUE_CLIENT_URL": "https://xsfc-server-service.authority1.int.simpl-europe.eu",
+  "KEYCLOAK_CLIENT_URL": "https://authority.be.authority1.int.simpl-europe.eu",
   "SIGNER_GROUP": "simpl",
   "SIGNER_ISSUER": "did:web:example.com",
   "SIGNER_KEY": "gaia-x-key1",
@@ -133,6 +135,8 @@ Where you need to modify:
 
 | Variable name                 |     Example         | Description     |
 | ----------------------        |     :-----:         | --------------- |
+| FEDERATED_CATALOOGUE_CLIENT_URL | https://xsfc-server-service.authority1.int.simpl-europe.eu | link to fqdn of the fc-service |
+| KEYCLOAK_CLIENT_URL | https://authority.be.authority1.int.simpl-europe.eu | link to fqdn of Keycloak |
 | SIGNER_KEY         | gaia-x-key1 | Name of the key for Signer |
 | SIGNER_NAMESPACE   | transit     | Name of secret engine with transit key |
 
