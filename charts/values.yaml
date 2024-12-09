@@ -158,7 +158,7 @@ adapter:
 
 tls_gateway:
   projectID: "860"
-  targetRevision: 0.8.0
+  targetRevision: 0.8.1
   chart_name: tls-gateway
   resources:
     requests:
@@ -182,7 +182,7 @@ identity_provider:
 
 auth_provider:
   projectID: "939"
-  targetRevision: 0.8.0
+  targetRevision: 0.8.1
   chart_name: authentication-provider
   resources:
     requests:
