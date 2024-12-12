@@ -5,13 +5,14 @@ ejbcakeys:
   keystore:
     base64: ${BASE64SUPERADMINKEYSTORE}
     password: ${SUPERADMINKEYSTOREPASS}
-  truststore: 
+  truststore:
     base64: ${BASE64SUPERADMINTRUSTSTORE}
     password: ${SUPERADMINTRUSTSTOREPASS}
 
 argocd:
   appname: ${NAMESPACE}
-  namespace: argocd
+  # namespace is argo-cd on DEV
+  namespace: ${ARGOCD_NAMESPACE}
 
 cluster:
   address: https://kubernetes.default.svc
@@ -36,7 +37,7 @@ postgresql:
     - values-authority.yaml
 
 keycloak:
-  repo_URL: 'https://charts.bitnami.com/bitnami'
+  repo_URL: "https://charts.bitnami.com/bitnami"
   chart_name: keycloak
   targetRevision: 22.2.5
   fullnameOverride: keycloak
@@ -44,7 +45,7 @@ keycloak:
     - values.yaml
 
 redis:
-  repo_URL: 'https://charts.bitnami.com/bitnami'
+  repo_URL: "https://charts.bitnami.com/bitnami"
   targetRevision: 19.6.0
   chart_name: redis
   fullnameOverride: redis
@@ -52,7 +53,7 @@ redis:
     - values.yaml
 
 ejbca:
-  repo_URL: 'https://keyfactor.github.io/ejbca-community-helm'
+  repo_URL: "https://keyfactor.github.io/ejbca-community-helm"
   targetRevision: 1.0.3
   chart_name: ejbca-community-helm
   fullnameOverride: ejbca-community-helm
@@ -61,7 +62,7 @@ ejbca:
 
 simpl_cloud_gateway:
   projectID: "772"
-  targetRevision: 0.6.1
+  targetRevision: 0.8.0
   chart_name: simpl-cloud-gateway
   valueFiles:
     - values.yaml
@@ -69,7 +70,7 @@ simpl_cloud_gateway:
 
 simpl_fe:
   projectID: "769"
-  targetRevision: 0.6.2
+  targetRevision: 0.8.0
   chart_name: simpl-fe
   valueFiles:
     - values.yaml
@@ -77,14 +78,14 @@ simpl_fe:
 
 sap:
   projectID: "861"
-  targetRevision: 0.6.0
+  targetRevision: 0.8.0
   chart_name: security-attributes-provider
   valueFiles:
     - values.yaml
 
 users_roles:
   projectID: "771"
-  targetRevision: 0.6.5
+  targetRevision: 0.8.1
   chart_name: users-roles
   valueFiles:
     - values.yaml
@@ -96,16 +97,9 @@ xsfc_data_catalogue:
   valueFiles:
     - values.yaml
 
-xsfc_infra_catalogue:
-  projectID: "820"
-  targetRevision: 0.2.7-SNAPSHOT.219.959e7088
-  chart_name: fc-service
-  valueFiles:
-    - values.yaml
-
 onboarding:
   projectID: "770"
-  targetRevision: 0.6.1
+  targetRevision: 0.8.0
   chart_name: onboarding
   valueFiles:
     - values.yaml
@@ -120,14 +114,14 @@ poc_gaia_edc:
 
 tls_gateway:
   projectID: "860"
-  targetRevision: 0.6.1
+  targetRevision: 0.8.0
   chart_name: tls-gateway
   valueFiles:
     - values.yaml
     - values-routes-authority.yaml
 
 monitoring:
-  enabled: true
+  enabled: false
   operator:
     repo_URL: https://helm.elastic.co/
     chart_name: eck-operator
@@ -144,7 +138,7 @@ monitoring:
 
 identity_provider:
   projectID: "913"
-  targetRevision: 0.6.1
+  targetRevision: 0.8.0
   chart_name: identity-provider
   fullnameOverride: identity-provider
   valueFiles:

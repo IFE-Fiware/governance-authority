@@ -17,6 +17,21 @@ springRoutes:
       - Path=/user-api/mtls/**
     filters:
       - StripPrefix=1
+
+  - id: fc-service
+    uri: "https://xfsc-data-service.{{ .Values.cluster.namespace }}.svc.cluster.local:8081"
+    predicates:
+      - Path=/fc/**
+    filters:
+      - StripPrefix=1
+
+  - id: adapter-service
+    uri: "https://adapter.{{ .Values.cluster.namespace }}.svc.cluster.local:8084"
+    predicates:
+      - Path=/adapter/**
+    filters:
+      - StripPrefix=1
+
 routes:
   publicUrls:
     - method: GET

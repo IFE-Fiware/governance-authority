@@ -83,12 +83,10 @@ spec:
           ejbcaUrl: http://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30080
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         global:
-          hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostBe: be.{{ .Values.authority.namespace }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostTls: tls.{{ .Values.authority.namespace }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          hostFe: fe.{{ .Values.authority.namespace }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           authorityUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          keystore:
-            password: "authority"
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_fe.projectID }}/packages/helm/stable"
@@ -175,46 +173,16 @@ spec:
         - $values/app-values/xsfc-data-catalogue/{{ . }}
         {{- end }}
       values: |
+        storage: 
+          enabled: false
         podSecurityContext: 
           allowPrivilegeEscalation: false
         ingress:
-          hosts:
-            - host: xsfc-data-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-              paths:
-                - path: /
-                  pathType: Prefix
-          tls:
-            - secretName: xsfc-data-server-tls
-              hosts:
-                - xsfc-data-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          enabled: false
         hashicorp:
           service: {{ .Values.hashicorp.service }}
         secretEngine: {{ .Values.secretEngine }}
-  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.xsfc_infra_catalogue.projectID }}/packages/helm/stable"
-    path: ''
-    targetRevision: {{ .Values.xsfc_infra_catalogue.targetRevision }}
-    chart: {{ .Values.xsfc_infra_catalogue.chart_name }}
-    helm:
-      valueFiles:
-        {{- range .Values.xsfc_infra_catalogue.valueFiles }}
-        - $values/app-values/xsfc-infra-catalogue/{{ . }}
-        {{- end }}
-      values: |
-        podSecurityContext: 
-          allowPrivilegeEscalation: false
-        ingress:
-          hosts:
-            - host: xsfc-infra-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-              paths:
-                - path: /
-                  pathType: Prefix
-          tls:
-            - secretName: xsfc-infra-server-tls
-              hosts:
-                - xsfc-infra-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-        hashicorp:
-          service: {{ .Values.hashicorp.service }}
-        secretEngine: {{ .Values.secretEngine }}
+  
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.onboarding.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.onboarding.targetRevision }}
@@ -269,9 +237,8 @@ spec:
         podSecurityContext: 
           allowPrivilegeEscalation: false
         ingress:
-          host: adapter.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          tls:
-            secretName: adapter-simpl-backend-tls
+          enabled: false
+          
         secretEngine: {{ .Values.secretEngine }}
         hashicorp:
           service: {{ .Values.hashicorp.service }}

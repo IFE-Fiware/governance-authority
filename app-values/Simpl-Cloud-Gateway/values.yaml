@@ -1,13 +1,9 @@
 server-port: &server-port 9000
 replicaCount: 1
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
-global:
-   profile: authority
-   ingress:
-     issuer: dev-prod
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -23,13 +19,14 @@ serviceAccount:
 podAnnotations: {}
 podLabels: {}
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
 securityContext:
   capabilities:
     drop:
-    - ALL
+      - ALL
   readOnlyRootFilesystem: false
   runAsNonRoot: true
   runAsUser: 1001
@@ -38,7 +35,7 @@ service:
   type: ClusterIP
   port: *server-port
 
-resources: 
+resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -66,7 +63,7 @@ readinessProbe:
   failureThreshold: 10
 
 autoscaling:
-  enabled: false
+  enabled: true
   minReplicas: 1
   maxReplicas: 1
   targetCPUUtilizationPercentage: 80
@@ -78,6 +75,12 @@ volumes:
     configMap:
       name: simpl-cloud-gateway-spring-configmap
 
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
 volumeMounts:
   - name: spring-config
     mountPath: /config/
@@ -85,6 +88,14 @@ volumeMounts:
 envFrom:
   - configMapRef:
       name: simpl-cloud-gateway-env-configmap
+
+usersRolesUrl: http://users-roles.{{ .Release.Namespace }}.svc.cluster.local:8080
+securityAttributesProviderUrl: http://security-attributes-provider.{{ .Release.Namespace }}.svc.cluster.local:8080
+keycloakUrl: http://keycloak.{{ .Release.Namespace }}.svc.cluster.local
+onboardingUrl: http://onboarding.{{ .Release.Namespace }}.svc.cluster.local:8080
+ejbcaUrl: http://ejbca-community-helm.{{ .Release.Namespace }}.svc.cluster.local:30080
+identityProviderUrl: http://identity-provider.{{ .Release.Namespace }}.svc.cluster.local:8080
+authenticationProviderUrl: http://authentication-provider.{{ .Release.Namespace }}.svc.cluster.local:8080
 
 nodeSelector: {}
 
@@ -94,7 +105,6 @@ affinity: {}
 
 # Spring Cloud Gateway Routes
 springRoutes: []
-
 
 # Custom Role Based Access Control
 # This is a complete example, if you omit method, all are matched.
