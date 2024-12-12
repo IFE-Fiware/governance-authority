@@ -4,7 +4,7 @@
     postgresql:
       enabled: false
     ```
-- We need to publish the routes for the data catalogue to the tls gateway
+- We need to publish the routes for the data catalogue to the TLS gateway
 
 ```yaml
     springRoutes:
@@ -24,11 +24,27 @@
     routes:
         publicUrls:
             rbac:
-                - method: ALL ?!
+                - method: GET
+                    path: "/fc/**"
+                    disableEphemeralProofCheck: true
+                
+                - method: POST
                     path: "/fc/**"
                     disableEphemeralProofCheck: true
 
-                - method: ALL ?!
+                - method: PUT
+                    path: "/fc/**"
+                    disableEphemeralProofCheck: true
+                
+                - method: DELETE
+                    path: "/fc/**"
+                    disableEphemeralProofCheck: true
+
+                - method: POST
+                    path: "/adapter/**"
+                    disableEphemeralProofCheck: true
+                
+                - method: GET
                     path: "/adapter/**"
                     disableEphemeralProofCheck: true
     ```
