@@ -93,6 +93,7 @@ simpl_cloud_gateway:
   valueFiles:
     - values.yaml
     - values-routes.yaml
+    - values-authority.yaml
 
 simpl_fe:
   projectID: "769"
