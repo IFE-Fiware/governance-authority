@@ -21,10 +21,34 @@ appConfig:
               - Path=/user-api/mtls/**
             filters:
               - StripPrefix=1
+          - id: fc-service
+            uri: "https://xfsc-service.{{ .Values.cluster.namespace }}.svc.cluster.local:8081"
+            predicates:
+              - Path=/fc/**
+            filters:
+              - StripPrefix=1
+          - id: adapter-service
+            uri: "https://adapter.{{ .Values.cluster.namespace }}.svc.cluster.local:8084"
+            predicates:
+              - Path=/adapter/**
+            filters:
+              - StripPrefix=1
   routes:
     public-urls:
       - method: GET
         path: "/actuator/**"
+      - method: GET
+        path: "/fc/**"
+      - method: POST
+        path: "/fc/**"
+      - method: PUT
+        path: "/fc/**"
+      - method: DELETE
+        path: "/fc/**"
+      - method: POST
+        path: "/adapter/**"
+      - method: GET
+        path: "/adapter/**"
 
     abac:
       - method: PATCH

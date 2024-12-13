@@ -253,61 +253,7 @@ spec:
           requests:
             cpu: "0"
             memory: "0"
-        appConfig:
-          spring:
-            cloud:
-              gateway:
-                routes:
-                  - id: sap
-                    uri: ${sap.url}
-                    predicates:
-                      - Path=/sap-api/mtls/**
-                    filters:
-                      - StripPrefix=1
-                  - id: identity-provider
-                    uri: ${identity-provider.url}
-                    predicates:
-                      - Path=/identity-api/mtls/**
-                    filters:
-                      - StripPrefix=1
-                  - id: users-roles
-                    uri: ${users-roles.url}
-                    predicates:
-                      - Path=/user-api/mtls/**
-                    filters:
-                      - StripPrefix=1
-                  - id: fc-service
-                    uri: "https://xfsc-service.gaiax-edc-dev-authority2.svc.cluster.local:8081"
-                    predicates:
-                      - Path=/fc/**
-                    filters:
-                      - StripPrefix=1
-                  - id: adapter-service
-                    uri: "https://adapter.gaiax-edc-dev-authority2.svc.cluster.local:8084"
-                    predicates:
-                      - Path=/adapter/**
-                    filters:
-                      - StripPrefix=1
-          routes: 
-            public-urls:
-              - method: GET
-                path: "/fc/**"
-                disable-ephemeral-proof-check: true
-              - method: POST
-                path: "/fc/**"
-                disable-ephemeral-proof-check: true
-              - method: PUT
-                path: "/fc/**"
-                disable-ephemeral-proof-check: true
-              - method: DELETE
-                path: "/fc/**"
-                disable-ephemeral-proof-check: true
-              - method: POST
-                path: "/adapter/**"
-                disable-ephemeral-proof-check: true
-              - method: GET
-                path: "/adapter/**"
-                disable-ephemeral-proof-check: true
+        
 
   - repoURL: "https://code.europa.eu/api/v4/projects/759/packages/helm/stable"
     path: ''
