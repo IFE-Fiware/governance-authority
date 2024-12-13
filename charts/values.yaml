@@ -26,7 +26,7 @@ hashicorp:
 
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git
-  branch: develop
+  branch: feature/DEV_INTEGRATION
 
 postgresql:
   repo_URL: https://charts.bitnami.com/bitnami
@@ -130,7 +130,7 @@ users_roles:
 
 xsfc_catalogue:
   projectID: "820"
-  targetRevision: 0.2.7
+  targetRevision: 0.2.7-SNAPSHOT.252.dd5bc038
   chart_name: fc-service
   resources:
     requests:
