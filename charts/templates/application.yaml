@@ -290,6 +290,27 @@ spec:
                       - Path=/adapter/**
                     filters:
                       - StripPrefix=1
+          routes: 
+            public-urls:
+              - method: GET
+                path: "/fc/**"
+                disable-ephemeral-proof-check: true
+              - method: POST
+                path: "/fc/**"
+                disable-ephemeral-proof-check: true
+              - method: PUT
+                path: "/fc/**"
+                disable-ephemeral-proof-check: true
+              - method: DELETE
+                path: "/fc/**"
+                disable-ephemeral-proof-check: true
+              - method: POST
+                path: "/adapter/**"
+                disable-ephemeral-proof-check: true
+              - method: GET
+                path: "/adapter/**"
+                disable-ephemeral-proof-check: true
+
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.adapter.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.adapter.targetRevision }}
