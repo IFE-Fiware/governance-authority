@@ -362,9 +362,6 @@ spec:
         simpl:
           certificate:
             san: "tls.{{ .Values.domainPrefix }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
-        {{- if .Values.auth_provider.resources }}
-        resources: {{- toYaml .Values.auth_provider.resources | nindent 10 }}
-        {{- end }}
   {{- if .Values.monitoring.enabled }}
   - repoURL: {{ .Values.monitoring.operator.repo_URL }}
     targetRevision: {{ .Values.monitoring.operator.targetRevision }}
