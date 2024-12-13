@@ -17,8 +17,8 @@ global:
 #nameOverride: ""
 fullnameOverride: "xsfc-service"
 
-secretEngine: dev-int
-secretConfigPath: "{{ .Values.secretEngine }}/{{ .Release.Namespace }}-xsfc-service"
+secretEngine: dev
+secretConfigPath: "{{ .Values.secretEngine }}/{{ .Release.Namespace }}-fc-service"
 
 podSecurityContext:
   {}

@@ -200,7 +200,7 @@ spec:
           allowPrivilegeEscalation: false
         ingress:
           enabled: false
-        postgres:
+        postgresql:
           enabled: false
         hashicorp:
           service: http://vault.gaiax-edc-dev-vault.svc.cluster.local:8200
