@@ -16,3 +16,5 @@ primary:
         CREATE DATABASE identityprovider OWNER identityprovider;
         CREATE USER fc_catalogue WITH PASSWORD 'fc_catalogue' CREATEDB;
         CREATE DATABASE fc_catalogue OWNER fc_catalogue;
+        CREATE USER authenticationprovider WITH PASSWORD 'authenticationprovider' CREATEDB;
+        CREATE DATABASE authenticationprovider OWNER authenticationprovider;

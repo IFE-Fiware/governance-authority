@@ -1,298 +1,293 @@
-spring:
-  cloud:
-    gateway:
-      routes:
-        - id: keycloak
-          uri: ${keycloak.url}
-          predicates:
-            - Path=/auth/**
-          filters:
-            - StripPrefix=1
-        - id: users-roles
-          uri: ${users-roles.url}
-          predicates:
-            - Path=/user-api/**
-          filters:
-            - StripPrefix=1
-        - id: onboarding
-          uri: ${onboarding.url}
-          predicates:
-            - Path=/onboarding-api/**
-          filters:
-            - StripPrefix=1
-        - id: sap
-          uri: ${sap.url}
-          predicates:
-            - Path=/sap-api/**
-          filters:
-            - StripPrefix=1
-        - id: identity-provider
-          uri: ${identity-provider.url}
-          predicates:
-            - Path=/identity-api/**
-          filters:
-            - StripPrefix=1
-        - id: authentication-provider
-          uri: ${authentication-provider.url}
-          predicates:
-            - Path=/auth-api/**
-          filters:
-            - StripPrefix=1
-        - id: ocsp
-          uri: ${ejbca.url}
-          predicates:
-            - Path=/ocsp
-          filters:
-            - RewritePath=/ocsp/*, /ejbca/publicweb/status/ocsp
-        - id: ca-certificates
-          uri: ${ejbca.url}
-          predicates:
-            - Path=/ca/*
-          filters:
-            - RewritePath=/ca/?(?<segment>.*), /ejbca/publicweb/webdist/certdist?cmd=cacert&issuer=CN%3D$\{segment}
-        - id: crl
-          uri: ${ejbca.url}
-          predicates:
-            - Path=/crl/*
-          filters:
-            - RewritePath=/crl/?(?<segment>.*), /ejbca/publicweb/webdist/certdist?cmd=crl&issuer=CN%3D$\{segment}
+# Spring Cloud Gateway Routes Authority
+appConfig:
+  spring:
+    cloud:
+      gateway:
+        routes:
+          - id: keycloak
+            uri: ${keycloak.url}
+            predicates:
+              - Path=/auth/**
+            filters:
+              - StripPrefix=1
+          - id: users-roles
+            uri: ${users-roles.url}
+            predicates:
+              - Path=/user-api/**
+            filters:
+              - StripPrefix=1
+          - id: onboarding
+            uri: ${onboarding.url}
+            predicates:
+              - Path=/onboarding-api/**
+            filters:
+              - StripPrefix=1
+          - id: sap
+            uri: ${sap.url}
+            predicates:
+              - Path=/sap-api/**
+            filters:
+              - StripPrefix=1
+          - id: identity-provider
+            uri: ${identity-provider.url}
+            predicates:
+              - Path=/identity-api/**
+            filters:
+              - StripPrefix=1
+          - id: authentication-provider
+            uri: ${authentication-provider.url}
+            predicates:
+              - Path=/auth-api/**
+            filters:
+              - StripPrefix=1
+          - id: ocsp
+            uri: ${ejbca.url}
+            predicates:
+              - Path=/ocsp
+            filters:
+              - RewritePath=/ocsp/*, /ejbca/publicweb/status/ocsp
+          - id: ca-certificates
+            uri: ${ejbca.url}
+            predicates:
+              - Path=/ca/*
+            filters:
+              - RewritePath=/ca/?(?<segment>.*), /ejbca/publicweb/webdist/certdist?cmd=cacert&issuer=CN%3D$\{segment}
+          - id: crl
+            uri: ${ejbca.url}
+            predicates:
+              - Path=/crl/*
+            filters:
+              - RewritePath=/crl/?(?<segment>.*), /ejbca/publicweb/webdist/certdist?cmd=crl&issuer=CN%3D$\{segment}
 
-springdoc:
-  swagger-ui:
-    urls:
-      - url: /sap-api/v3/api-docs
-        name: Security Attributes Provider Service
-      - url: /onboarding-api/v3/api-docs
-        name: Onboarding Service
-      - url: /user-api/v3/api-docs
-        name: Users & Roles Service
-      - url: /identity-api/v3/api-docs
-        name: Identity Provider Service
-      - url: /auth-api/v3/api-docs
-        name: Authentication Provider Service
+  springdoc:
+    swagger-ui:
+      urls:
+        - url: /sap-api/v3/api-docs
+          name: Security Attributes Provider Service
+        - url: /onboarding-api/v3/api-docs
+          name: Onboarding Service
+        - url: /user-api/v3/api-docs
+          name: Users & Roles Service
+        - url: /identity-api/v3/api-docs
+          name: Identity Provider Service
+        - url: /auth-api/v3/api-docs
+          name: Authentication Provider Service
 
-keycloak:
-  app:
-    realm: authority
+  routes:
+    public-urls:
+      - method: GET
+        path: "/swagger-ui.html"
+      - method: GET
+        path: "/swagger-ui/**"
+      - method: GET
+        path: "/v3/api-docs/**"
+      - method: GET
+        path: "/actuator/**"
 
-routes:
-  logging:
-    business:
       - method: POST
-        path: /onboarding-api/onboarding-request
-        config:
-          operations:
-            - ONBOARDING_REQUEST
+        path: "/ocsp"
+      - method: GET
+        path: "/ca/**"
+      - method: GET
+        path: "/crl/**"
+
+      - method: GET
+        path: "/user-api/credential/public-key" #TODO remove this
+
       - method: POST
-        path: /onboarding-api/onboarding-request/*/approve
-        config:
-          operations:
-            - APPROVE_ONBOARDING_REQUEST
+        path: "/onboarding-api/onboarding-request"
+      - method: GET
+        path: "/onboarding-api/participant-type"
+
+    denied-urls:
+      - method: GET
+        path: "/auth-api/keypair"
+
+    rbac:
+      ### CLI
+      - path: "/identity-api/cli/*"
+        roles:
+          - NOTARY
+          - T1UAR_M
+      - path: "/sap-api/cli*"
+        roles:
+          - NOTARY
+          - T1UAR_M
+      - path: "/user-api/cli*"
+        roles:
+          - NOTARY
+          - T1UAR_M
+        ### ONBOARDING
+      - path: "/onboarding-api/onboarding-request/*/status"
+        roles:
+          - NOTARY
+      - path: "/onboarding-api/onboarding-request/*/document"
+        method: POST
+        roles:
+          - NOTARY
+      - path: "/onboarding-api/participant-type/*"
+        roles:
+          - T2IAA_M
+      - path: "/onboarding-api/onboarding-status/*"
+        roles:
+          - T2IAA_M
+      - path: "/onboarding-api/onboarding-template/*"
+        roles:
+          - T2IAA_M
+      - path: "/onboarding-api/mime-type/*"
+        roles:
+          - T2IAA_M
+      - path: "/onboarding-api/onboarding-request"
+        method: GET
+        roles:
+          - APPLICANT
+          - NOTARY
+      - path: "/onboarding-api/onboarding-request"
+        method: PATCH
+        roles:
+          - APPLICANT
+          - NOTARY
+      - path: "/onboarding-api/onboarding-request/*"
+        method: GET
+        roles:
+          - APPLICANT
+          - NOTARY
+      - path: "/onboarding-api/onboarding-request/*/id-document"
+        method: PATCH
+        roles:
+          - APPLICANT
+          - NOTARY
+      - path: "/onboarding-api/onboarding-request/*/document/*"
+        method: GET
+        roles:
+          - APPLICANT
+          - NOTARY
+      - path: "/onboarding-api/onboarding-request/*/expiration-timeframe"
+        method: PATCH
+        roles:
+          - NOTARY
+        ###
+      - path: "/identity-api/participant/*"
+        method: PUT
+        roles:
+          - NOTARY
       - method: POST
-        path: /onboarding-api/onboarding-request/*/reject
-        config:
-          operations:
-            - REJECT_ONBOARDING_REQUEST
+        path: "/identity-api/csr/*"
+        roles:
+          - APPLICANT
+      - path: "/user-api/agent/identity-attributes"
+        method: GET
+        roles:
+          - T1UAR_M
+      - path: "/user-api/agent/identity-attributes/*"
+        method: GET
+        roles:
+          - T1UAR_M
+      - path: "/user-api/identity-attribute/search"
+        method: GET
+        roles:
+          - T1UAR_M
+          - NOTARY
+      - path: "/user-api/role/*"
+        method: GET
+        roles:
+          - T1UAR_M
+      - path: "/user-api/role"
+        method: PUT
+        roles:
+          - T1UAR_M
+      - path: "/user-api/role/*/identity-attributes"
+        method: POST
+        roles:
+          - T1UAR_M
+      - path: "/user-api/role/delete-attribute"
+        method: DELETE
+        roles:
+          - T1UAR_M
+      - path: "/user-api/role/*"
+        method: DELETE
+        roles:
+          - T1UAR_M
+      - path: "/user-api/role/search"
+        method: GET
+        roles:
+          - T1UAR_M
+      - path: "/user-api/role/*/duplicate-identity-attribute"
+        method: POST
+        roles:
+          - T1UAR_M
+      - path: "/user-api/user/*"
+        method: POST
+        roles:
+          - T1UAR_M
+      - path: "/user-api/user/**"
+        method: GET
+        roles:
+          - T1UAR_M
+      - path: "/user-api/user/**"
+        method: PUT
+        roles:
+          - T1UAR_M
+      - path: "/user-api/user/*"
+        method: DELETE
+        roles:
+          - T1UAR_M
+      - path: "/sap-api/identity-attribute"
+        method: POST
+        roles:
+          - IATTR_M
+      - path: "/sap-api/identity-attribute/*"
+        method: GET
+        roles:
+          - IATTR_M
+          - NOTARY
+      - path: "/sap-api/identity-attribute/*"
+        method: PUT
+        roles:
+          - IATTR_M
+      - path: "/sap-api/identity-attribute/*"
+        method: DELETE
+        roles:
+          - IATTR_M
+      - path: "/sap-api/identity-attribute/assignable/*"
+        method: PUT
+        roles:
+          - IATTR_M
+      - path: "/sap-api/identity-attribute/add-participant-type/*"
+        method: PUT
+        roles:
+          - IATTR_M
+      - path: "/sap-api/identity-attribute/unassign-participant/*"
+        method: DELETE
+        roles:
+          - NOTARY
+      - path: "/sap-api/identity-attribute/assign-participant/*"
+        method: PUT
+        roles:
+          - NOTARY
+      - path: "/sap-api/identity-attribute/assign/*/*"
+        method: PUT
+        roles:
+          - NOTARY
+      - path: "/auth-api/keypair"
+        method: HEAD
+        roles:
+          - ONBOARDER_M
 
-  public-urls:
-    - method: GET
-      path: "/swagger-ui.html"
-    - method: GET
-      path: "/swagger-ui/**"
-    - method: GET
-      path: "/v3/api-docs/**"
-    - method: GET
-      path: "/actuator/**"
-
-    - method: POST
-      path: "/ocsp"
-    - method: GET
-      path: "/ca/**"
-    - method: GET
-      path: "/crl/**"
-
-    - method: GET
-      path: "/user-api/credential/public-key"
-    - method: GET
-      path: "/onboarding-api/participant-type/*"
-    - method: POST
-      path: "/onboarding-api/onboarding-request"
-
-  denied-urls:
-    - method: GET
-      path: "/auth-api/keypair"
-
-    - path: "/sap-api/mtls/**"
-    - path: "/user-api/mtls/**"
-    - path: "/identity-api/mtls/**"
-
-  rbac:
-    ### CLI
-    - path: "/identity-api/cli/*"
-      roles:
-        - NOTARY
-        - T1UAR_M
-    - path: "/sap-api/cli/*"
-      roles:
-        - NOTARY
-        - T1UAR_M
-    - path: "/user-api/cli/*"
-      roles:
-        - NOTARY
-        - T1UAR_M
-      ### ONBOARDING
-    - path: "/onboarding-api/onboarding-request/*/status"
-      roles:
-        - NOTARY
-    - path: "/onboarding-api/onboarding-request/*/document"
-      method: POST
-      roles:
-        - NOTARY
-    - path: "/onboarding-api/participant-type/*"
-      roles:
-        - T2IAA_M
-    - path: "/onboarding-api/onboarding-status/*"
-      roles:
-        - T2IAA_M
-    - path: "/onboarding-api/onboarding-template/*"
-      roles:
-        - T2IAA_M
-    - path: "/onboarding-api/mime-type/*"
-      roles:
-        - T2IAA_M
-    - path: "/onboarding-api/credential-request"
-      method: POST
-      roles:
-        - NOTARY
-        - T1UAR_M
-    - path: "/onboarding-api/onboarding-request"
-      method: GET
-      roles:
-        - APPLICANT
-        - NOTARY
-    - path: "/onboarding-api/onboarding-request"
-      method: POST
-      roles:
-        - APPLICANT
-        - NOTARY
-    - path: "/onboarding-api/onboarding-request"
-      method: PATCH
-      roles:
-        - APPLICANT
-        - NOTARY
-    - path: "/onboarding-api/onboarding-request/*"
-      method: GET
-      roles:
-        - APPLICANT
-        - NOTARY
-    - path: "/onboarding-api/onboarding-request/*/id-document"
-      method: PATCH
-      roles:
-        - APPLICANT
-        - NOTARY
-    - path: "/onboarding-api/onboarding-request/*/document/*"
-      method: GET
-      roles:
-        - APPLICANT
-        - NOTARY
-    - path: "/onboarding-api/onboarding-request/*/expiration-timeframe"
-      method: PATCH
-      roles:
-        - NOTARY
-      ###
-    - path: "/identity-api/participant/*"
-      method: PUT
-      roles:
-        - NOTARY
-    - path: "/user-api/agent/identity-attributes"
-      method: GET
-      roles:
-        - T1UAR_M
-    - path: "/user-api/agent/identity-attributes/*"
-      method: GET
-      roles:
-        - T1UAR_M
-    - path: "/user-api/identity-attribute/search"
-      method: GET
-      roles:
-        - T1UAR_M
-    - path: "/user-api/role/*"
-      method: GET
-      roles:
-        - T1UAR_M
-    - path: "/user-api/role"
-      method: PUT
-      roles:
-        - T1UAR_M
-    - path: "/user-api/role/*/identity-attributes"
-      method: POST
-      roles:
-        - T1UAR_M
-    - path: "/user-api/role/delete-attribute"
-      method: DELETE
-      roles:
-        - T1UAR_M
-    - path: "/user-api/role/*"
-      method: DELETE
-      roles:
-        - T1UAR_M
-    - path: "/user-api/role/search"
-      method: GET
-      roles:
-        - T1UAR_M
-    - path: "/user-api/role/*/duplicate-identity-attribute"
-      method: POST
-      roles:
-        - T1UAR_M
-    - path: "/user-api/user/*"
-      method: POST
-      roles:
-        - T1UAR_M
-    - path: "/user-api/user/*"
-      method: GET
-      roles:
-        - T1UAR_M
-    - path: "/user-api/user/*"
-      method: PUT
-      roles:
-        - T1UAR_M
-    - path: "/user-api/user/*"
-      method: DELETE
-      roles:
-        - T1UAR_M
-    - path: "/sap-api/identity-attribute"
-      method: POST
-      roles:
-        - IATTR_M
-    - path: "/sap-api/identity-attribute/*"
-      method: GET
-      roles:
-        - IATTR_M
-    - path: "/sap-api/identity-attribute/*"
-      method: PUT
-      roles:
-        - IATTR_M
-    - path: "/sap-api/identity-attribute/*"
-      method: DELETE
-      roles:
-        - IATTR_M
-    - path: "/sap-api/identity-attribute/assignable/*"
-      method: PUT
-      roles:
-        - IATTR_M
-    - path: "/sap-api/identity-attribute/add-participant-type/*"
-      method: PUT
-      roles:
-        - IATTR_M
-    - path: "/sap-api/identity-attribute/unassign-participant/*"
-      method: DELETE
-      roles:
-        - NOTARY
-    - path: "/sap-api/identity-attribute/assign-participant/*"
-      method: PUT
-      roles:
-        - NOTARY
-    - path: "/sap-api/identity-attribute/assign/*/*"
-      method: PUT
-      roles:
-        - NOTARY
+    logging:
+      business:
+        - method: POST
+          path: /public/onboarding-api/onboarding-request
+          config:
+            operations:
+              - ONBOARDING_REQUEST
+        - method: POST
+          path: /private/onboarding-api/onboarding-request/*/approve
+          config:
+            operations:
+              - APPROVE_ONBOARDING_REQUEST
+        - method: POST
+          path: /private/onboarding-api/onboarding-request/*/reject
+          config:
+            operations:
+              - REJECT_ONBOARDING_REQUEST

@@ -9,28 +9,26 @@ global:
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# image:
-#   #repository: node-654e3bca7fbeeed18f81d7c7.ps-xaas.io/catalogue/fc-service-server
-#   repository: code.europa.eu:4567/simpl/simpl-open/development/gaia-x-edc/simpl-fc-service
-#   pullPolicy: Always
-#   # Overrides the image tag whose default is the chart appVersion.
-#   tag: "0.0.1-SNAPSHOT.latest"
+# Default values for fc-service.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
 
 #imagePullSecrets: []
 #nameOverride: ""
-fullnameOverride: "xsfc-infra-service"
+fullnameOverride: "xsfc-service"
 
 secretEngine: dev-int
-secretConfigPath: "{{ .Values.secretEngine }}/{{ .Release.Namespace }}-xsfc-infra-service"
+secretConfigPath: "{{ .Values.secretEngine }}/{{ .Release.Namespace }}-xsfc-service"
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-serviceAccountEnabled: true
+serviceAccountEnabled: "true"
 
 serviceAccount:
   enabled: true
-  name: "xsfc-infra-service-sa"
+  name: "xsfc-service-sa"
 
 securityContext: {}
 #  # capabilities:
@@ -42,7 +40,7 @@ securityContext: {}
 
 hashicorp:
   role: "gaiax-edc_role"
-  service: "http://vault-ha.vault-ha.svc.cluster.local:8200"
+  # service: "http://vault-ha.vault-ha.svc.cluster.local:8200"
 
 service:
   type: ClusterIP
@@ -51,7 +49,7 @@ service:
 ingress:
   enabled: true
   className: nginx
-  annotations: 
+  annotations:
     # kubernetes.io/tls-acme: "true"
     kubernetes.io/ingress.allow-http: "true"
     cert-manager.io/cluster-issuer: "dev-prod"
@@ -60,15 +58,25 @@ ingress:
     nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
     nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
     nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
-#    nginx.ingress.kubernetes.io/server-snippet: |
-#        location /actuator {
-#          deny all;
-#          return 403;
-#        }
+    #    nginx.ingress.kubernetes.io/server-snippet: |
+    #        location /actuator {
+    #          deny all;
+    #          return 403;
+    #        }
     acme.cert-manager.io/http01-edit-in-place: "true"
-#    kubernetes.io/ingress.class: nginx
+  #    kubernetes.io/ingress.class: nginx
+  hosts:
+    - host: fc-server.dev.simpl-europe.eu
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: fc-server-tls
+      hosts:
+        - fc-server.dev.simpl-europe.eu
 
-resources: {}
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -83,7 +91,7 @@ resources: {}
 probes:
   path: /actuator/health
   initialDelaySeconds: 60
-  periodSeconds: 30             
+  periodSeconds: 30
 
 autoscaling:
   enabled: false
@@ -96,7 +104,7 @@ nodeSelector: {}
 
 tolerations: []
 
-affinity: 
+affinity:
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
       - weight: 100
@@ -108,60 +116,45 @@ affinity:
                 values:
                   - fc-service
           topologyKey: "kubernetes.io/hostname"
-          
+
 restartPolicy: Always
 
 hostAliases:
   - ip: "10.97.11.112" #use ClusterIP of your Ingress Controller here
     hostnames:
       - key-server
-    
+
 storage:
   enabled: false
   size: 2Gi
   path: /mnt/data/postgresql
 
 postgresql:
-  fullnameOverride: xsfc-infra-postgres
-  nameOverride: xsfc-infra-postgres
+  fullnameOverride: xsfc-postgres
+  nameOverride: xsfc-postgres
   auth:
     postgresPassword: postgres
-    username: keycloak
-    password: keycloak
-    database: keycloak
   primary:
     persistence:
       enabled: true
-    initdb:
-      user: postgres
-      password: postgres
-      scripts:
-        00_init_keycloak.sql: |  
-          CREATE USER keycloak WITH PASSWORD 'keycloak';
-          CREATE DATABASE "keycloak" WITH OWNER keycloak;
-          GRANT ALL PRIVILEGES ON DATABASE keycloak TO $POSTGRES_USER;
-  
-keycloak:
-  enabled: false
-  extraVolumes: false
-    
+
 neo4j:
-  fullnameOverride: xsfc-infra-neo4j
+  fullnameOverride: xsfc-neo4j
   neo4j:
-    name: xsfc-infra-neo4j-db
+    name: xsfc-neo4j-db
     password: "neo12345"
-#    passwordFromSecret: fc-neo4j-secret
+  #    passwordFromSecret: fc-neo4j-secret
   volumes:
     data:
       mode: defaultStorageClass
   env:
-#    NEO4J_AUTH: neo4j/neo12345
+    #    NEO4J_AUTH: neo4j/neo12345
     NEO4J_PLUGINS: '["apoc", "graph-data-science", "n10s"]'
-  additionalVolumes: 
-    - name: xsfc-infra-neo4j-data
+  additionalVolumes:
+    - name: xsfc-neo4j-data
       emptyDir: {}
-  additionalVolumeMounts: 
-    - name: xsfc-infra-neo4j-data
+  additionalVolumeMounts:
+    - name: xsfc-neo4j-data
       mountPath: "/var/lib/neo4j/plugins"
   config:
     dbms.security.procedures.unrestricted: gds.*,apoc.*,n10s.*,semantics.*
@@ -171,10 +164,10 @@ neo4j:
       image: appropriate/curl:latest
       imagePullPolicy: IfNotPresent
       volumeMounts:
-        - name: xsfc-infra-neo4j-data
+        - name: xsfc-neo4j-data
           mountPath: /var/lib/neo4j/plugins
       securityContext:
-        allowPrivilegeEscalation: false    
+        allowPrivilegeEscalation: false
       command:
         - "/bin/sh"
         - "-c"
@@ -185,4 +178,3 @@ neo4j:
           cp -R apoc-5.5.0-extended.jar /var/lib/neo4j/plugins
           cp -R neosemantics-5.5.0.0.jar /var/lib/neo4j/plugins
           cp -R neo4j-graph-data-science-2.3.5.jar /var/lib/neo4j/plugins
-

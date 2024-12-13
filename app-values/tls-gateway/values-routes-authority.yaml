@@ -1,49 +1,58 @@
-springRoutes:
-  - id: sap
-    uri: ${sap.url}
-    predicates:
-      - Path=/sap-api/mtls/**
-    filters:
-      - StripPrefix=1
-  - id: identity-provider
-    uri: ${identity-provider.url}
-    predicates:
-      - Path=/identity-api/mtls/**
-    filters:
-      - StripPrefix=1
-  - id: users-roles
-    uri: ${users-roles.url}
-    predicates:
-      - Path=/user-api/mtls/**
-    filters:
-      - StripPrefix=1
+appConfig:
+  spring:
+    cloud:
+      gateway:
+        routes:
+          - id: sap
+            uri: ${sap.url}
+            predicates:
+              - Path=/sap-api/mtls/**
+            filters:
+              - StripPrefix=1
+          - id: identity-provider
+            uri: ${identity-provider.url}
+            predicates:
+              - Path=/identity-api/mtls/**
+            filters:
+              - StripPrefix=1
+          - id: users-roles
+            uri: ${users-roles.url}
+            predicates:
+              - Path=/user-api/mtls/**
+            filters:
+              - StripPrefix=1
+  routes:
+    public-urls:
+      - method: GET
+        path: "/actuator/**"
 
-  - id: fc-service
-    uri: "https://xfsc-data-service.{{ .Values.cluster.namespace }}.svc.cluster.local:8081"
-    predicates:
-      - Path=/fc/**
-    filters:
-      - StripPrefix=1
+    abac:
+      - method: PATCH
+        path: "/identity-api/mtls/public-key"
+        disable-ephemeral-proof-check: true
+      - method: POST
+        path: "/identity-api/mtls/token"
+        disable-ephemeral-proof-check: true
+      - method: POST
+        path: "/user-api/mtls/ephemeral-proof"
+        disable-ephemeral-proof-check: true
 
-  - id: adapter-service
-    uri: "https://adapter.{{ .Values.cluster.namespace }}.svc.cluster.local:8084"
-    predicates:
-      - Path=/adapter/**
-    filters:
-      - StripPrefix=1
-
-routes:
-  publicUrls:
-    - method: GET
-      path: "/actuator/**"
-
-  abac:
-    - method: PATCH
-      path: "/identity-api/mtls/public-key"
-      disableEphemeralProofCheck: true
-    - method: POST
-      path: "/identity-api/mtls/token"
-      disableEphemeralProofCheck: true
-    - method: POST
-      path: "/user-api/mtls/ephemeral-proof"
-      disableEphemeralProofCheck: true
+    rbac:
+      - method: GET
+        path: "/fc/**"
+        disable-ephemeral-proof-check: true
+      - method: POST
+        path: "/fc/**"
+        disable-ephemeral-proof-check: true
+      - method: PUT
+        path: "/fc/**"
+        disable-ephemeral-proof-check: true
+      - method: DELETE
+        path: "/fc/**"
+        disable-ephemeral-proof-check: true
+      - method: POST
+        path: "/adapter/**"
+        disable-ephemeral-proof-check: true
+      - method: GET
+        path: "/adapter/**"
+        disable-ephemeral-proof-check: true
