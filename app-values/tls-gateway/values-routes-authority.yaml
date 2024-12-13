@@ -36,23 +36,3 @@ appConfig:
       - method: POST
         path: "/user-api/mtls/ephemeral-proof"
         disable-ephemeral-proof-check: true
-
-    rbac:
-      - method: GET
-        path: "/fc/**"
-        disable-ephemeral-proof-check: true
-      - method: POST
-        path: "/fc/**"
-        disable-ephemeral-proof-check: true
-      - method: PUT
-        path: "/fc/**"
-        disable-ephemeral-proof-check: true
-      - method: DELETE
-        path: "/fc/**"
-        disable-ephemeral-proof-check: true
-      - method: POST
-        path: "/adapter/**"
-        disable-ephemeral-proof-check: true
-      - method: GET
-        path: "/adapter/**"
-        disable-ephemeral-proof-check: true
