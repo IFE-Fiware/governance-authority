@@ -92,6 +92,8 @@ spec:
             allowOrigin: https://fe.{{ .Values.domainPrefix }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://be.{{ .Values.domainPrefix }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
           hostBe: be.{{ .Values.domainPrefix }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           hostTls: tls.{{ .Values.domainPrefix }}.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          ingress:
+            issuer: dev-prod
         usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         securityAttributesProviderUrl: http://security-attributes-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         keycloakUrl: http://keycloak.{{ .Values.cluster.namespace }}.svc.cluster.local
