@@ -5,7 +5,10 @@ DEPLOYMENT_IMAGE_PULL_POLICY: Always
 secretConfigPath: "{{ .Values.secretEngine }}/{{ .Release.Namespace }}-adapter-simpl-backend"
 
 deployment:
-  label: poc
+  label: adapter
+
+ingress:
+  enabled: false
 
 serviceAccount:
   enabled: true

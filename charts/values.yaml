@@ -152,7 +152,7 @@ onboarding:
 
 adapter:
   projectID: "759"
-  targetRevision: 0.1.11-SNAPSHOT.440.8ea9076c
+  targetRevision: 0.1.11-SNAPSHOT.449.7c123c77
   chart_name: poc-charts
   fullnameOverride: adapter
   valueFiles:

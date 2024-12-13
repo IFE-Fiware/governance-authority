@@ -47,7 +47,7 @@ service:
   port: 8081
 
 ingress:
-  enabled: true
+  enabled: false
   className: nginx
   annotations:
     # kubernetes.io/tls-acme: "true"
@@ -118,11 +118,6 @@ affinity:
           topologyKey: "kubernetes.io/hostname"
 
 restartPolicy: Always
-
-hostAliases:
-  - ip: "10.97.11.112" #use ClusterIP of your Ingress Controller here
-    hostnames:
-      - key-server
 
 storage:
   enabled: false

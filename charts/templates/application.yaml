@@ -303,7 +303,6 @@ spec:
           allowPrivilegeEscalation: false
         ingress:
           enabled: false
-          
         secretEngine: {{ .Values.secretEngine }}
         hashicorp:
           service: {{ .Values.hashicorp.service }}
