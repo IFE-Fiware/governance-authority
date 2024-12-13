@@ -1,0 +1,356 @@
+---
+# Source: authority2/templates/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authority2
+  namespace: argo-cd
+spec:
+  project: gaiax
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gaiax-edc-dev-authority2
+  sources:
+  - repoURL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git
+    targetRevision: feature/DEV_INTEGRATION
+    ref: values
+  - repoURL: https://charts.bitnami.com/bitnami
+    targetRevision: 15.2.5
+    chart: postgresql
+    helm:
+      valueFiles:
+        - $values/app-values/Postgresql/values.yaml
+        - $values/app-values/Postgresql/values-authority.yaml
+      values: |
+        fullnameOverride: postgresql
+        primary:
+          resources:
+            requests:
+              cpu: "0"
+              memory: "0"
+          resourcesPreset: none
+  - repoURL: https://charts.bitnami.com/bitnami
+    targetRevision: 22.2.5
+    chart: keycloak
+    helm:
+      valueFiles:
+        - $values/app-values/Keycloak/values.yaml
+      values: |
+        fullnameOverride: keycloak
+        apiUrl: "https://be.authority2.dev.simpl-europe.eu"
+        externalDatabase:
+          host: "postgresql.gaiax-edc-dev-authority2.svc.cluster.local"
+        extraEnvVars:
+        - name: KC_HOSTNAME_ADMIN
+          value: "https://be.authority2.dev.simpl-europe.eu/auth"
+        - name: KC_HOSTNAME
+          value: "https://be.authority2.dev.simpl-europe.eu/auth"
+        - name: USERS_ROLES_BASE_URL
+          value: "http://users-roles.gaiax-edc-dev-authority2.svc.cluster.local:8080"
+        - name: KEYCLOAK_BASE_URL
+          value: "https://be.authority2.dev.simpl-europe.eu/auth"
+        - name: REALM
+          value: "authority"
+        - name: KEYCLOAK_EXTRA_ARGS
+          value: --import-realm
+        resourcesPreset: none
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+  - repoURL: https://keyfactor.github.io/ejbca-community-helm
+    targetRevision: 1.0.3
+    chart: ejbca-community-helm
+    helm:
+      valueFiles:
+        - $values/app-values/ejbca/values.yaml
+      values: |
+        fullnameOverride: ejbca-community-helm
+        hostname: &hostname ejbca-community-helm.gaiax-edc-dev-authority2.svc.cluster.local
+        ejbca:
+          env:
+            HTTPSERVER_HOSTNAME: *hostname
+            DATABASE_JDBC_URL: "jdbc:postgresql://postgresql.gaiax-edc-dev-authority2.svc.cluster.local:5432/ejbca"
+        nginx:
+          host: *hostname
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+  - repoURL: "https://code.europa.eu/api/v4/projects/772/packages/helm/stable"
+    path: ''
+    targetRevision: 0.8.0
+    chart: simpl-cloud-gateway
+    helm:
+      valueFiles:
+        - $values/app-values/Simpl-Cloud-Gateway/values.yaml
+        - $values/app-values/Simpl-Cloud-Gateway/values-routes.yaml
+      values: |
+        global:
+          cors:
+            allowOrigin: https://fe.authority2.dev.simpl-europe.eu,https://be.authority2.dev.simpl-europe.eu,http://localhost:4202,http://localhost:3000
+          hostBe: be.authority2.dev.simpl-europe.eu
+          hostTls: tls.authority2.dev.simpl-europe.eu
+          ingress:
+            issuer: dev-prod
+        usersRolesUrl: http://users-roles.gaiax-edc-dev-authority2.svc.cluster.local:8080
+        securityAttributesProviderUrl: http://security-attributes-provider.gaiax-edc-dev-authority2.svc.cluster.local:8080
+        keycloakUrl: http://keycloak.gaiax-edc-dev-authority2.svc.cluster.local
+        onboardingUrl: http://onboarding.gaiax-edc-dev-authority2.svc.cluster.local:8080
+        ejbcaUrl: http://ejbca-community-helm.gaiax-edc-dev-authority2.svc.cluster.local:30080
+        identityProviderUrl: http://identity-provider.gaiax-edc-dev-authority2.svc.cluster.local:8080
+        authenticationProviderUrl: http://authentication-provider.gaiax-edc-dev-authority2.svc.cluster.local:8080
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+  - repoURL: "https://code.europa.eu/api/v4/projects/769/packages/helm/stable"
+    path: "''"
+    targetRevision: 0.8.0
+    chart: simpl-fe
+    helm:
+      valueFiles:
+        - $values/app-values/Simpl-fe/values.yaml
+        - $values/app-values/Simpl-fe/values-authority.yaml
+      values: |
+        hostFe: fe.authority2.dev.simpl-europe.eu
+        cors:
+          allowOrigin: https://fe.authority2.dev.simpl-europe.eu,https://be.authority2.dev.simpl-europe.eu,http://localhost:4202,http://localhost:4203,http://localhost:3000
+        env:
+        - name: API_URL
+          value: "https://be.authority2.dev.simpl-europe.eu"
+        - name: KEYCLOAK_URL
+          value: "https://be.authority2.dev.simpl-europe.eu/auth"
+        - name: KEYCLOAK_REALM
+          value: "authority"
+        - name: KEYCLOAK_CLIENT_ID
+          value: "frontend-cli"
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+  - repoURL: "https://code.europa.eu/api/v4/projects/861/packages/helm/stable"
+    path: ''
+    targetRevision: 0.8.0
+    chart: security-attributes-provider
+    helm:
+      valueFiles:
+        - $values/app-values/SAP/values.yaml
+      values: |
+        db:
+          url: "jdbc:postgresql://postgresql.gaiax-edc-dev-authority2.svc.cluster.local:5432/securityattributesprovider"
+        microservices:
+          identityProviderUrl: http://identity-provider.gaiax-edc-dev-authority2.svc.cluster.local:8080
+          onboardingUrl: http://onboarding.gaiax-edc-dev-authority2.svc.cluster.local:8080
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+  - repoURL: "https://code.europa.eu/api/v4/projects/771/packages/helm/stable"
+    path: ''
+    targetRevision: 0.8.1
+    chart: users-roles
+    helm:
+      valueFiles:
+        - $values/app-values/Users-Roles/values.yaml
+      values: |
+        global:
+          hostBe: be.authority2.dev.simpl-europe.eu
+          hostTls: tls.authority2.dev.simpl-europe.eu
+          cors:
+            allowOrigin: https://fe.authority2.dev.simpl-europe.eu,http://localhost:4202,http://localhost:3000
+        db:
+          url: "jdbc:postgresql://postgresql.gaiax-edc-dev-authority2.svc.cluster.local:5432/usersroles"
+        redis:
+          host: "redis-master.gaiax-edc-dev-authority2.svc.cluster.local"
+        microservices:
+          authenticationProviderUrl: http://authentication-provider.gaiax-edc-dev-authority2.svc.cluster.local:8080
+          identityProviderUrl: http://identity-provider.gaiax-edc-dev-authority2.svc.cluster.local:8080
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+  - repoURL: https://charts.bitnami.com/bitnami
+    targetRevision: 19.6.0
+    chart: redis
+    helm:
+      valueFiles:
+        - $values/app-values/Redis/values.yaml
+      values: |
+        fullnameOverride: redis
+        master:
+          resources:
+            requests:
+              cpu: "0"
+              memory: "0"
+          resourcesPreset: none
+  - repoURL: "https://code.europa.eu/api/v4/projects/820/packages/helm/stable"
+    path: ''
+    targetRevision: 0.2.7-SNAPSHOT.252.dd5bc038
+    chart: fc-service
+    helm:
+      valueFiles:
+        - $values/app-values/xsfc-catalogue/values.yaml
+      values: |
+        storage: 
+          enabled: false
+        podSecurityContext: 
+          allowPrivilegeEscalation: false
+        ingress:
+          enabled: false
+        postgres:
+          enabled: false
+        hashicorp:
+          service: http://vault-ha.vault-ha.svc.cluster.local:8200
+        secretEngine: dev
+        neo4j:
+          resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+  - repoURL: "https://code.europa.eu/api/v4/projects/770/packages/helm/stable"
+    path: ''
+    targetRevision: 0.8.0
+    chart: onboarding
+    helm:
+      valueFiles:
+        - $values/app-values/onboarding/values.yaml
+      values: |
+        db:
+          url: "jdbc:postgresql://postgresql.gaiax-edc-dev-authority2.svc.cluster.local:5432/onboarding"
+        microservices:
+          identityProviderUrl: http://identity-provider.gaiax-edc-dev-authority2.svc.cluster.local:8080
+          usersRolesUrl: http://users-roles.gaiax-edc-dev-authority2.svc.cluster.local:8080
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+  - repoURL: "https://code.europa.eu/api/v4/projects/860/packages/helm/stable"
+    path: ''
+    targetRevision: 0.8.1
+    chart: tls-gateway
+    helm:
+      valueFiles:
+        - $values/app-values/tls-gateway/values.yaml
+        - $values/app-values/tls-gateway/values-routes-authority.yaml
+      values: |
+        global:  
+          cors:
+            allowOrigin: https://fe.authority2.dev.simpl-europe.eu,https://be.authority2.dev.simpl-europe.eu,http://localhost:4202,http://localhost:3000
+        microservices:
+          usersRolesUrl: http://users-roles.gaiax-edc-dev-authority2.svc.cluster.local:8080
+          keycloakUrl: http://keycloak.gaiax-edc-dev-authority2.svc.cluster.local
+          securityAttributesProviderUrl: http://security-attributes-provider.gaiax-edc-dev-authority2.svc.cluster.local:8080
+          identityProviderUrl: http://identity-provider.gaiax-edc-dev-authority2.svc.cluster.local:8080
+          authenticationProviderUrl: http://authentication-provider.gaiax-edc-dev-authority2.svc.cluster.local:8080
+        redis:
+          host: "redis-master.gaiax-edc-dev-authority2.svc.cluster.local"
+        hostT2: tls.authority2.dev.simpl-europe.eu
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+        appConfig:
+          spring:
+            cloud:
+              gateway:
+                routes:
+                  - id: sap
+                    uri: ${sap.url}
+                    predicates:
+                      - Path=/sap-api/mtls/**
+                    filters:
+                      - StripPrefix=1
+                  - id: identity-provider
+                    uri: ${identity-provider.url}
+                    predicates:
+                      - Path=/identity-api/mtls/**
+                    filters:
+                      - StripPrefix=1
+                  - id: users-roles
+                    uri: ${users-roles.url}
+                    predicates:
+                      - Path=/user-api/mtls/**
+                    filters:
+                      - StripPrefix=1
+                  - id: fc-service
+                    uri: "https://xfsc-service.gaiax-edc-dev-authority2.svc.cluster.local:8081"
+                    predicates:
+                      - Path=/fc/**
+                    filters:
+                      - StripPrefix=1
+                  - id: adapter-service
+                    uri: "https://adapter.gaiax-edc-dev-authority2.svc.cluster.local:8084"
+                    predicates:
+                      - Path=/adapter/**
+                    filters:
+                      - StripPrefix=1
+  - repoURL: "https://code.europa.eu/api/v4/projects/759/packages/helm/stable"
+    path: ''
+    targetRevision: 0.1.11-SNAPSHOT.440.8ea9076c
+    chart: poc-charts
+    helm:
+      releaseName: adapter
+      valueFiles:
+        - $values/app-values/adapter/values.yaml
+      values: |
+        podSecurityContext: 
+          allowPrivilegeEscalation: false
+        ingress:
+          enabled: false
+          
+        secretEngine: dev
+        hashicorp:
+          service: http://vault-ha.vault-ha.svc.cluster.local:8200
+  - repoURL: "https://code.europa.eu/api/v4/projects/913/packages/helm/stable"
+    path: ''
+    targetRevision: 0.8.0
+    chart: identity-provider
+    helm:
+      valueFiles:
+        - $values/app-values/identity-provider/values.yaml
+      values: |
+        hostT2: tls.authority2.dev.simpl-europe.eu
+        db:
+          url: "jdbc:postgresql://postgresql.gaiax-edc-dev-authority2.svc.cluster.local:5432/identityprovider"
+        redis:
+          host: "redis-master.gaiax-edc-dev-authority2.svc.cluster.local"
+        global:
+          hostBe: be.authority2.dev.simpl-europe.eu
+          hostFe: fe.authority2.dev.simpl-europe.eu
+          authorityUrl: https://be.authority2.dev.simpl-europe.eu
+          cors:
+            allowOrigin: https://fe.authority2.dev.simpl-europe.eu,http://localhost:4202,http://localhost:3000
+        microservices:
+          usersRolesUrl: http://users-roles.gaiax-edc-dev-authority2.svc.cluster.local:8080
+          securityAttributesProviderUrl: http://security-attributes-provider.gaiax-edc-dev-authority2.svc.cluster.local:8080
+          onboardingUrl: http://onboarding.gaiax-edc-dev-authority2.svc.cluster.local:8080
+          authenticationProviderUrl: http://authentication-provider.gaiax-edc-dev-authority2.svc.cluster.local:8080
+        ejbca:
+          enrollConfig:
+            url: "https://ejbca-community-helm.gaiax-edc-dev-authority2.svc.cluster.local:30443"
+          keystore:
+            base64: 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
+            password: RKGWsSyVJG0AmLEQHnhq
+          truststore: 
+            base64: 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
+            password: dlLDk49v1Qp0AQqYCwpk
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+  - repoURL: "https://code.europa.eu/api/v4/projects/939/packages/helm/stable"
+    path: ''
+    targetRevision: 0.8.1
+    chart: authentication-provider
+    helm:
+      valueFiles:
+        - $values/app-values/auth-provider/values.yaml
+      values: |
+        db:
+          url: "jdbc:postgresql://postgresql.gaiax-edc-dev-authority2.svc.cluster.local:5432/authenticationprovider"
+        microservices:
+          usersRolesUrl: http://users-roles.gaiax-edc-dev-authority2.svc.cluster.local:8080
+        simpl:
+          certificate:
+            san: "tls.authority2.dev.simpl-europe.eu"
