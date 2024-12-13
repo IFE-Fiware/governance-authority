@@ -87,6 +87,7 @@ spec:
         - $values/app-values/Simpl-Cloud-Gateway/values-routes.yaml
       values: |
         global:
+          profile: authority
           cors:
             allowOrigin: https://fe.authority2.dev.simpl-europe.eu,https://be.authority2.dev.simpl-europe.eu,http://localhost:4202,http://localhost:3000
           hostBe: be.authority2.dev.simpl-europe.eu
@@ -287,18 +288,19 @@ spec:
                       - StripPrefix=1
   - repoURL: "https://code.europa.eu/api/v4/projects/759/packages/helm/stable"
     path: ''
-    targetRevision: 0.1.11-SNAPSHOT.440.8ea9076c
+    targetRevision: 0.1.11-SNAPSHOT.449.7c123c77
     chart: poc-charts
     helm:
       releaseName: adapter
       valueFiles:
         - $values/app-values/adapter/values.yaml
       values: |
+        deployment:
+          label: adapter
         podSecurityContext: 
           allowPrivilegeEscalation: false
         ingress:
           enabled: false
-          
         secretEngine: dev
         hashicorp:
           service: http://vault-ha.vault-ha.svc.cluster.local:8200
