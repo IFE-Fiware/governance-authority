@@ -85,6 +85,7 @@ spec:
       valueFiles:
         - $values/app-values/Simpl-Cloud-Gateway/values.yaml
         - $values/app-values/Simpl-Cloud-Gateway/values-routes.yaml
+        - $values/app-values/Simpl-Cloud-Gateway/values-authority.yaml
       values: |
         global:
           profile: authority
@@ -236,6 +237,7 @@ spec:
         - $values/app-values/tls-gateway/values-routes-authority.yaml
       values: |
         global:  
+          profile: authority
           cors:
             allowOrigin: https://fe.authority2.dev.simpl-europe.eu,https://be.authority2.dev.simpl-europe.eu,http://localhost:4202,http://localhost:3000
         microservices:
@@ -336,7 +338,7 @@ spec:
             password: RKGWsSyVJG0AmLEQHnhq
           truststore: 
             base64: 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
-            password: dlLDk49v1Qp0AQqYCwpk
+            password: changeit
         resources:
           requests:
             cpu: "0"
