@@ -12,7 +12,6 @@ ingress:
 
 serviceAccount:
   enabled: true
-  name: "adapter-sa"
 
 hashicorp:
   role: "gaiax-edc_role"
