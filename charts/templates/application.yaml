@@ -202,7 +202,7 @@ spec:
           allowPrivilegeEscalation: false
         ingress:
           enabled: false
-        postgres:
+        postgresql:
           enabled: false
         hashicorp:
           service: {{ .Values.hashicorp.service }}

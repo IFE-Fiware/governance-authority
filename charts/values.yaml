@@ -22,7 +22,7 @@ cluster:
 
 secretEngine: dev
 hashicorp:
-  service: "http://vault-ha.vault-ha.svc.cluster.local:8200"
+  service: "http://vault.gaiax-edc-dev-vault.svc.cluster.local:8200"
 
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git
