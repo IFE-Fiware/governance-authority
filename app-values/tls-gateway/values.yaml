@@ -117,9 +117,8 @@ routes: {}
 # Springdoc Swagger-UI
 swaggerUrls: []
 
-ssl:
-  keystore:
-    password: "authority"
-
 global:
   profile: authority
+
+keypair:
+  algorithm: EC

@@ -1,4 +1,0 @@
-global:
-   profile: authority
-   ingress:
-     issuer: dev-prod

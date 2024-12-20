@@ -18,10 +18,10 @@ global:
 
 #imagePullSecrets: []
 #nameOverride: ""
-fullnameOverride: "xsfc-data-service"
+fullnameOverride: "xsfc-service"
 
 secretEngine: dev-int
-secretConfigPath: "{{ .Values.secretEngine }}/{{ .Release.Namespace }}-xsfc-data-service"
+secretConfigPath: "{{ .Values.secretEngine }}/{{ .Release.Namespace }}-xsfc-service"
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -30,7 +30,7 @@ serviceAccountEnabled: "true"
 
 serviceAccount:
   enabled: true
-  name: "xsfc-data-service-sa"
+  name: "xsfc-service-sa"
 
 securityContext: {}
 #  # capabilities:
@@ -122,8 +122,8 @@ storage:
   path: /mnt/data/postgresql
 
 postgresql:
-  fullnameOverride: xsfc-data-postgres
-  nameOverride: xsfc-data-postgres
+  fullnameOverride: xsfc-postgres
+  nameOverride: xsfc-postgres
   auth:
     postgresPassword: postgres
     username: keycloak
@@ -146,9 +146,9 @@ keycloak:
   extraVolumes: false
     
 neo4j:
-  fullnameOverride: xsfc-data-neo4j
+  fullnameOverride: xsfc-neo4j
   neo4j:
-    name: xsfc-data-neo4j-db
+    name: xsfc-neo4j-db
     password: "neo12345"
 #    passwordFromSecret: fc-neo4j-secret
   volumes:
@@ -158,10 +158,10 @@ neo4j:
 #    NEO4J_AUTH: neo4j/neo12345
     NEO4J_PLUGINS: '["apoc", "graph-data-science", "n10s"]'
   additionalVolumes: 
-    - name: xsfc-data-neo4j-data
+    - name: xsfc-neo4j-data
       emptyDir: {}
   additionalVolumeMounts: 
-    - name: xsfc-data-neo4j-data
+    - name: xsfc-neo4j-data
       mountPath: "/var/lib/neo4j/plugins"
   config:
     dbms.security.procedures.unrestricted: gds.*,apoc.*,n10s.*,semantics.*
@@ -171,7 +171,7 @@ neo4j:
       image: appropriate/curl:latest
       imagePullPolicy: IfNotPresent
       volumeMounts:
-        - name: xsfc-data-neo4j-data
+        - name: xsfc-neo4j-data
           mountPath: /var/lib/neo4j/plugins
       securityContext:
         allowPrivilegeEscalation: false    
