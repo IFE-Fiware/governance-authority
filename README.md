@@ -1,5 +1,28 @@
 # Governance Authority Agent
 
+<!-- TOC -->
+* [Governance Authority Agent](#governance-authority-agent)
+  * [Description](#description)
+  * [Pre-Requisites](#pre-requisites)
+  * [Installation](#installation)
+    * [Prerequisites](#prerequisites)
+      * [Create the Namespace](#create-the-namespace)
+      * [Verify the Namespace](#verify-the-namespace)
+      * [Vault related tasks](#vault-related-tasks)
+        * [Preliminal activites (done once)](#preliminal-activites-done-once)
+        * [Secrets for FC-Service](#secrets-for-fc-service)
+        * [Secret for Catalog Query Mapper Adapter](#secret-for-catalog-query-mapper-adapter)
+    * [Deployment using ArgoCD](#deployment-using-argocd)
+    * [Manual deployment](#manual-deployment)
+        * [Files preparation](#files-preparation)
+        * [Deployment](#deployment)
+    * [Monitoring](#monitoring)
+  * [Additional steps](#additional-steps)
+        * [Upgrade the agent](#upgrade-the-agent)
+  * [Delete the deployment:](#delete-the-deployment)
+* [Troubleshooting](#troubleshooting)
+<!-- TOC -->
+
 ## Description
 This project contains the configuration files required for deploying an application using Helm and ArgoCD. 
 - the deployment will be done by master helm chart allowing to deploy a **Governance Authority** agent using a single command.
@@ -93,14 +116,14 @@ Their content is:
   "FEDERATED_CATALOGUE_VERIFICATION_SIGNATURES": "true",
   "GRAPHSTORE_PASSWORD": "neo12345",
   "GRAPHSTORE_QUERY_TIMEOUT_IN_SECONDS": "5",
-  "GRAPHSTORE_URI": "bolt://xsfc-data-neo4j:7687",
+  "GRAPHSTORE_URI": "bolt://xsfc-neo4j:7687",
   "KEYCLOAK_AUTH_SERVER_URL": "https://authority.be.authority1.int.simpl-europe.eu",
   "KEYCLOAK_CREDENTIALS_SECRET": "generatedsecret",
   "SPRING_DATASOURCE_PASSWORD": "postgres",
-  "SPRING_DATASOURCE_URL": "jdbc:postgresql://xsfc-data-postgres:5432/postgres",
-  "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "https://authority.be.authority1.int.simpl-europe.eu/auth/realms/gaia-x",
-  "VAULT_ADDR": "http://vault-ha.vault-ha.svc.cluster.local:8200",
-  "VAULT_ADRESS": "http://vault-ha.vault-ha.svc.cluster.local:8200",
+  "SPRING_DATASOURCE_URL": "jdbc:postgresql://xsfc-postgres:5432/postgres",
+  "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "https://authority.be.authority1.int.simpl-europe.eu/auth/realms/authority",
+  "VAULT_ADDR": "http://vaultservice.vaultnamespace.svc.cluster.local:8200",
+  "VAULT_ADRESS": "http://vaultservice.vaultnamespace.svc.cluster.local:8200",
   "VAULT_TOKEN": "hvs.generatedtoken"
 }
 ```
@@ -111,9 +134,9 @@ Where you need to modify:
 | ----------------------        |     :-----:         | --------------- |
 | KEYCLOAK_AUTH_SERVER_URL      | https://authority.be.**authority1.int.simpl-europe.eu**  | Keycloak URL |
 | KEYCLOAK_CREDENTIALS_SECRET   | generatedsecret                                          | Client secret from Keycloak  |
-| SPRING_DATASOURCE_URL         | jdbc:postgresql://xsfc-**data OR infra**-postgres:5432/postgres | URL to postgres - it's either data or infra for those two secrets |
-| SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI  | https://authority.be.**authority1.int.simpl-europe.eu**/auth/realms/**gaia-x** | URL to Keycloak including realm |
-| VAULT_ADDR/ADDRESS            | http://vault-ha.vault-ha.svc.cluster.local:8200 | Internal link to Vault service  |
+| SPRING_DATASOURCE_URL         | jdbc:postgresql://xsfc-postgres:5432/postgres | URL to postgres - it's either data or infra for those two secrets |
+| SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI  | https://authority.be.**authority1.int.simpl-europe.eu**/auth/realms/**authority** | URL to Keycloak including realm |
+| VAULT_ADDR/ADDRESS            | http://vaultservice.vaultnamespace.svc.cluster.local:8200 | Internal link to Vault service  |
 | VAULT_TOKEN                   | hvs.generatedtoken | Token to access the Vault  |
 
 ##### Secret for Catalog Query Mapper Adapter
@@ -123,6 +146,8 @@ Its content is (to be revised):
 
 ```
 {
+  "FEDERATED_CATALOOGUE_CLIENT_URL": "https://xsfc-server-service.authority1.int.simpl-europe.eu",
+  "KEYCLOAK_CLIENT_URL": "https://authority.be.authority1.int.simpl-europe.eu",
   "SIGNER_GROUP": "simpl",
   "SIGNER_ISSUER": "did:web:example.com",
   "SIGNER_KEY": "gaia-x-key1",
@@ -133,6 +158,8 @@ Where you need to modify:
 
 | Variable name                 |     Example         | Description     |
 | ----------------------        |     :-----:         | --------------- |
+| FEDERATED_CATALOOGUE_CLIENT_URL | https://xsfc-server-service.authority1.int.simpl-europe.eu | link to fqdn of the fc-service |
+| KEYCLOAK_CLIENT_URL | https://authority.be.authority1.int.simpl-europe.eu | link to fqdn of Keycloak |
 | SIGNER_KEY         | gaia-x-key1 | Name of the key for Signer |
 | SIGNER_NAMESPACE   | transit     | Name of secret engine with transit key |
 
@@ -142,57 +169,61 @@ You can easily deploy the agent using ArgoCD. All the values mentioned in the se
 targetRevision is the package version. 
 
 When you create it, you set up the values below (example values).
-The ejbca section needs to be entered after you've gotten through the whole EJBCA configuration process and have the keystore and truststore, then just resynchronise the deployment. 
+The ejbca section needs to be entered after you've gotten through the whole EJBCA configuration process and have the keystore and truststore, then just resynchronise the deployment.
+Remove the comments after you fill in the values to avoid line wrapping.
 
 ```
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: 'authority1-deployer'                                       # name of the deploying app in argocd
+  name: 'authority1-deployer'               # name of the deploying app in argocd
 spec:
   project: default
   source:
     repoURL: 'https://code.europa.eu/api/v4/projects/902/packages/helm/stable'
     path: '""'
-    targetRevision: 0.3.1                                             # version of package
+    targetRevision: 1.0.0                   # version of package
     helm:
       values: |
         values:
-          branch: develop                                             # branch of repo with values - this is develop by default
-        project: default                                              # Project to which the namespace is attached
-        namespaceTag: authority1                                      # identifier of deployment and part of fqdn
-        domainSuffix: int.simpl-europe.eu                             # last part of fqdn
+          branch: v1.0.0                    # branch of repo with values - for released version it should be the release branch
+        project: default                    # Project to which the namespace is attached
+        namespaceTag: authority1            # identifier of deployment and part of fqdn
+        domainSuffix: int.simpl-europe.eu   # last part of fqdn
         argocd:
-          appname: authority1-iaa                                     # name of generated argocd app 
-          namespace: argocd                                           # namespace of your argocd
+          appname: authority1               # name of generated argocd app 
+          namespace: argocd                 # namespace of your argocd
         cluster:
           address: https://kubernetes.default.svc
-          namespace: authority1-iaa                                   # where the app will be deployed
-          kubeStateHost: kube-prometheus-stack-kube-state-metrics.devsecopstools.svc.cluster.local:8080    # link to kube-state-metrics svc
+          namespace: authority1             # where the app will be deployed
+          commonToolsNamespace: common      # namespace where main monitoring stack is deployed
         hashicorp:
           service: "http://vault-ha.vault-ha.svc.cluster.local:8200"  # local service path to your vault
-        secretEngine: dev-int                                         # container for your secrets in vault
+        secretEngine: dev-int               # container for secrets in your vault
         ejbcakeys:
           keystore:
-            base64: base64encodedsuperadminkeystore                   # the whole base64 encoded string of superadmin keystore
-            password: superadminkeystorepass                          # password to superadmin keystore
+            base64: base64encodedsuperadminkeystore        # the whole base64 encoded string of superadmin keystore
+            password: superadminkeystorepass               # password to superadmin keystore
           truststore: 
-            base64: base64encodedmanagementcatruststore               # the whole base64 encoded string of ManagementCA truststore
-            password: managementcatruststorepass                      # password to ManagementCA truststore
+            base64: base64encodedmanagementcatruststore    # the whole base64 encoded string of ManagementCA truststore
+            password: managementcatruststorepass           # password to ManagementCA truststore
         monitoring:
-          enabled: true                                               # "true" enables the deployment of ELK stack for monitoring
+          enabled: true                     # you can set it to false if you don't have common monitoring stack
     chart: authority
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: authority1-iaa                                         # where the package will be deployed
+    namespace: authority1                    # where the package will be deployed
 ```
 ### Manual deployment
 
 ##### Files preparation
 
-The suggested way for deployment, is to unpack the released package to a folder on a host where you have kubectl and helm available and configured. 
+Another way for deployment, is to unpack the released package to a folder on a host where you have kubectl and helm available and configured. 
 
-There is basically one file that you need to modify - values.yaml. 
+There are just a few values.yaml files you need to change.
+The first are the values.yaml files from the `xsfc-data-catalogue` and `xsfc-infra-catalogue` components. Make sure that `hostAliases.ip` points to your ingress controller cluster ip.  
+
+The last one to modify is main values.yaml. 
 There are a couple of variables you need to replace - described below. The rest you don't need to change.
 The ejbca section needs to be entered after you've gotten through the whole EJBCA configuration process and have the keystore and truststore, then just update the deployment. 
 
@@ -209,13 +240,13 @@ ejbcakeys:
     password: managementcatruststorepass          # password to ManagementCA truststore
 
 argocd:
-  appname: authority1-iaa                         # name of generated argocd app 
+  appname: authority1                             # name of generated argocd app 
   namespace: argocd                               # namespace of your argocd
 
 cluster:
   address: https://kubernetes.default.svc
-  namespace: authority1-iaa                       # where the package will be deployed
-  kubeStateHost: kube-prometheus-stack-kube-state-metrics.devsecopstools.svc.cluster.local:8080    # link to kube-state-metrics svc
+  namespace: authority1                           # where the package will be deployed
+  commonToolsNamespace: common                    # namespace where main monitoring stack is deployed
 
 secretEngine: dev-int                             # container for your secrets in vault
 hashicorp:
@@ -223,7 +254,10 @@ hashicorp:
 
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git   # repo URL
-  branch: develop                                                                                 # branch of code in repo
+  branch: v1.0.0                    # branch of repo with values - for released version it should be the release branch
+
+monitoring:
+  enabled: true                     # you can set it to false if you don't have common monitoring stack
 ```
 
 ##### Deployment
@@ -235,37 +269,28 @@ Now you can deploy the agent:
 
 `helm install authority . `
 
-### Monitoring
-
-ELK stack for monitoring is added with this release.  
-Its deployment can be disabled by switch the value monitoring.enabled to false.  
-When it's enabled, after the stack is deployed, you can access the ELK stack UI by https://kibana.**namespacetag**.**domainsuffix**  
-Default user is "elastic", its password can be extracted by kubectl command. `kubectl get secret elastic-elasticsearch-es-elastic-user -o go-template='{{.data.elastic | base64decode}}' -n {namespace}`
-
 ## Additional steps
 
 :rotating_light: :rotating_light: :rotating_light: **Attention!!!** :rotating_light: :rotating_light: :rotating_light: <br>
 <b><i>After installing the agent, there are services that connect using the TLS protocol (e.g. EJBCA). In the current phase of application development, this element must be configured manually.
-The entire procedure is described in confuence:</i></b>
+The entire procedure is described in the code repository:</i></b>
 
-https://confluence.simplprogramme.eu/display/SIMPL/EJBCA+Configuration
+https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/blob/develop/doc/0.8.x/EJBCA.md?ref_type=heads
 
 <b><i>For the authority agent to work correctly, it is necessary to perform the actions described in the link above.</i></b>
 
-##### Upgrade the agent
+Also after that, to onboard the authority, you must proceed with steps from section "Authority init - Download the TLS Gateway Governance Authority keystore" of the IAA readme:
 
-The process of implementing changes is analogous to deploying the namespace for the first time:
+https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/blob/develop/doc/0.8.x/README.md?ref_type=heads#authority-init---download-the-tls-gateway-governance-authority-keystore
 
-`helm upgrade authority . `
+### Monitoring
 
-## Delete the deployment:
-
-`helm uninstall authority .` 
-
+Filebeat components for monitoring are included in this release.   
+Their deployment can be disabled by switching the value monitoring.enabled to false.
 
 # Troubleshooting
 If you encounter issues during deployment, check the following:
 
 - Ensure that ArgoCD is properly set up and running.
-- Verify that the test01 namespace exists in your Kubernetes cluster.
+- Verify that the namespace exists in your Kubernetes cluster.
 - Check the ArgoCD application logs and Helm error messages for specific issues.

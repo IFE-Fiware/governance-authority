@@ -16,7 +16,7 @@ argocd:
 cluster:
   address: https://kubernetes.default.svc
   namespace: ${NAMESPACE}
-  kubeStateHost: kube-prometheus-stack-kube-state-metrics.devsecopstools.svc.cluster.local:8080
+  commonToolsNamespace: ${COMMONNAMESPACE}
 
 secretEngine: ${SECRETENGINE}
 hashicorp:
@@ -31,6 +31,12 @@ postgresql:
   chart_name: postgresql
   targetRevision: 15.2.5
   fullnameOverride: postgresql
+  primary:
+    resourcesPreset: "none"
+    resources:
+      requests:
+        cpu: "0"
+        memory: "0"
   valueFiles:
     - values.yaml
     - values-authority.yaml
@@ -40,6 +46,11 @@ keycloak:
   chart_name: keycloak
   targetRevision: 22.2.5
   fullnameOverride: keycloak
+  resourcesPreset: "none"
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
 
@@ -48,6 +59,12 @@ redis:
   targetRevision: 19.6.0
   chart_name: redis
   fullnameOverride: redis
+  master:
+    resourcesPreset: "none"
+    resources:
+      requests:
+        cpu: "0"
+        memory: "0"
   valueFiles:
     - values.yaml
 
@@ -56,63 +73,84 @@ ejbca:
   targetRevision: 1.0.3
   chart_name: ejbca-community-helm
   fullnameOverride: ejbca-community-helm
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
 
 simpl_cloud_gateway:
   projectID: "772"
-  targetRevision: 0.6.1
+  targetRevision: 0.8.0
   chart_name: simpl-cloud-gateway
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
     - values-routes.yaml
 
 simpl_fe:
   projectID: "769"
-  targetRevision: 0.6.2
+  targetRevision: 0.8.0
   chart_name: simpl-fe
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
     - values-authority.yaml
 
 sap:
   projectID: "861"
-  targetRevision: 0.6.0
+  targetRevision: 0.8.0
   chart_name: security-attributes-provider
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
 
 users_roles:
   projectID: "771"
-  targetRevision: 0.6.5
+  targetRevision: 0.8.1
   chart_name: users-roles
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
 
-xsfc_data_catalogue:
+xsfc_catalogue:
   projectID: "820"
-  targetRevision: 0.2.7-SNAPSHOT.219.959e7088
+  targetRevision: 0.2.7
   chart_name: fc-service
-  valueFiles:
-    - values.yaml
-
-xsfc_infra_catalogue:
-  projectID: "820"
-  targetRevision: 0.2.7-SNAPSHOT.219.959e7088
-  chart_name: fc-service
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
 
 onboarding:
   projectID: "770"
-  targetRevision: 0.6.1
+  targetRevision: 0.8.0
   chart_name: onboarding
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
 
-poc_gaia_edc:
+adapter:
   projectID: "759"
-  targetRevision: v0.1.9-SNAPSHOT.367.71b3c578
+  targetRevision: 0.1.11-SNAPSHOT.440.8ea9076c
   chart_name: poc-charts
   fullnameOverride: adapter
   valueFiles:
@@ -120,32 +158,45 @@ poc_gaia_edc:
 
 tls_gateway:
   projectID: "860"
-  targetRevision: 0.6.1
+  targetRevision: 0.8.3
   chart_name: tls-gateway
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
   valueFiles:
     - values.yaml
     - values-routes-authority.yaml
 
+identity_provider:
+  projectID: "913"
+  targetRevision: 0.8.0
+  chart_name: identity-provider
+  fullnameOverride: identity-provider
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
+  valueFiles:
+    - values.yaml
+
+auth_provider:
+  projectID: "939"
+  targetRevision: 0.8.1
+  chart_name: authentication-provider
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
+  valueFiles:
+    - values.yaml
+
 monitoring:
   enabled: true
-  operator:
-    repo_URL: https://helm.elastic.co/
-    chart_name: eck-operator
-    targetRevision: "2.14.0"
-    nameOverride: eck-operator
-    valueFiles:
-      - values.yaml
   projectID: "828"
-  targetRevision: v0.1.3
+  targetRevision: 0.1.7
   chart_name: eck-monitoring
   fullnameOverride: elastic
   valueFiles:
     - values.yaml
-
-identity_provider:
-  projectID: "913"
-  targetRevision: 0.6.1
-  chart_name: identity-provider
-  fullnameOverride: identity-provider
-  valueFiles:
-    - values.yaml
+    - values_other.yaml

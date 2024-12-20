@@ -14,3 +14,5 @@ primary:
         CREATE DATABASE usersroles OWNER usersroles;
         CREATE USER identityprovider WITH PASSWORD 'identityprovider' CREATEDB;
         CREATE DATABASE identityprovider OWNER identityprovider;
+        CREATE USER authenticationprovider WITH PASSWORD 'authenticationprovider' CREATEDB;
+        CREATE DATABASE authenticationprovider OWNER authenticationprovider;
