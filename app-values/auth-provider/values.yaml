@@ -1,0 +1,9 @@
+db:
+  username: "authenticationprovider"
+  password: "authenticationprovider"
+  cipherSecret: "authenticationprovider-db-cipher-secret" # name of the secret key that will be generated used to encrypt keys  
+
+keypair:
+  signatureAlgorithm: "SHA256withECDSA"
+  algorithm: "ECDSA"
+  keyLength: 256
