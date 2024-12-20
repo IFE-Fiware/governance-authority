@@ -106,3 +106,8 @@ affinity: {}
 db:
   username: "securityattributesprovider"
   password: "securityattributesprovider"
+
+databaseSeeding:
+  securityAttributeProviderMapping:
+    enabled: true # if you want start with an empty identity attributes table, turn off 
+    filePath: "file:/app/config/identityAttributes.default.json"
