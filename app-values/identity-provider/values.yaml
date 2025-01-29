@@ -139,7 +139,7 @@ redis:
   password: "admin"
 
 ephemeralProof:
-  expireAfter: "3D"
+  expireAfter: "3m"
 
 global:
   keystore:

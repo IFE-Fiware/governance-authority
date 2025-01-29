@@ -23,8 +23,8 @@ fullnameOverride: "xsfc-service"
 secretEngine: dev-int
 secretConfigPath: "{{ .Values.secretEngine }}/{{ .Release.Namespace }}-xsfc-service"
 
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext: 
+  allowPrivilegeEscalation: false
 
 serviceAccountEnabled: "true"
 
@@ -39,10 +39,6 @@ securityContext: {}
 #  # readOnlyRootFilesystem: true
 #  # runAsNonRoot: true
 #  # runAsUser: 1000
-
-hashicorp:
-  role: "gaiax-edc_role"
-  service: "http://vault-ha.vault-ha.svc.cluster.local:8200"
 
 service:
   type: ClusterIP

@@ -11,5 +11,9 @@ serviceAccount:
   enabled: true
   name: "adapter-sa"
 
-hashicorp:
-  role: "gaiax-edc_role"
+podSecurityContext: 
+  allowPrivilegeEscalation: false
+
+ingress:
+  tls:
+    secretName: adapter-simpl-backend-tls
