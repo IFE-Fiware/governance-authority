@@ -193,8 +193,6 @@ spec:
         - $values/app-values/xsfc-catalogue/{{ . }}
         {{- end }}
       values: |
-        podSecurityContext: 
-          allowPrivilegeEscalation: false
         ingress:
           hosts:
             - host: xsfc-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
@@ -207,6 +205,7 @@ spec:
                 - xsfc-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         hashicorp:
           service: {{ .Values.hashicorp.service }}
+          role: {{ .Values.hashicorp.role }}
         secretEngine: {{ .Values.secretEngine }}
         neo4j:
           {{- if .Values.xsfc_catalogue.resources }}
@@ -301,15 +300,12 @@ spec:
         - $values/app-values/adapter/{{ . }}
         {{- end }}
       values: |
-        podSecurityContext: 
-          allowPrivilegeEscalation: false
         ingress:
           host: adapter.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          tls:
-            secretName: adapter-simpl-backend-tls
         secretEngine: {{ .Values.secretEngine }}
         hashicorp:
           service: {{ .Values.hashicorp.service }}
+          role: {{ .Values.hashicorp.role }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.identity_provider.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.identity_provider.targetRevision }}

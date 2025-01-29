@@ -40,7 +40,7 @@ initContainers:
       - name: ARTIFACT
         value: keycloak-authenticator
       - name: URL
-        value: https://code.europa.eu/api/v4/projects/915/packages/maven/com/aruba/simpl/keycloak-authenticator/0.8.0/keycloak-authenticator-0.8.0.jar
+        value: https://code.europa.eu/api/v4/projects/915/packages/maven/com/aruba/simpl/keycloak-authenticator/1.0.0/keycloak-authenticator-1.0.0.jar
     args:
       - |
         curl -o /custom-spi/${ARTIFACT}.jar ${URL};

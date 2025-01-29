@@ -122,8 +122,8 @@ Their content is:
   "SPRING_DATASOURCE_PASSWORD": "postgres",
   "SPRING_DATASOURCE_URL": "jdbc:postgresql://xsfc-postgres:5432/postgres",
   "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "https://authority.be.authority1.int.simpl-europe.eu/auth/realms/authority",
-  "VAULT_ADDR": "http://vaultservice.vaultnamespace.svc.cluster.local:8200",
-  "VAULT_ADRESS": "http://vaultservice.vaultnamespace.svc.cluster.local:8200",
+  "VAULT_ADDR": "http://vault-common.common.svc.cluster.local:8200",
+  "VAULT_ADRESS": "http://vault-common.common.svc.cluster.local:8200",
   "VAULT_TOKEN": "hvs.generatedtoken"
 }
 ```
@@ -198,7 +198,7 @@ spec:
           namespace: authority1             # where the app will be deployed
           commonToolsNamespace: common      # namespace where main monitoring stack is deployed
         hashicorp:
-          service: "http://vault-ha.vault-ha.svc.cluster.local:8200"  # local service path to your vault
+          service: "http://vault-common.common.svc.cluster.local:8200"  # local service path to your vault
         secretEngine: dev-int               # container for secrets in your vault
         ejbcakeys:
           keystore:
@@ -250,7 +250,7 @@ cluster:
 
 secretEngine: dev-int                             # container for your secrets in vault
 hashicorp:
-  service: "http://vault-ha.vault-ha.svc.cluster.local:8200"  # local service path to your vault
+  service: "http://vault-common.common.svc.cluster.local:8200"  # local service path to your vault
 
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git   # repo URL
@@ -275,13 +275,13 @@ Now you can deploy the agent:
 <b><i>After installing the agent, there are services that connect using the TLS protocol (e.g. EJBCA). In the current phase of application development, this element must be configured manually.
 The entire procedure is described in the code repository:</i></b>
 
-https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/blob/develop/doc/0.8.x/EJBCA.md?ref_type=heads
+https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/blob/develop/doc/1.0.x/EJBCA.md?ref_type=heads
 
 <b><i>For the authority agent to work correctly, it is necessary to perform the actions described in the link above.</i></b>
 
 Also after that, to onboard the authority, you must proceed with steps from section "Authority init - Download the TLS Gateway Governance Authority keystore" of the IAA readme:
 
-https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/blob/develop/doc/0.8.x/README.md?ref_type=heads#authority-init---download-the-tls-gateway-governance-authority-keystore
+https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/blob/develop/doc/1.0.x/README.md?ref_type=heads#authority-init---download-the-tls-gateway-governance-authority-keystore
 
 ### Monitoring
 
