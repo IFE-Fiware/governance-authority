@@ -206,7 +206,7 @@ spec:
         hashicorp:
           service: {{ .Values.hashicorp.service }}
           role: {{ .Values.hashicorp.role }}
-        secretEngine: {{ .Values.secretEngine }}
+        secretEngine: {{ .Values.hashicorp.secretEngine }}
         neo4j:
           {{- if .Values.xsfc_catalogue.resources }}
           resources: {{- toYaml .Values.xsfc_catalogue.resources | nindent 10 }}
@@ -302,7 +302,7 @@ spec:
       values: |
         ingress:
           host: adapter.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-        secretEngine: {{ .Values.secretEngine }}
+        secretEngine: {{ .Values.hashicorp.secretEngine }}
         hashicorp:
           service: {{ .Values.hashicorp.service }}
           role: {{ .Values.hashicorp.role }}
