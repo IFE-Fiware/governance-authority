@@ -18,10 +18,10 @@ cluster:
   namespace: ${NAMESPACE}
   commonToolsNamespace: ${COMMONNAMESPACE}
 
-secretEngine: ${SECRETENGINE}
 hashicorp:
   service: "http://vault-ha.vault-ha.svc.cluster.local:8200"
   role: dev-int-role
+  secretEngine: ${SECRETENGINE}
 
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git

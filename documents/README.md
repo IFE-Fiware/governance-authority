@@ -67,47 +67,9 @@ To ensure that the namespace was created successfully, run the following command
 
 #### Vault related tasks
 
-##### Preliminal activites (done once)
-
-1. Execute shell of your vault pod `kubectl exec -it vault-0 -- /bin/sh`. In this case pod name is `vault-0`
-2. Login to vault using cmd `vault login`. You will need to provide token for auth
-3. Create secret engine `vault secrets enable -path=dev kv-v2` in this case name of the engine is `dev`
-4. Enable kubernetes interaction with vault `vault auth enable kubernetes`
-5. Add config for kubernetes `vault write auth/kubernetes/config  kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443"`
-6. Write policy in vault for fetching credentials by kubernetes
-```
-vault policy write dev-policy - <<EOF
-path "dev/data/*" {
-   capabilities = ["read"]
-}
-EOF 
-```
-in this example `dev-policy` is name of policy - it can be anything, and path
-`dev/data/*` needs to relate existing secret engine declared in pt 3.
-
-7. Create role in vault that will bind policy with given service account name and service account namespace
-
-```
-vault write auth/kubernetes/role/gaiax-edc_role \
-      bound_service_account_names=*-iaa \
-      bound_service_account_namespaces=*-iaa \
-      policies=dev_policy \
-      ttl=24h
-```
-Explanation: `gaiax-edc_role` is a role name, it can be anything. `gaiax-edc-dev*` is a name for both service accounts
-and kubernetes namespaces names of services account. In this case `*` wildcard was used so to use this role in each namespace
-there should be kubernetes service account created with the name ending with `iaa` additionally this service
-account need to be placed in namespace with a name ending with `iaa`. If you require other namespace naming convention
-then the role need to be modified with correct namespaces names. `dev-policy` is a policy name defined in pt 6.
-
-8. Go to Vault UI and define new transit secret engine with path `transit/simpl` create encryption key `gaia-x-key1` with type `ed25519`.
-
-IMPORTANT  
-Steps 1-8 need to be executed only once , if given role, policy, already exists in vault, then there is no need of configuring them again.
-
 ##### Secrets for FC-Service
 
-Two separate secrets are needed, their naming syntax is {{ .Release.Namespace }}-xsfc-data-service and {{ .Release.Namespace }}-xsfc-infra-service, they should be created in created before kv secret engine.
+One secret is needed, its naming syntax is {{ .Release.Namespace }}-xsfc-service, it should be created in created before kv secret engine.
 Their content is:
 
 ```
@@ -182,11 +144,11 @@ spec:
   source:
     repoURL: 'https://code.europa.eu/api/v4/projects/902/packages/helm/stable'
     path: '""'
-    targetRevision: 1.0.0                   # version of package
+    targetRevision: 1.1.0                   # version of package
     helm:
       values: |
         values:
-          branch: v1.0.0                    # branch of repo with values - for released version it should be the release branch
+          branch: v1.1.0                    # branch of repo with values - for released version it should be the release branch
         project: default                    # Project to which the namespace is attached
         namespaceTag: authority1            # identifier of deployment and part of fqdn
         domainSuffix: int.simpl-europe.eu   # last part of fqdn
@@ -199,7 +161,8 @@ spec:
           commonToolsNamespace: common      # namespace where main monitoring stack is deployed
         hashicorp:
           service: "http://vault-common.common.svc.cluster.local:8200"  # local service path to your vault
-        secretEngine: dev-int               # container for secrets in your vault
+          role: dev-int-role                # role created in vault for access
+          secretEngine: dev-int             # container for secrets in your vault
         ejbcakeys:
           keystore:
             base64: base64encodedsuperadminkeystore        # the whole base64 encoded string of superadmin keystore
@@ -248,13 +211,14 @@ cluster:
   namespace: authority1                           # where the package will be deployed
   commonToolsNamespace: common                    # namespace where main monitoring stack is deployed
 
-secretEngine: dev-int                             # container for your secrets in vault
 hashicorp:
   service: "http://vault-common.common.svc.cluster.local:8200"  # local service path to your vault
+  role: dev-int-role                              # role created in vault for access
+  secretEngine: dev-int                           # container for secrets in your vault
 
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git   # repo URL
-  branch: v1.0.0                    # branch of repo with values - for released version it should be the release branch
+  branch: v1.1.0                    # branch of repo with values - for released version it should be the release branch
 
 monitoring:
   enabled: true                     # you can set it to false if you don't have common monitoring stack
