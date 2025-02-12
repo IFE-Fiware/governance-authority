@@ -9,17 +9,14 @@
       * [Create the Namespace](#create-the-namespace)
       * [Verify the Namespace](#verify-the-namespace)
       * [Vault related tasks](#vault-related-tasks)
-        * [Preliminal activites (done once)](#preliminal-activites-done-once)
         * [Secrets for FC-Service](#secrets-for-fc-service)
         * [Secret for Catalog Query Mapper Adapter](#secret-for-catalog-query-mapper-adapter)
     * [Deployment using ArgoCD](#deployment-using-argocd)
     * [Manual deployment](#manual-deployment)
         * [Files preparation](#files-preparation)
         * [Deployment](#deployment)
-    * [Monitoring](#monitoring)
   * [Additional steps](#additional-steps)
-        * [Upgrade the agent](#upgrade-the-agent)
-  * [Delete the deployment:](#delete-the-deployment)
+    * [Monitoring](#monitoring)
 * [Troubleshooting](#troubleshooting)
 <!-- TOC -->
 
@@ -144,11 +141,11 @@ spec:
   source:
     repoURL: 'https://code.europa.eu/api/v4/projects/902/packages/helm/stable'
     path: '""'
-    targetRevision: 1.1.0                   # version of package
+    targetRevision: 1.1.3                   # version of package
     helm:
       values: |
         values:
-          branch: v1.1.0                    # branch of repo with values - for released version it should be the release branch
+          branch: v1.1.3                    # branch of repo with values - for released version it should be the release branch
         project: default                    # Project to which the namespace is attached
         namespaceTag: authority1            # identifier of deployment and part of fqdn
         domainSuffix: int.simpl-europe.eu   # last part of fqdn
@@ -218,7 +215,7 @@ hashicorp:
 
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git   # repo URL
-  branch: v1.1.0                    # branch of repo with values - for released version it should be the release branch
+  branch: v1.1.3                    # branch of repo with values - for released version it should be the release branch
 
 monitoring:
   enabled: true                     # you can set it to false if you don't have common monitoring stack
