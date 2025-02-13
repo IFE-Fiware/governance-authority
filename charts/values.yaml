@@ -195,7 +195,7 @@ auth_provider:
 monitoring:
   enabled: true
   projectID: "828"
-  targetRevision: 0.1.10
+  targetRevision: 0.1.11
   chart_name: eck-monitoring
   fullnameOverride: elastic
   valueFiles:
