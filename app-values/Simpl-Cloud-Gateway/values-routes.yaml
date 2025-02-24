@@ -102,6 +102,10 @@ appConfig:
     denied-urls:
       - method: GET
         path: "/auth-api/keypair"
+      - path: "/sap-api/mtls/**"
+      - path: "/user-api/mtls/**"
+      - path: "/identity-api/mtls/**"
+      - path: "/auth-api/mtls/**"
 
     rbac:
       ### CLI
