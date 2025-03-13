@@ -1,7 +1,3 @@
-#ClusterIssuer to generate Kibana SSL front certificate
-clusterIssuer: "dev-prod"
-
-
 elasticsearch:
   count: 0
   

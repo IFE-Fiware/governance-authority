@@ -12,7 +12,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  name: "ejbca-init-sa"
 
 podAnnotations: {}
 podLabels: {}
@@ -126,8 +126,10 @@ affinity: {}
 ejbca:
   enrollConfig:
     profileName: "Onboarding TLS Profile"
-    endEntityName: "TLS Server Profile"
+    endEntityName: "Onboarding End Entity"
     caName: "OnBoardingCA"
+  truststore: 
+    password: changeit
 
 db:
   username: "identityprovider"

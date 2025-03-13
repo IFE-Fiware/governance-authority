@@ -1,3 +1,6 @@
+image:
+  repository: code.europa.eu:4567/simpl/simpl-open/development/iaa/tier2-gateway
+
 server-port: &server-port 443
 replicaCount: 1
 imagePullSecrets: []

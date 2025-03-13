@@ -1,9 +1,0 @@
-hostname: &hostname authority.be.authority1-iaa.svc.cluster.local
-
-ejbca:
-  env:
-    HTTPSERVER_HOSTNAME: *hostname
-    DATABASE_JDBC_URL: "jdbc:postgresql://postgresql.authority1-iaa.svc.cluster.local:5432/ejbca"
-
-nginx:
-  host: *hostname
