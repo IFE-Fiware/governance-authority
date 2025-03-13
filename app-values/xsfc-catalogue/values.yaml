@@ -2,8 +2,6 @@ replicaCount: 1
 
 global:
   profile: authority
-  ingress:
-    issuer: dev-prod
 
 # Default values for fc-service.
 # This is a YAML-formatted file.
@@ -49,7 +47,6 @@ ingress:
   annotations: 
     # kubernetes.io/tls-acme: "true"
     kubernetes.io/ingress.allow-http: "true"
-    cert-manager.io/cluster-issuer: "dev-prod"
     nginx.ingress.kubernetes.io/ssl-redirect: "false" #true"
     nginx.ingress.kubernetes.io/affinity: cookie
     nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
@@ -105,11 +102,6 @@ affinity:
           topologyKey: "kubernetes.io/hostname"
           
 restartPolicy: Always
-
-hostAliases:
-  - ip: "10.3.14.145" #use ClusterIP of your Ingress Controller here
-    hostnames:
-      - key-server
     
 storage:
   enabled: false

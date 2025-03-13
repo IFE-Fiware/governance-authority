@@ -2,8 +2,6 @@ replicaCount: 1
 
 global:
   profile: authority
-  ingress:
-    issuer: dev-prod
 
 imagePullSecrets: []
 nameOverride: ""
@@ -112,11 +110,6 @@ affinity: {}
 db:
   username: "usersroles"
   password: "usersroles"
-
-redis:
-  port: "6379"
-  username: "default"
-  password: "admin"
 
 keycloak:
   master:
