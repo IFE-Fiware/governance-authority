@@ -17,6 +17,7 @@ cluster:
   address: https://kubernetes.default.svc
   namespace: ${NAMESPACE}
   commonToolsNamespace: ${COMMONNAMESPACE}
+  issuer: ${CLUSTERISSUER}
 
 hashicorp:
   service: "http://vault-ha.vault-ha.svc.cluster.local:8200"
@@ -83,7 +84,7 @@ ejbca:
 
 simpl_cloud_gateway:
   projectID: "772"
-  targetRevision: 1.0.0
+  targetRevision: 1.1.0
   chart_name: simpl-cloud-gateway
   resources:
     requests:
@@ -95,7 +96,7 @@ simpl_cloud_gateway:
 
 simpl_fe:
   projectID: "769"
-  targetRevision: 1.0.7
+  targetRevision: 1.1.2
   chart_name: simpl-fe
   resources:
     requests:
@@ -107,7 +108,7 @@ simpl_fe:
 
 sap:
   projectID: "861"
-  targetRevision: 1.0.0
+  targetRevision: 1.1.0
   chart_name: security-attributes-provider
   resources:
     requests:
@@ -118,7 +119,7 @@ sap:
 
 users_roles:
   projectID: "771"
-  targetRevision: 1.0.0
+  targetRevision: 1.1.2
   chart_name: users-roles
   resources:
     requests:
@@ -128,8 +129,9 @@ users_roles:
     - values.yaml
 
 xsfc_catalogue:
+  enabled: true
   projectID: "820"
-  targetRevision: 1.0.0
+  targetRevision: 1.0.2
   chart_name: fc-service
   resources:
     requests:
@@ -140,7 +142,7 @@ xsfc_catalogue:
 
 onboarding:
   projectID: "770"
-  targetRevision: 1.0.1
+  targetRevision: 1.1.0
   chart_name: onboarding
   resources:
     requests:
@@ -150,8 +152,9 @@ onboarding:
     - values.yaml
 
 adapter:
+  enabled: true
   projectID: "759"
-  targetRevision: 1.0.1
+  targetRevision: 1.0.2
   chart_name: poc-charts
   fullnameOverride: adapter
   valueFiles:
@@ -159,7 +162,7 @@ adapter:
 
 tls_gateway:
   projectID: "860"
-  targetRevision: 1.0.1
+  targetRevision: 1.1.0
   chart_name: tls-gateway
   resources:
     requests:
@@ -171,7 +174,7 @@ tls_gateway:
 
 identity_provider:
   projectID: "913"
-  targetRevision: 1.0.0
+  targetRevision: 1.1.0
   chart_name: identity-provider
   fullnameOverride: identity-provider
   resources:
@@ -183,7 +186,7 @@ identity_provider:
 
 auth_provider:
   projectID: "939"
-  targetRevision: 1.0.0
+  targetRevision: 1.1.2
   chart_name: authentication-provider
   resources:
     requests:
@@ -195,8 +198,16 @@ auth_provider:
 monitoring:
   enabled: true
   projectID: "828"
-  targetRevision: 0.1.11
+  targetRevision: 0.1.12
   chart_name: eck-monitoring
   fullnameOverride: elastic
+  valueFiles:
+    - values.yaml
+
+simpl_cli:
+  projectID: "882"
+  targetRevision: 1.1.0
+  chart_name: simpl-cli
+  fullnameOverride: simpl-cli
   valueFiles:
     - values.yaml

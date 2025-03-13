@@ -9,3 +9,6 @@ ejbca:
 services:
   directHttp:
     type: ClusterIP
+
+serviceAccount:
+  name: ejbca-init-sa

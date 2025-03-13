@@ -3,7 +3,7 @@ appConfig:
   spring:
     cloud:
       gateway:
-        routes: 
+        routes:
           - id: keycloak
             uri: ${keycloak.url}
             predicates:
@@ -16,10 +16,22 @@ appConfig:
               - Path=/user-api/**
             filters:
               - StripPrefix=1
+          - id: users-rolesV1
+            uri: ${users-roles.url}
+            predicates:
+              - Path=/userApi/**
+            filters:
+              - StripPrefix=1
           - id: onboarding
             uri: ${onboarding.url}
             predicates:
               - Path=/onboarding-api/**
+            filters:
+              - StripPrefix=1
+          - id: onboardingV1
+            uri: ${onboarding.url}
+            predicates:
+              - Path=/onboardingApi/**
             filters:
               - StripPrefix=1
           - id: sap
@@ -28,16 +40,34 @@ appConfig:
               - Path=/sap-api/**
             filters:
               - StripPrefix=1
+          - id: sapV1
+            uri: ${sap.url}
+            predicates:
+              - Path=/sapApi/**
+            filters:
+              - StripPrefix=1
           - id: identity-provider
             uri: ${identity-provider.url}
             predicates:
               - Path=/identity-api/**
             filters:
               - StripPrefix=1
+          - id: identity-providerV1
+            uri: ${identity-provider.url}
+            predicates:
+              - Path=/identityApi/**
+            filters:
+              - StripPrefix=1
           - id: authentication-provider
             uri: ${authentication-provider.url}
             predicates:
               - Path=/auth-api/**
+            filters:
+              - StripPrefix=1
+          - id: authentication-providerV1
+            uri: ${authentication-provider.url}
+            predicates:
+              - Path=/authApi/**
             filters:
               - StripPrefix=1
           - id: ocsp
@@ -58,7 +88,79 @@ appConfig:
               - Path=/crl/*
             filters:
               - RewritePath=/crl/?(?<segment>.*), /ejbca/publicweb/webdist/certdist?cmd=crl&issuer=CN%3D$\{segment}
+  
+          # CLI configurations
+          - id: cli-authentication-providerV1
+            uri: ${authentication-provider.url}
+            predicates:
+              - Path=
+                /cli/authApi/v1/csr/generate,
+                /cli/authApi/v1/keypairs/generate,
+                /cli/authApi/v1/keypairs,
+                /cli/authApi/v1/credentials,
+                /cli/authApi/v1/credentials/download,
+                /cli/authApi/v1/agent/ping
+            filters:
+              - StripPrefix=2
+              - name: ClientCredentialsFilter
+                args:
+                  # Here you specify the clientid and the required client role to invoke this api
+                  # in the following order: 
+                  # client-id-name: client-role-1, client-role-1
+                  # The default configuration is shown below.
+                  cli: cli-role
 
+          - id: cli-identity-providerV1
+            uri: ${identity-provider.url}
+            predicates:
+              - Path=
+                /cli/identityApi/v1/participants/*/csr,
+                /cli/identityApi/v1/participants,
+                /cli/identityApi/v1/participants/authorityExists,
+                /cli/identityApi/v1/credentials/*/download
+            filters:
+              - StripPrefix=2
+              - name: ClientCredentialsFilter
+                args:
+                  # Here you specify the clientid and the required client role to invoke this api
+                  # in the following order: 
+                  # client-id-name: client-role-1, client-role-1
+                  # The default configuration is shown below.
+                  cli: cli-role
+
+          - id: cli-security-attributes-providerV1
+            uri: ${sap.url}
+            predicates:
+              - Path=
+                /cli/sapApi/v1/identityAttributes/import,
+                /cli/sapApi/v1/identityAttributes/addParticipantType/*
+            filters:
+              - StripPrefix=2
+              - name: ClientCredentialsFilter
+                args:
+                  # Here you specify the clientid and the required client role to invoke this api
+                  # in the following order: 
+                  # client-id-name: client-role-1, client-role-1
+                  # The default configuration is shown below.
+                  cli: cli-role
+
+          - id: cli-users-and-rolesV1
+            uri: ${users-roles.url}
+            predicates:
+              - Path=
+                /cli/userApi/v1/users/import,
+                /cli/userApi/v1/roles/import,
+                /cli/userApi/v1/roles/*/identityAttributes
+            filters:
+              - StripPrefix=2
+              - name: ClientCredentialsFilter
+                args:
+                  # Here you specify the clientid and the required client role to invoke this api
+                  # in the following order: 
+                  # client-id-name: client-role-1, client-role-1
+                  # The default configuration is shown below.
+                  cli: cli-role
+    
   springdoc:
     swagger-ui:
       urls:
@@ -72,7 +174,11 @@ appConfig:
           name: Identity Provider Service
         - url: /auth-api/v3/api-docs
           name: Authentication Provider Service
-
+  
+  keycloak:
+    app:
+      realm: authority
+  
   routes:
     public-urls:
       - method: GET
@@ -90,38 +196,32 @@ appConfig:
         path: "/ca/**"
       - method: GET
         path: "/crl/**"
-
+  
       - method: GET
-        path: "/user-api/credential/public-key" #TODO remove this
-
+        path: "/user-api/credential/public-key"
+      - method: GET
+        path: "/onboarding-api/participant-type"
       - method: POST
         path: "/onboarding-api/onboarding-request"
       - method: GET
-        path: "/onboarding-api/participant-type"
-
+        path: "/user-api/v1/credentials/publicKey" 
+  
     denied-urls:
       - method: GET
         path: "/auth-api/keypair"
+      - method: GET
+        path: "/authApi/v1/keypairs"
       - path: "/sap-api/mtls/**"
       - path: "/user-api/mtls/**"
       - path: "/identity-api/mtls/**"
       - path: "/auth-api/mtls/**"
-
+      - path: "/sapApi/v1/mtls/**"
+      - path: "/userApi/v1/mtls/**"
+      - path: "/identityApi/v1/mtls/**"
+      - path: "/authApi/v1/mtls/**"
+      
     rbac:
-      ### CLI
-      - path: "/identity-api/cli/*"
-        roles:
-          - NOTARY
-          - T1UAR_M
-      - path: "/sap-api/cli*"
-        roles:
-          - NOTARY
-          - T1UAR_M
-      - path: "/user-api/cli*"
-        roles:
-          - NOTARY
-          - T1UAR_M
-        ### ONBOARDING
+      ### onboarding
       - path: "/onboarding-api/onboarding-request/*/status"
         roles:
           - NOTARY
@@ -141,8 +241,18 @@ appConfig:
       - path: "/onboarding-api/mime-type/*"
         roles:
           - T2IAA_M
+      - path: "/onboarding-api/credential-request"
+        method: POST
+        roles:
+          - NOTARY
+          - T1UAR_M
       - path: "/onboarding-api/onboarding-request"
         method: GET
+        roles:
+          - APPLICANT
+          - NOTARY
+      - path: "/onboarding-api/onboarding-request"
+        method: POST
         roles:
           - APPLICANT
           - NOTARY
@@ -170,15 +280,12 @@ appConfig:
         method: PATCH
         roles:
           - NOTARY
-        ###
+      ### identity provider
       - path: "/identity-api/participant/*"
         method: PUT
         roles:
           - NOTARY
-      - method: POST
-        path: "/identity-api/csr/*"
-        roles:
-          - APPLICANT
+      ### users-roles
       - path: "/user-api/agent/identity-attributes"
         method: GET
         roles:
@@ -224,11 +331,11 @@ appConfig:
         method: POST
         roles:
           - T1UAR_M
-      - path: "/user-api/user/**"
+      - path: "/user-api/user/*"
         method: GET
         roles:
           - T1UAR_M
-      - path: "/user-api/user/**"
+      - path: "/user-api/user/*"
         method: PUT
         roles:
           - T1UAR_M
@@ -236,6 +343,7 @@ appConfig:
         method: DELETE
         roles:
           - T1UAR_M
+      ### security-attributes-provider
       - path: "/sap-api/identity-attribute"
         method: POST
         roles:
@@ -282,18 +390,18 @@ appConfig:
 
     logging:
       business:
-        - config:
-            operations:
-            - ONBOARDING_REQUEST
-          method: POST
+        - method: POST
           path: /onboarding-api/onboarding-request
-        - config:
+          config:
             operations:
-            - APPROVE_ONBOARDING_REQUEST
-          method: POST
+              - ONBOARDING_REQUEST
+        - method: POST
           path: /onboarding-api/onboarding-request/*/approve
-        - config:
+          config:
             operations:
-            - REJECT_ONBOARDING_REQUEST
-          method: POST
+              - APPROVE_ONBOARDING_REQUEST
+        - method: POST
           path: /onboarding-api/onboarding-request/*/reject
+          config:
+            operations:
+              - REJECT_ONBOARDING_REQUEST

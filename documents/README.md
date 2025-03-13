@@ -4,17 +4,18 @@
 * [Governance Authority Agent](#governance-authority-agent)
   * [Description](#description)
   * [Pre-Requisites](#pre-requisites)
+    * [Tools](#tools)
   * [Installation](#installation)
     * [Prerequisites](#prerequisites)
       * [Create the Namespace](#create-the-namespace)
       * [Verify the Namespace](#verify-the-namespace)
       * [Vault related tasks](#vault-related-tasks)
-        * [Secrets for FC-Service](#secrets-for-fc-service)
+        * [Secret for FC-Service](#secret-for-fc-service)
         * [Secret for Catalog Query Mapper Adapter](#secret-for-catalog-query-mapper-adapter)
     * [Deployment using ArgoCD](#deployment-using-argocd)
     * [Manual deployment](#manual-deployment)
-        * [Files preparation](#files-preparation)
-        * [Deployment](#deployment)
+      * [Files preparation](#files-preparation)
+      * [Deployment](#deployment)
   * [Additional steps](#additional-steps)
     * [Monitoring](#monitoring)
 * [Troubleshooting](#troubleshooting)
@@ -27,14 +28,7 @@ This project contains the configuration files required for deploying an applicat
 
 ## Pre-Requisites
 
-Ensure you have the following tools installed before starting the deployment process:
-- Git
-- Helm
-- Kubectl
-
-Additionally, ensure you have access to a Kubernetes cluster where ArgoCD is installed.
-
-The following versions of the elements will be used in the process:
+### Tools
 
 | Pre-Requisites         |     Version     | Description                                                                                                                                     |
 | ---------------------- |     :-----:     | ----------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -46,6 +40,8 @@ The following versions of the elements will be used in the process:
 | argocd                 | 2.11.x or newer | Used as GitOps tool . App of apps concept. <br/> Other version *might* work but tests were performed using 2.11.x version. <br/> Image used: `quay.io/argoproj/argocd:v2.11.3` |
 
 ## Installation
+
+The deployment is based on master helm chart which, when applied on Kubernetes cluster, should deploy the Authority to it using ArgoCD. 
 
 ### Prerequisites
 
@@ -62,7 +58,7 @@ To ensure that the namespace was created successfully, run the following command
 
 #### Vault related tasks
 
-##### Secrets for FC-Service
+##### Secret for FC-Service
 
 One secret is needed, its naming syntax is {{ .Release.Namespace }}-xsfc-service, it should be created in created before kv secret engine.
 Their content is:
@@ -125,9 +121,7 @@ Where you need to modify:
 You can easily deploy the agent using ArgoCD. All the values mentioned in the sections below you can input in ArgoCD deployment. The repoURL gets the package directly from code.europa.eu.
 targetRevision is the package version. 
 
-When you create it, you set up the values below (example values).
-The ejbca section needs to be entered after you've gotten through the whole EJBCA configuration process and have the keystore and truststore, then just resynchronise the deployment.
-Remove the comments after you fill in the values to avoid line wrapping.
+When you create it, you set up the values below (example values)
 
 ```
 apiVersion: argoproj.io/v1alpha1
@@ -139,11 +133,11 @@ spec:
   source:
     repoURL: 'https://code.europa.eu/api/v4/projects/902/packages/helm/stable'
     path: '""'
-    targetRevision: 1.1.5                   # version of package
+    targetRevision: 1.2.0                   # version of package
     helm:
       values: |
         values:
-          branch: v1.1.5                    # branch of repo with values - for released version it should be the release branch
+          branch: v1.2.0                    # branch of repo with values - for released version it should be the release branch
         project: default                    # Project to which the namespace is attached
         namespaceTag: authority1            # identifier of deployment and part of fqdn
         domainSuffix: int.simpl-europe.eu   # last part of fqdn
@@ -154,17 +148,14 @@ spec:
           address: https://kubernetes.default.svc
           namespace: authority1             # where the app will be deployed
           commonToolsNamespace: common      # namespace where main monitoring stack is deployed
+          issuer: dev-int-dns01             # certificate issuer name
         hashicorp:
           service: "http://vault-common.common.svc.cluster.local:8200"  # local service path to your vault
           role: dev-int-role                # role created in vault for access
           secretEngine: dev-int             # container for secrets in your vault
         ejbcakeys:
           keystore:
-            base64: base64encodedsuperadminkeystore        # the whole base64 encoded string of superadmin keystore
-            password: superadminkeystorepass               # password to superadmin keystore
-          truststore: 
-            base64: base64encodedmanagementcatruststore    # the whole base64 encoded string of ManagementCA truststore
-            password: managementcatruststorepass           # password to ManagementCA truststore
+            password: passwdstring          # password to superadmin keystore
         monitoring:
           enabled: true                     # you can set it to false if you don't have common monitoring stack
     chart: authority
@@ -172,18 +163,15 @@ spec:
     server: 'https://kubernetes.default.svc'
     namespace: authority1                    # where the package will be deployed
 ```
+
 ### Manual deployment
 
-##### Files preparation
+#### Files preparation
 
 Another way for deployment, is to unpack the released package to a folder on a host where you have kubectl and helm available and configured. 
 
-There are just a few values.yaml files you need to change.
-The first are the values.yaml files from the `xsfc-data-catalogue` and `xsfc-infra-catalogue` components. Make sure that `hostAliases.ip` points to your ingress controller cluster ip.  
-
-The last one to modify is main values.yaml. 
-There are a couple of variables you need to replace - described below. The rest you don't need to change.
-The ejbca section needs to be entered after you've gotten through the whole EJBCA configuration process and have the keystore and truststore, then just update the deployment. 
+There is basically one file that you need to modify - values.yaml. 
+There are a couple of variables you need to replace - described below. The rest you don't need to change. 
 
 ```
 project: default                                  # Project to which the namespace is attached
@@ -191,11 +179,7 @@ namespaceTag: authority1                          # identifier of deployment and
 domainSuffix: int.simpl-europe.eu                 # last part of fqdn
 ejbcakeys:
   keystore:
-    base64: base64encodedsuperadminkeystore       # the whole base64 encoded string of superadmin keystore
-    password: superadminkeystorepass              # password to superadmin keystore
-  truststore: 
-    base64: base64encodedmanagementcatruststore   # the whole base64 encoded string of ManagementCA truststore
-    password: managementcatruststorepass          # password to ManagementCA truststore
+    password: passwdstring                        # password to superadmin keystore
 
 argocd:
   appname: authority1                             # name of generated argocd app 
@@ -205,6 +189,7 @@ cluster:
   address: https://kubernetes.default.svc
   namespace: authority1                           # where the package will be deployed
   commonToolsNamespace: common                    # namespace where main monitoring stack is deployed
+  issuer: dev-int-dns01                           # certificate issuer name
 
 hashicorp:
   service: "http://vault-common.common.svc.cluster.local:8200"  # local service path to your vault
@@ -213,13 +198,13 @@ hashicorp:
 
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git   # repo URL
-  branch: v1.1.5                    # branch of repo with values - for released version it should be the release branch
+  branch: v1.2.0                    # branch of repo with values - for released version it should be the release branch
 
 monitoring:
   enabled: true                     # you can set it to false if you don't have common monitoring stack
 ```
 
-##### Deployment
+#### Deployment
 
 After you have prepared the values file, you can start the deployment. 
 Use the command prompt. Proceed to the folder where you have the Chart.yaml file and execute the following command. The dot at the end is crucial - it points to current folder to look for the chart. 
@@ -230,17 +215,8 @@ Now you can deploy the agent:
 
 ## Additional steps
 
-:rotating_light: :rotating_light: :rotating_light: **Attention!!!** :rotating_light: :rotating_light: :rotating_light: <br>
-<b><i>After installing the agent, there are services that connect using the TLS protocol (e.g. EJBCA). In the current phase of application development, this element must be configured manually.
-The entire procedure is described in the code repository:</i></b>
-
-https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/blob/develop/doc/1.0.x/EJBCA.md?ref_type=heads
-
-<b><i>For the authority agent to work correctly, it is necessary to perform the actions described in the link above.</i></b>
-
-Also after that, to onboard the authority, you must proceed with steps from section "Authority init - Download the TLS Gateway Governance Authority keystore" of the IAA readme:
-
-https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/blob/develop/doc/1.0.x/README.md?ref_type=heads#authority-init---download-the-tls-gateway-governance-authority-keystore
+In the current version, the automatic onboarding process has already been implemented using: init-authority-job.
+For this reason, manual onboarding activities are no longer necessary.
 
 ### Monitoring
 

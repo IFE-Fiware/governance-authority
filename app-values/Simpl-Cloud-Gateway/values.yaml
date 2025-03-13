@@ -1,3 +1,6 @@
+image:
+  repository: code.europa.eu:4567/simpl/simpl-open/development/iaa/tier1-gateway
+
 server-port: &server-port 9000
 replicaCount: 1
 imagePullSecrets: []
@@ -5,9 +8,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 global:
-   profile: authority
-   ingress:
-     issuer: dev-prod
+  profile: authority
 
 serviceAccount:
   # Specifies whether a service account should be created

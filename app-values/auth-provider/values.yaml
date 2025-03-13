@@ -7,3 +7,10 @@ keypair:
   signatureAlgorithm: "SHA256withECDSA"
   algorithm: "ECDSA"
   keyLength: 256
+
+profile: "authority"
+
+redis: 
+  port: "6379"
+  username: "default"
+  password: "admin"
