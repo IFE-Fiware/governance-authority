@@ -72,6 +72,30 @@ spec:
           env:
             HTTPSERVER_HOSTNAME: *hostname
             DATABASE_JDBC_URL: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/ejbca"
+          initContainers:
+          - name: ejbca-init
+            image: code.europa.eu:4567/simpl/simpl-open/development/iaa/ejbca-preconfig:1.0.0-F-feature-fix-permission.latest
+            imagePullPolicy: IfNotPresent
+            securityContext: {}
+            env:
+              - name: HTTPSERVER_HOSTNAME
+                value: *hostname
+              - name: MANAGEMENT_END_ENTITY_USERNAME
+                value: SuperAdmin
+              - name: MANAGEMENT_END_ENTITY_PASSWORD
+                value: {{ .Values.ejbcakeys.keystore.password }}
+              - name: DATABASE_JDBC_URL
+                value: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/ejbca"
+              - name: DATABASE_USER
+                value: ejbca
+              - name: DATABASE_PASSWORD
+                value: ejbca2123
+              - name: T1_GATEWAY
+                value: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+              - name: NAMESPACE
+                value: {{ .Values.namespaceTag }}
+            command:
+            - "./entrypoint.sh" 
         nginx:
           host: *hostname
         {{- if .Values.ejbca.resources }}
@@ -92,6 +116,8 @@ spec:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
           hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          ingress:
+            issuer: {{ .Values.cluster.issuer }}
         usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         securityAttributesProviderUrl: http://security-attributes-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         keycloakUrl: http://keycloak.{{ .Values.cluster.namespace }}.svc.cluster.local
@@ -112,6 +138,8 @@ spec:
         - $values/app-values/Simpl-fe/{{ . }}
         {{- end }}
       values: |
+        ingress:
+          issuer: {{ .Values.cluster.issuer }}
         hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         cors:
           allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:4203,http://localhost:3000
@@ -160,13 +188,12 @@ spec:
           hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+          ingress:
+            issuer: {{ .Values.cluster.issuer }}
         db:
           url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/usersroles"
-        redis:
-          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
         microservices:
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
-          identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         {{- if .Values.users_roles.resources }}
         resources: {{- toYaml .Values.users_roles.resources | nindent 10 }}
         {{- end }}
@@ -183,6 +210,7 @@ spec:
         {{- if .Values.redis.master }}
         master: {{- toYaml .Values.redis.master | nindent 10 }}
         {{- end }}
+  {{- if .Values.xsfc_catalogue.enabled }}      
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.xsfc_catalogue.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.xsfc_catalogue.targetRevision }}
@@ -193,6 +221,9 @@ spec:
         - $values/app-values/xsfc-catalogue/{{ . }}
         {{- end }}
       values: |
+        global:
+          ingress:
+            issuer: {{ .Values.cluster.issuer }}
         ingress:
           hosts:
             - host: xsfc-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
@@ -203,6 +234,8 @@ spec:
             - secretName: xsfc-server-tls
               hosts:
                 - xsfc-server-service.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          annotations: 
+            cert-manager.io/cluster-issuer: {{ .Values.cluster.issuer }}
         hashicorp:
           service: {{ .Values.hashicorp.service }}
           role: {{ .Values.hashicorp.role }}
@@ -211,6 +244,7 @@ spec:
           {{- if .Values.xsfc_catalogue.resources }}
           resources: {{- toYaml .Values.xsfc_catalogue.resources | nindent 10 }}
           {{- end }}
+    {{- end }}      
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.onboarding.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.onboarding.targetRevision }}
@@ -289,6 +323,7 @@ spec:
                       - Path=/adapter/**
                     filters:
                       - StripPrefix=1
+  {{- if .Values.adapter.enabled }}                    
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.adapter.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.adapter.targetRevision }}
@@ -306,6 +341,7 @@ spec:
           service: {{ .Values.hashicorp.service }}
           role: {{ .Values.hashicorp.role }}
           secretEngine: {{ .Values.hashicorp.secretEngine }}
+  {{- end }}        
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.identity_provider.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.identity_provider.targetRevision }}
@@ -336,11 +372,7 @@ spec:
           enrollConfig:
             url: "https://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30443"
           keystore:
-            base64: {{ .Values.ejbcakeys.keystore.base64 }}
             password: {{ .Values.ejbcakeys.keystore.password }}
-          truststore: 
-            base64: {{ .Values.ejbcakeys.truststore.base64 }}
-            password: {{ .Values.ejbcakeys.truststore.password }}
         {{- if .Values.identity_provider.resources }}
         resources: {{- toYaml .Values.identity_provider.resources | nindent 10 }}
         {{- end }}
@@ -354,13 +386,17 @@ spec:
         - $values/app-values/auth-provider/{{ . }}
         {{- end }}
       values: |
+        urlAuthorityT2: "tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
         db:
           url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/authenticationprovider"
         microservices:
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+          identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         simpl:
           certificate:
             san: "tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
+        redis:
+          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"    
         {{- if .Values.auth_provider.resources }}
         resources: {{- toYaml .Values.auth_provider.resources | nindent 10 }}
         {{- end }}
@@ -376,6 +412,7 @@ spec:
         - $values/app-values/monitoring/{{ . }}
         {{- end }}
       values: |
+        clusterIssuer: {{ .Values.cluster.issuer }}
         domainSuffix: {{ .Values.domainSuffix }}
         namespaceTag: {{ .Values.namespaceTag }}
         mainNamespace: {{ .Values.cluster.commonToolsNamespace }}
@@ -398,3 +435,30 @@ spec:
               hosts: ["elastic-kibana-kb-http.{{ .Values.cluster.namespace }}.svc"]
               schedule: '*/5 * * * * * *'
   {{- end }}
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_cli.projectID }}/packages/helm/stable"
+    path: ''
+    targetRevision: {{ .Values.simpl_cli.targetRevision }}
+    chart: {{ .Values.simpl_cli.chart_name }}
+    helm:
+      releaseName: {{ .Values.simpl_cli.fullnameOverride }}
+      valueFiles:
+        {{- range .Values.simpl_cli.valueFiles }}
+        - $values/app-values/simpl-cli/{{ . }}
+        {{- end }}
+      values: |
+        initAuthority:
+          hostT1: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+          csr:
+            cn: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+            o: {{ .Values.namespaceTag }}
+            ou: {{ .Values.namespaceTag }}
+          ejbca:
+            internalHost: ejbca-community-helm.{{ .Release.Namespace }}.svc.cluster.local
+          keycloak:
+            internalHost: "keycloak.{{ .Release.Namespace }}.svc.cluster.local"
+            url: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
+          microservices:
+            usersRolesUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/cli/userApi/v1/
+            securityAttributesProviderUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/cli/sapApi/v1/
+            identityProviderUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/cli/identityApi/v1/
+            authenticationProviderUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/cli/authApi/v1/

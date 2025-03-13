@@ -55,7 +55,7 @@ initContainers:
       - name: REALM_NAME
         value: realm
       - name: URL
-        value: https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/raw/develop/samples/keycloak-realms/0.8.0/authority-realm-export.json?ref_type=heads
+        value: https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/raw/develop/samples/keycloak-realms/1.0.0/authority-realm-export.json?ref_type=heads
     args:
       - |
         curl -o /config/${REALM_NAME}.json ${URL};
