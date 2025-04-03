@@ -93,7 +93,7 @@ spec:
               - name: T1_GATEWAY
                 value: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
               - name: NAMESPACE
-                value: {{ .Values.namespaceTag }}
+                value: {{ .Values.cluster.namespace }}
             command:
             - "./entrypoint.sh" 
         nginx:
