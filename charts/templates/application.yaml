@@ -74,7 +74,7 @@ spec:
             DATABASE_JDBC_URL: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/ejbca"
           initContainers:
           - name: ejbca-init
-            image: code.europa.eu:4567/simpl/simpl-open/development/iaa/ejbca-preconfig:1.0.0-F-feature-fix-permission.latest
+            image: code.europa.eu:4567/simpl/simpl-open/development/iaa/ejbca-preconfig:1.0.0
             imagePullPolicy: IfNotPresent
             securityContext: {}
             env:

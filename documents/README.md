@@ -133,11 +133,11 @@ spec:
   source:
     repoURL: 'https://code.europa.eu/api/v4/projects/902/packages/helm/stable'
     path: '""'
-    targetRevision: 1.2.0                   # version of package
+    targetRevision: 1.2.1                   # version of package
     helm:
       values: |
         values:
-          branch: v1.2.0                    # branch of repo with values - for released version it should be the release branch
+          branch: v1.2.1                    # branch of repo with values - for released version it should be the release branch
         project: default                    # Project to which the namespace is attached
         namespaceTag: authority1            # identifier of deployment and part of fqdn
         domainSuffix: int.simpl-europe.eu   # last part of fqdn
@@ -198,7 +198,7 @@ hashicorp:
 
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git   # repo URL
-  branch: v1.2.0                    # branch of repo with values - for released version it should be the release branch
+  branch: v1.2.1                    # branch of repo with values - for released version it should be the release branch
 
 monitoring:
   enabled: true                     # you can set it to false if you don't have common monitoring stack
