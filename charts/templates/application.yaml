@@ -396,7 +396,24 @@ spec:
           certificate:
             san: "tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
         redis:
-          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"    
+          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local" 
+        kafka:
+          bootstrap-servers: kafka.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:9092   
+        kafkaConfig:
+          spring:
+            kafka:
+              bootstrap-servers: kafka.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:9092
+              producer:
+                properties:
+                  security.protocol: SASL_PLAINTEXT
+                  sasl.mechanism: PLAIN
+                  sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${KAFKA_USER:iaa}" password="${KAFKA_PASSWORD:eezooS4Aideth1teaDeey3ohghohwohk}";
+              admin:
+                auto-create: true
+          simpl:
+            kafka:
+              topic:
+                prefix: iaa.{{ .Release.Namespace }}.   
         {{- if .Values.auth_provider.resources }}
         resources: {{- toYaml .Values.auth_provider.resources | nindent 10 }}
         {{- end }}
