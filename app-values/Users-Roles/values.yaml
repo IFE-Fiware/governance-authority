@@ -124,3 +124,14 @@ databaseSeeding:
     # If you want to start with an empty identity attributes table, set this to false.
     # Ff enabled is set to true and filePath is commented or empty the table will be initialized with the default seeding file.
     enabled: true 
+
+kafkaConfig:
+  spring:
+    kafka:
+      consumer:
+        properties:
+          security.protocol: SASL_PLAINTEXT
+          sasl.mechanism: PLAIN
+          sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${KAFKA_USER:iaa}" password="${KAFKA_PASSWORD:eezooS4Aideth1teaDeey3ohghohwohk}";
+      admin:
+        auto-create: true
