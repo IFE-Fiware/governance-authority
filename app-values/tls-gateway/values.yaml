@@ -75,7 +75,7 @@ autoscaling:
 volumes:
   - name: spring-config
     configMap:
-      name: tls-gateway-spring-configmap
+      name: tier2-gateway-spring-configmap
 # - name: foo
 #   secret:
 #     secretName: mysecret
@@ -88,7 +88,7 @@ volumeMounts:
 
 envFrom:
   - configMapRef:
-      name: tls-gateway-env-configmap
+      name: tier2-gateway-spring-configmap
 
 nodeSelector: {}
 

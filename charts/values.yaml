@@ -81,7 +81,7 @@ ejbca:
 simpl_cloud_gateway:
   projectID: "772"
   targetRevision: 1.2.0
-  chart_name: simpl-cloud-gateway
+  chart_name: tier1-gateway
   resources:
     requests:
       cpu: "0"
@@ -159,7 +159,7 @@ adapter:
 tls_gateway:
   projectID: "860"
   targetRevision: 1.2.0
-  chart_name: tls-gateway
+  chart_name: tier2-gateway
   resources:
     requests:
       cpu: "0"

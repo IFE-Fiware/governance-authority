@@ -77,7 +77,7 @@ autoscaling:
 volumes:
   - name: spring-config
     configMap:
-      name: simpl-cloud-gateway-spring-configmap
+      name: tier1-gateway-spring-configmap
 
 volumeMounts:
   - name: spring-config
@@ -85,7 +85,7 @@ volumeMounts:
 
 envFrom:
   - configMapRef:
-      name: simpl-cloud-gateway-env-configmap
+      name: tier1-gateway-env-configmap
 
 nodeSelector: {}
 
