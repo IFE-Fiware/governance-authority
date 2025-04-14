@@ -198,6 +198,15 @@ spec:
           spring:
             kafka:
               bootstrap-servers: kafka.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:9092
+              consumer:
+                group-id: iaa.{{ .Release.Namespace }}.users-roles
+          simpl:
+            kafka:
+              topic:
+                prefix: iaa.{{ .Release.Namespace }}.
+              inbox:
+                topic:
+                  pattern: iaa\.{{ .Release.Namespace }}\..*
         {{- if .Values.users_roles.resources }}
         resources: {{- toYaml .Values.users_roles.resources | nindent 10 }}
         {{- end }}
