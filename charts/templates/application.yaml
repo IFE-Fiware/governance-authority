@@ -189,17 +189,24 @@ spec:
         - $values/app-values/Users-Roles/{{ . }}
         {{- end }}
       values: |
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         hostT1: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         authorityHostT2: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         global:
-          hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          cors:
-            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
           ingress:
             issuer: {{ .Values.cluster.issuer }}
+        keycloak:
+          master:
+            password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin
         db:
-          url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/usersroles"
+          url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_usersroles"
+          username: {{ .Values.namespaceTag }}_usersroles
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-usersroles
+        redis:
+          host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         microservices:
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         kafkaConfig:
@@ -207,14 +214,20 @@ spec:
             kafka:
               bootstrap-servers: kafka.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:9092
               consumer:
-                group-id: iaa.{{ .Release.Namespace }}.users-roles
+                group-id: users-roles
+                properties:
+                  security.protocol: SASL_PLAINTEXT
+                  sasl.mechanism: PLAIN
+                  sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="{{ .Values.cluster.namespace }}_usersroles" password="${KAFKA_USERSROLES}";
+              admin:
+                auto-create: true
           simpl:
             kafka:
               topic:
-                prefix: iaa.{{ .Release.Namespace }}.
+                prefix: iaa.{{ .Values.cluster.namespace }}.
               inbox:
                 topic:
-                  pattern: iaa\.{{ .Release.Namespace }}\..*
+                  pattern: iaa\.{{ .Values.cluster.namespace }}\..*
         {{- if .Values.users_roles.resources }}
         resources: {{- toYaml .Values.users_roles.resources | nindent 10 }}
         {{- end }}
