@@ -323,9 +323,7 @@ spec:
           host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         hostT2: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-        {{- if .Values.tier2_gateway.resources }}
-        resources: {{- toYaml .Values.tier2_gateway.resources | nindent 10 }}
-        {{- end }}
+
         appConfig:
           spring:
             cloud:
@@ -361,6 +359,24 @@ spec:
                       - Path=/adapter/**
                     filters:
                       - StripPrefix=1
+        kafkaConfig:
+          spring:
+            kafka:
+              bootstrap-servers: kafka.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:9092
+              consumer:
+                properties:
+                  security.protocol: SASL_PLAINTEXT
+                  sasl.mechanism: PLAIN
+                  sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="{{ .Values.cluster.namespace }}_tier2gw" password="${KAFKA_TIER2GW}";
+              admin:
+                auto-create: true
+          simpl:
+            kafka:
+              topic:
+                prefix: iaa.{{ .Values.cluster.namespace }}.
+        {{- if .Values.tier2_gateway.resources }}
+        resources: {{- toYaml .Values.tier2_gateway.resources | nindent 10 }}
+        {{- end }}
   {{- if .Values.adapter.enabled }}                    
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.adapter.projectID }}/packages/helm/stable"
     path: ''
