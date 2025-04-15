@@ -156,7 +156,7 @@ adapter:
   valueFiles:
     - values.yaml
 
-tls_gateway:
+tier2_gateway:
   projectID: "860"
   targetRevision: 1.2.0
   chart_name: tier2-gateway
