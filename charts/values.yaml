@@ -87,7 +87,6 @@ simpl_cloud_gateway:
       cpu: "0"
       memory: "0"
   valueFiles:
-    - values.yaml
     - values-routes.yaml
 
 simpl_fe:
