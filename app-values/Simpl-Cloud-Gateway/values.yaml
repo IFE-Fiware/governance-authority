@@ -1,3 +1,5 @@
+profile: authority
+
 # Spring Cloud Gateway Routes Authority
 appConfig:
   spring:
