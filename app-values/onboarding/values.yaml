@@ -100,7 +100,3 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
-db:
-  username: "onboarding"
-  password: "onboarding"

@@ -82,7 +82,7 @@ spec:
         ejbca:
           env:
             HTTPSERVER_HOSTNAME: *hostname
-            DATABASE_JDBC_URL: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/ejbca"
+            DATABASE_JDBC_URL: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_ejbca"
           initContainers:
           - name: ejbca-init
             image: code.europa.eu:4567/simpl/simpl-open/development/iaa/ejbca-preconfig:1.0.0
@@ -96,11 +96,11 @@ spec:
               - name: MANAGEMENT_END_ENTITY_PASSWORD
                 value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-ejbca#keystorepass
               - name: DATABASE_JDBC_URL
-                value: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/ejbca"
+                value: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_ejbca"
               - name: DATABASE_USER
-                value: ejbca
+                value: {{ .Values.cluster.namespace }}_ejbca
               - name: DATABASE_PASSWORD
-                value: ejbca2123
+                value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-ejbca
               - name: T1_GATEWAY
                 value: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
               - name: NAMESPACE
@@ -175,7 +175,9 @@ spec:
         {{- end }}
       values: |
         db:
-          url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/securityattributesprovider"
+          url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_securityattributesprovider"
+          username: {{ .Values.namespaceTag }}_securityattributesprovider
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-securityattributesprovider
         microservices:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           onboardingUrl: http://onboarding.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
@@ -293,7 +295,9 @@ spec:
         {{- end }}
       values: |
         db:
-          url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/onboarding"
+          url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_onboarding"
+          username: {{ .Values.namespaceTag }}_onboarding
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-onboarding
         microservices:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
@@ -414,9 +418,12 @@ spec:
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         hostT2: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         db:
-          url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/identityprovider"
+          url: "jdbc:pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_identityprovider"
+          username: {{ .Values.namespaceTag }}_identityprovider
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-identityprovider
         redis:
-          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
+          host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         global:
           hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}

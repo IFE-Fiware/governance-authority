@@ -131,14 +131,9 @@ ejbca:
   truststore: 
     password: changeit
 
-db:
-  username: "identityprovider"
-  password: "identityprovider"
-
 redis:
   port: "6379"
   username: "default"
-  password: "admin"
 
 ephemeralProof:
   expireAfter: "3m"
