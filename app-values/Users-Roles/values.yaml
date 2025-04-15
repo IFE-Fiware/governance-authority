@@ -87,7 +87,11 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 # Additional volumes on the output Deployment definition.
-volumes: {}
+volumes:
+  - name: spring-config
+    configMap:
+      name: users-roles-spring-configmap
+
 
 # - name: foo
 #   secret:
@@ -95,7 +99,9 @@ volumes: {}
 #     optional: false
 
 # Additional volumeMounts on the output Deployment definition.
-volumeMounts: {}
+volumeMounts:
+  - name: spring-config
+    mountPath: /config/
 
 envFrom:
   - configMapRef:
