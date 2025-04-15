@@ -109,14 +109,14 @@ spec:
         {{- if .Values.ejbca.resources }}
         resources: {{- toYaml .Values.ejbca.resources | nindent 10 }}
         {{- end }}
-  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_cloud_gateway.projectID }}/packages/helm/stable"
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.tier1_gateway.projectID }}/packages/helm/stable"
     path: ''
-    targetRevision: {{ .Values.simpl_cloud_gateway.targetRevision }}
-    chart: {{ .Values.simpl_cloud_gateway.chart_name }}
+    targetRevision: {{ .Values.tier1_gateway.targetRevision }}
+    chart: {{ .Values.tier1_gateway.chart_name }}
     helm:
       valueFiles:
-        {{- range .Values.simpl_cloud_gateway.valueFiles }}
-        - $values/app-values/Simpl-Cloud-Gateway/{{ . }}
+        {{- range .Values.tier1_gateway.valueFiles }}
+        - $values/app-values/tier1-gateway/{{ . }}
         {{- end }}
       values: |
         hostT1: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
@@ -131,8 +131,8 @@ spec:
         ejbcaUrl: http://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30080
         identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
-        {{- if .Values.simpl_cloud_gateway.resources }}
-        resources: {{- toYaml .Values.simpl_cloud_gateway.resources | nindent 10 }}
+        {{- if .Values.tier1_gateway.resources }}
+        resources: {{- toYaml .Values.tier1_gateway.resources | nindent 10 }}
         {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_fe.projectID }}/packages/helm/stable"
     path: "''"

@@ -78,7 +78,7 @@ ejbca:
   valueFiles:
     - values.yaml
 
-simpl_cloud_gateway:
+tier1_gateway:
   projectID: "772"
   targetRevision: 1.2.0
   chart_name: tier1-gateway
