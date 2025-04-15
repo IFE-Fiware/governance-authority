@@ -121,6 +121,7 @@ keycloak:
   master:
     user: "admin"
     password: "admin"
+    realm: "authority"
   clientToRealmRoleMigration:
     enabled: true # set to true to import realm roles from client roles
     clientIds: "['frontend-cli']"
