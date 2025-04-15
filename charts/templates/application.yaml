@@ -34,10 +34,18 @@ spec:
         - $values/app-values/Keycloak/{{ . }}
         {{- end }}
       values: |
-        fullnameOverride: {{ .Values.keycloak.fullnameOverride }}
-        apiUrl: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
+        fullnameOverride: {{ .Values.keycloak.nameOverride }}
+        apiUrl: "https://participant.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
+        auth:
+          adminPassword: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin
         externalDatabase:
-          host: "postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local"
+          host: "pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
+          database: {{ .Values.namespaceTag }}_keycloak
+          user: {{ .Values.namespaceTag }}_keycloak
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-keycloak
         extraEnvVars:
         - name: KC_HOSTNAME_ADMIN
           value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
@@ -401,19 +409,22 @@ spec:
         - $values/app-values/auth-provider/{{ . }}
         {{- end }}
       values: |
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         urlAuthorityT2: "tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
         db:
-          url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/authenticationprovider"
+          url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_authenticationprovider"
+          username: {{ .Values.namespaceTag }}_authenticationprovider
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-authenticationprovider
         microservices:
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
-          identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         simpl:
           certificate:
             san: "tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
         redis:
-          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local" 
-        kafka:
-          bootstrap-servers: kafka.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:9092   
+          host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         kafkaConfig:
           spring:
             kafka:
@@ -422,13 +433,13 @@ spec:
                 properties:
                   security.protocol: SASL_PLAINTEXT
                   sasl.mechanism: PLAIN
-                  sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${KAFKA_USER:iaa}" password="${KAFKA_PASSWORD:eezooS4Aideth1teaDeey3ohghohwohk}";
+                  sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="{{ .Values.cluster.namespace }}_authprovider" password="${KAFKA_AUTHPROVIDER}";
               admin:
                 auto-create: true
           simpl:
             kafka:
               topic:
-                prefix: iaa.{{ .Release.Namespace }}.   
+                prefix: iaa.{{ .Values.cluster.namespace }}.
         {{- if .Values.auth_provider.resources }}
         resources: {{- toYaml .Values.auth_provider.resources | nindent 10 }}
         {{- end }}
