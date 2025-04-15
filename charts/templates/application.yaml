@@ -94,7 +94,7 @@ spec:
               - name: MANAGEMENT_END_ENTITY_USERNAME
                 value: SuperAdmin
               - name: MANAGEMENT_END_ENTITY_PASSWORD
-                value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-ejbca#keystorepass
+                value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-ejbca#keystorepass
               - name: DATABASE_JDBC_URL
                 value: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/ejbca"
               - name: DATABASE_USER
@@ -432,7 +432,7 @@ spec:
           enrollConfig:
             url: "https://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30443"
           keystore:
-            password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-ejbca#keystorepass
+            password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-ejbca#keystorepass
         {{- if .Values.identity_provider.resources }}
         resources: {{- toYaml .Values.identity_provider.resources | nindent 10 }}
         {{- end }}
