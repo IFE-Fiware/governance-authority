@@ -119,7 +119,7 @@ spec:
         - $values/app-values/Simpl-Cloud-Gateway/{{ . }}
         {{- end }}
       values: |
-        hostT1: participant.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+        hostT1: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         cors:
           allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
         ingress:
