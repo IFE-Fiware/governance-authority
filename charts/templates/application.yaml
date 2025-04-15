@@ -183,6 +183,8 @@ spec:
         - $values/app-values/Users-Roles/{{ . }}
         {{- end }}
       values: |
+        hostT1: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+        authorityHostT2: tls.authority.{{ .Values.authority.namespaceTag }}.{{ .Values.domainSuffix }}
         global:
           hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
