@@ -119,13 +119,11 @@ spec:
         - $values/app-values/Simpl-Cloud-Gateway/{{ . }}
         {{- end }}
       values: |
-        global:
-          cors:
-            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
-          hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          ingress:
-            issuer: {{ .Values.cluster.issuer }}
+        hostT1: participant.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+        cors:
+          allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+        ingress:
+          issuer: {{ .Values.cluster.issuer }}
         usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         securityAttributesProviderUrl: http://security-attributes-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         keycloakUrl: http://keycloak.{{ .Values.cluster.namespace }}.svc.cluster.local
