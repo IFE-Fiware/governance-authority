@@ -286,17 +286,20 @@ spec:
         {{- if .Values.onboarding.resources }}
         resources: {{- toYaml .Values.onboarding.resources | nindent 10 }}
         {{- end }}
-  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.tls_gateway.projectID }}/packages/helm/stable"
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.tier2_gateway.projectID }}/packages/helm/stable"
     path: ''
-    targetRevision: {{ .Values.tls_gateway.targetRevision }}
-    chart: {{ .Values.tls_gateway.chart_name }}
+    targetRevision: {{ .Values.tier2_gateway.targetRevision }}
+    chart: {{ .Values.tier2_gateway.chart_name }}
     helm:
       valueFiles:
-        {{- range .Values.tls_gateway.valueFiles }}
-        - $values/app-values/tls-gateway/{{ . }}
+        {{- range .Values.tier2_gateway.valueFiles }}
+        - $values/app-values/tier2-gateway/{{ . }}
         {{- end }}
       values: |
-        global:  
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
+        global:
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
         microservices:
@@ -306,10 +309,11 @@ spec:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         redis:
-          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
+          host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         hostT2: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-        {{- if .Values.tls_gateway.resources }}
-        resources: {{- toYaml .Values.tls_gateway.resources | nindent 10 }}
+        {{- if .Values.tier2_gateway.resources }}
+        resources: {{- toYaml .Values.tier2_gateway.resources | nindent 10 }}
         {{- end }}
         appConfig:
           spring:
