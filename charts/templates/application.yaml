@@ -504,6 +504,9 @@ spec:
         - $values/app-values/simpl-cli/{{ . }}
         {{- end }}
       values: |
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         initAuthority:
           hostT1: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           csr:
@@ -515,6 +518,8 @@ spec:
           keycloak:
             internalHost: "keycloak.{{ .Release.Namespace }}.svc.cluster.local"
             url: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
+            master:
+              password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin
           microservices:
             usersRolesUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/cli/userApi/v1/
             securityAttributesProviderUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/cli/sapApi/v1/
