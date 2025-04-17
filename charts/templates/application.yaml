@@ -12,19 +12,6 @@ spec:
   - repoURL: {{ .Values.values.repo_URL }}
     targetRevision: {{ .Values.values.branch }}
     ref: values
-  - repoURL: {{ .Values.postgresql.repo_URL }}
-    targetRevision: {{ .Values.postgresql.targetRevision }}
-    chart: {{ .Values.postgresql.chart_name }}
-    helm:
-      valueFiles:
-        {{- range .Values.postgresql.valueFiles }}
-        - $values/app-values/Postgresql/{{ . }}
-        {{- end }}
-      values: |
-        fullnameOverride: {{ .Values.postgresql.fullnameOverride }}
-        {{- if .Values.postgresql.primary }}
-        primary: {{- toYaml .Values.postgresql.primary | nindent 10 }}
-        {{- end }}
   - repoURL: {{ .Values.keycloak.repo_URL }}
     targetRevision: {{ .Values.keycloak.targetRevision }}
     chart: {{ .Values.keycloak.chart_name }}
@@ -240,19 +227,6 @@ spec:
                   pattern: iaa\.{{ .Values.cluster.namespace }}\..*
         {{- if .Values.users_roles.resources }}
         resources: {{- toYaml .Values.users_roles.resources | nindent 10 }}
-        {{- end }}
-  - repoURL: {{ .Values.redis.repo_URL }}
-    targetRevision: {{ .Values.redis.targetRevision }}
-    chart: {{ .Values.redis.chart_name }}
-    helm:
-      valueFiles:
-        {{- range .Values.redis.valueFiles }}
-        - $values/app-values/Redis/{{ . }}
-        {{- end }}
-      values: |
-        fullnameOverride: {{ .Values.redis.fullnameOverride }}
-        {{- if .Values.redis.master }}
-        master: {{- toYaml .Values.redis.master | nindent 10 }}
         {{- end }}
   {{- if .Values.xsfc_catalogue.enabled }}      
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.xsfc_catalogue.projectID }}/packages/helm/stable"

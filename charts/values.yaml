@@ -24,21 +24,6 @@ values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git
   branch: feature/release-1.3.X
 
-postgresql:
-  repo_URL: https://charts.bitnami.com/bitnami
-  chart_name: postgresql
-  targetRevision: 15.2.5
-  fullnameOverride: postgresql
-  primary:
-    resourcesPreset: "none"
-    resources:
-      requests:
-        cpu: "0"
-        memory: "0"
-  valueFiles:
-    - values.yaml
-    - values-authority.yaml
-
 keycloak:
   repo_URL: 'https://charts.bitnami.com/bitnami'
   chart_name: keycloak
@@ -49,20 +34,6 @@ keycloak:
     requests:
       cpu: "0"
       memory: "0"
-  valueFiles:
-    - values.yaml
-
-redis:
-  repo_URL: 'https://charts.bitnami.com/bitnami'
-  targetRevision: 19.6.0
-  chart_name: redis
-  fullnameOverride: redis
-  master:
-    resourcesPreset: "none"
-    resources:
-      requests:
-        cpu: "0"
-        memory: "0"
   valueFiles:
     - values.yaml
 
