@@ -130,6 +130,15 @@ appConfig:
                   # The default configuration is shown below.
                   cli: cli-role
 
+                  - StripPrefix=2
+          - id: cli-identity-providerV0
+            uri: ${identity-provider.url}
+            args:
+              cli: cli-role
+            name: ClientCredentialsFilter
+            predicates:
+            - Path= /cli/identityApi/certificate/*
+
           - id: cli-security-attributes-providerV1
             uri: ${sap.url}
             predicates:
