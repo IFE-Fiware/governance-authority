@@ -83,6 +83,8 @@ spec:
           env:
             HTTPSERVER_HOSTNAME: *hostname
             DATABASE_JDBC_URL: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_ejbca"
+            DATABASE_USER: {{ .Values.cluster.namespace }}_ejbca
+            DATABASE_PASSWORD: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-ejbca
           initContainers:
           - name: ejbca-init
             image: code.europa.eu:4567/simpl/simpl-open/development/iaa/ejbca-preconfig:1.0.0
