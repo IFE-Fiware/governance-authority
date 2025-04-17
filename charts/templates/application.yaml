@@ -400,7 +400,7 @@ spec:
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         hostT2: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         db:
-          url: "jdbc:pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_identityprovider"
+          url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_identityprovider"
           username: {{ .Values.namespaceTag }}_identityprovider
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-identityprovider
         redis:
