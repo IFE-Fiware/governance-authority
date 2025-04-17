@@ -6,9 +6,3 @@ keypair:
 redis:
   port: "6379"
   username: "default"
-
-envFrom:
-  - configMapRef:
-      name: tier2-gateway-env-configmap
-  - secretRef:
-      name: kafka-secrets

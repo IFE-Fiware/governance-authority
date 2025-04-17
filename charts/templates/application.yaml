@@ -201,6 +201,9 @@ spec:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_usersroles"
           username: {{ .Values.namespaceTag }}_usersroles
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-usersroles
+        env:
+        - name: KAFKA_USERSROLES
+          value: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-kafka-credentials#{{ .Values.cluster.namespace }}_usersroles"
         redis:
           host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
@@ -317,6 +320,9 @@ spec:
         podAnnotations:
           vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
+        env:
+        - name: KAFKA_TIER2GW
+          value: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-kafka-credentials#{{ .Values.cluster.namespace }}_tier2gw"
         global:
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
@@ -461,6 +467,9 @@ spec:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_authenticationprovider"
           username: {{ .Values.namespaceTag }}_authenticationprovider
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-authenticationprovider
+        env:
+        - name: KAFKA_AUTHPROVIDER
+          value: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-kafka-credentials#{{ .Values.cluster.namespace }}_authprovider"
         microservices:
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         simpl:
@@ -510,16 +519,16 @@ spec:
               name: Elasticsearch Service
               id: elasticsearch:9200
               schedule: '@every 5s'
-              hosts: ["elastic-elasticsearch-es-http.{{ .Values.cluster.namespace }}.svc:9200"]
+              hosts: ["elastic-elasticsearch-es-http.{{ .Values.cluster.commonToolsNamespace }}.svc:9200"]
             - type: tcp
               name: Kibana GUI
               id: kibana:443
               schedule: '@every 5s'
-              hosts: ["kibana.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}:443"]
+              hosts: ["kibana.{{ .Values.cluster.commonToolsNamespace }}.{{ .Values.domainSuffix }}:443"]
             - type: icmp
               id: kibana/icmp
               name: Kibana ICMP
-              hosts: ["elastic-kibana-kb-http.{{ .Values.cluster.namespace }}.svc"]
+              hosts: ["elastic-kibana-kb-http.{{ .Values.cluster.commonToolsNamespace }}.svc"]
               schedule: '*/5 * * * * * *'
   {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_cli.projectID }}/packages/helm/stable"

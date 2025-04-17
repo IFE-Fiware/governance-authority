@@ -11,9 +11,3 @@ profile: "authority"
 redis: 
   port: "6379"
   username: "default"
-
-envFrom:
-  - secretRef:
-      name: kafka-secrets
-  - configMapRef:
-      name: authentication-provider-configmap
