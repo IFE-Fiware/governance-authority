@@ -170,7 +170,7 @@ monitoring:
 
 simpl_cli:
   projectID: "882"
-  targetRevision: 1.2.1
+  targetRevision: 1.2.2
   chart_name: simpl-cli
   fullnameOverride: simpl-cli
   valueFiles:
