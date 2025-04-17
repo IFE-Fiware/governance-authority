@@ -280,9 +280,26 @@ spec:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_onboarding"
           username: {{ .Values.namespaceTag }}_onboarding
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-onboarding
+        env:
+          KAFKA_ONBOARDING: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-kafka-credentials#{{ .Values.cluster.namespace }}_onboarding
         microservices:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        kafkaConfig:
+        spring:
+          kafka:
+            bootstrap-servers: kafka.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:9092
+            producer:
+              properties:
+                security.protocol: SASL_PLAINTEXT
+                sasl.mechanism: PLAIN
+                sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="{{ .Values.cluster.namespace }}_onboarding" password="${KAFKA_ONBOARDING}";
+            admin:
+              auto-create: true
+        simpl:
+          kafka:
+            topic:
+              prefix: iaa.{{ .Release.Namespace }}.
         {{- if .Values.onboarding.resources }}
         resources: {{- toYaml .Values.onboarding.resources | nindent 10 }}
         {{- end }}
