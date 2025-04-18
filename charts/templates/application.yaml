@@ -354,6 +354,12 @@ spec:
                       - Path=/identity-api/mtls/**
                     filters:
                       - StripPrefix=1
+                  - id: identity-provider
+                    uri: ${identity-provider.url}
+                    predicates:
+                      - Path=/identityApi/v1/mtls/**
+                    filters:
+                      - StripPrefix=1
                   - id: users-roles
                     uri: ${users-roles.url}
                     predicates:
