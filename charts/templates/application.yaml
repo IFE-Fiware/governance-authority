@@ -27,12 +27,12 @@ spec:
           vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         auth:
-          adminPassword: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin
+          adminPassword: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin"
         externalDatabase:
           host: "pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
           database: {{ .Values.namespaceTag }}_keycloak
           user: {{ .Values.namespaceTag }}_keycloak
-          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-keycloak
+          password: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-keycloak"
         extraEnvVars:
         - name: KC_HOSTNAME_ADMIN
           value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"

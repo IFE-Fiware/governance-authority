@@ -9,9 +9,6 @@
     * [Prerequisites](#prerequisites)
       * [Create the Namespace](#create-the-namespace)
       * [Verify the Namespace](#verify-the-namespace)
-      * [Vault related tasks](#vault-related-tasks)
-        * [Secret for FC-Service](#secret-for-fc-service)
-        * [Secret for Catalog Query Mapper Adapter](#secret-for-catalog-query-mapper-adapter)
     * [Deployment using ArgoCD](#deployment-using-argocd)
     * [Manual deployment](#manual-deployment)
       * [Files preparation](#files-preparation)
@@ -58,63 +55,7 @@ To ensure that the namespace was created successfully, run the following command
 
 #### Vault related tasks
 
-##### Secret for FC-Service
-
-One secret is needed, its naming syntax is {{ .Release.Namespace }}-xsfc-service, it should be created in created before kv secret engine.
-Their content is:
-
-```
-{
-  "DATASTORE_FILE_PATH": "/var/lib/fc-service/filestore",
-  "FEDERATED_CATALOGUE_VERIFICATION_SIGNATURES": "true",
-  "GRAPHSTORE_PASSWORD": "neo12345",
-  "GRAPHSTORE_QUERY_TIMEOUT_IN_SECONDS": "5",
-  "GRAPHSTORE_URI": "bolt://xsfc-neo4j:7687",
-  "KEYCLOAK_AUTH_SERVER_URL": "https://authority.be.authority1.int.simpl-europe.eu",
-  "KEYCLOAK_CREDENTIALS_SECRET": "generatedsecret",
-  "SPRING_DATASOURCE_PASSWORD": "postgres",
-  "SPRING_DATASOURCE_URL": "jdbc:postgresql://xsfc-postgres:5432/postgres",
-  "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "https://authority.be.authority1.int.simpl-europe.eu/auth/realms/authority",
-  "VAULT_ADDR": "http://vault-common.common.svc.cluster.local:8200",
-  "VAULT_ADRESS": "http://vault-common.common.svc.cluster.local:8200",
-  "VAULT_TOKEN": "hvs.generatedtoken"
-}
-```
-
-Where you need to modify:
-
-| Variable name                 |     Example         | Description     |
-| ----------------------        |     :-----:         | --------------- |
-| KEYCLOAK_AUTH_SERVER_URL      | https://authority.be.**authority1.int.simpl-europe.eu**  | Keycloak URL |
-| KEYCLOAK_CREDENTIALS_SECRET   | generatedsecret                                          | Client secret from Keycloak  |
-| SPRING_DATASOURCE_URL         | jdbc:postgresql://xsfc-postgres:5432/postgres | URL to postgres - it's either data or infra for those two secrets |
-| SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI  | https://authority.be.**authority1.int.simpl-europe.eu**/auth/realms/**authority** | URL to Keycloak including realm |
-| VAULT_ADDR/ADDRESS            | http://vaultservice.vaultnamespace.svc.cluster.local:8200 | Internal link to Vault service  |
-| VAULT_TOKEN                   | hvs.generatedtoken | Token to access the Vault  |
-
-##### Secret for Catalog Query Mapper Adapter
-
-One secret is needed, its naming syntax is {{ .Release.Namespace }}-adapter-simpl-backend, it should be created in created before kv secret engine.
-Its content is (to be revised):
-
-```
-{
-  "FEDERATED_CATALOOGUE_CLIENT_URL": "https://xsfc-server-service.authority1.int.simpl-europe.eu",
-  "KEYCLOAK_CLIENT_URL": "https://authority.be.authority1.int.simpl-europe.eu",
-  "SIGNER_GROUP": "simpl",
-  "SIGNER_ISSUER": "did:web:example.com",
-  "SIGNER_KEY": "gaia-x-key1",
-  "SIGNER_NAMESPACE": "transit"
-}
-```
-Where you need to modify:
-
-| Variable name                 |     Example         | Description     |
-| ----------------------        |     :-----:         | --------------- |
-| FEDERATED_CATALOOGUE_CLIENT_URL | https://xsfc-server-service.authority1.int.simpl-europe.eu | link to fqdn of the fc-service |
-| KEYCLOAK_CLIENT_URL | https://authority.be.authority1.int.simpl-europe.eu | link to fqdn of Keycloak |
-| SIGNER_KEY         | gaia-x-key1 | Name of the key for Signer |
-| SIGNER_NAMESPACE   | transit     | Name of secret engine with transit key |
+All the secrets are now generated and stored automatically on deployment of Common namespace.
 
 ### Deployment using ArgoCD
 
