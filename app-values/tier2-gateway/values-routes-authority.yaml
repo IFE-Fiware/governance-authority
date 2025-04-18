@@ -13,10 +13,22 @@ appConfig:
         path: "/identity-api/mtls/token"
         disable-ephemeral-proof-check: true
       - method: GET
-        path: "/identityApi/v1/mtls/whoami"
-        disable-ephemeral-proof-check: true 
+        path: "/identity-api/v1/mtls/whoami"
+        disable-ephemeral-proof-check: true
       - method: POST
         path: "/user-api/mtls/ephemeral-proof"
+        disable-ephemeral-proof-check: true
+      - method: PATCH
+        path: "/identityApi/v1/mtls/public-key"
+        disable-ephemeral-proof-check: true
+      - method: POST
+        path: "/identityApi/v1/mtls/token"
+        disable-ephemeral-proof-check: true
+      - method: GET
+        path: "/identityApi/v1/mtls/whoami"
+        disable-ephemeral-proof-check: true
+      - method: POST
+        path: "/userApi/v1/mtls/ephemeral-proof"
         disable-ephemeral-proof-check: true
 
     
