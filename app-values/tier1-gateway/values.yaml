@@ -1,3 +1,5 @@
+profile: authority
+
 # Spring Cloud Gateway Routes Authority
 appConfig:
   spring:
@@ -179,7 +181,7 @@ appConfig:
     app:
       realm: authority
   
-  routes:
+  routes: 
     public-urls:
       - method: GET
         path: "/swagger-ui.html"
@@ -189,7 +191,7 @@ appConfig:
         path: "/v3/api-docs/**"
       - method: GET
         path: "/actuator/**"
-
+  
       - method: POST
         path: "/ocsp"
       - method: GET
@@ -200,17 +202,19 @@ appConfig:
       - method: GET
         path: "/user-api/credential/public-key"
       - method: GET
+        path: "/authApi/v1/credentials" 
+
+      - method: GET
         path: "/onboarding-api/participant-type"
       - method: POST
         path: "/onboarding-api/onboarding-request"
-      - method: GET
-        path: "/user-api/v1/credentials/publicKey" 
   
     denied-urls:
       - method: GET
         path: "/auth-api/keypair"
       - method: GET
         path: "/authApi/v1/keypairs"
+
       - path: "/sap-api/mtls/**"
       - path: "/user-api/mtls/**"
       - path: "/identity-api/mtls/**"
@@ -219,7 +223,7 @@ appConfig:
       - path: "/userApi/v1/mtls/**"
       - path: "/identityApi/v1/mtls/**"
       - path: "/authApi/v1/mtls/**"
-      
+
     rbac:
       ### onboarding
       - path: "/onboarding-api/onboarding-request/*/status"
@@ -241,6 +245,9 @@ appConfig:
       - path: "/onboarding-api/mime-type/*"
         roles:
           - T2IAA_M
+      - path: "/onboarding-api/mime-type"
+        roles:
+          - T2IAA_M
       - path: "/onboarding-api/credential-request"
         method: POST
         roles:
@@ -251,6 +258,7 @@ appConfig:
         roles:
           - APPLICANT
           - NOTARY
+          - T2IAA_M
       - path: "/onboarding-api/onboarding-request"
         method: POST
         roles:
@@ -280,11 +288,55 @@ appConfig:
         method: PATCH
         roles:
           - NOTARY
+
+      - path: /onboarding-api/v1/onboardingRequests/*/evaluateFaultRules
+        method: POST
+        roles:
+          - NOTARY
+      - path: /onboardingApi/v1/onboardingRequests/*/evaluateFaultRules
+        method: POST
+        roles:
+          - NOTARY
+
+      - path: /onboarding-api/v1/onboardingProcedureTemplates/*/validationRules
+        method: POST
+        roles:
+          - T2IAA_M
+      - path: /onboardingApi/v1/onboardingProcedureTemplates/*/validationRules
+        method: GET
+        roles:
+          - T2IAA_M
+
+      - path: /onboarding-api/v1/onboardingProcedureTemplates/*/validationRules/*
+        method: GET
+        roles:
+          - T2IAA_M
+      - path: /onboardingApi/v1/onboardingProcedureTemplates/*/validationRules/*
+        method: PUT
+        roles:
+          - T2IAA_M
+          
       ### identity provider
       - path: "/identity-api/participant/*"
         method: PUT
         roles:
           - NOTARY
+      - path: "/identity-api/participant/*/credential-validity"
+        method: GET
+        roles:
+          - NOTARY
+      - path: "/identity-api/participant/*"
+        method: GET
+        roles:
+          - IATTR_M
+      - path: "/identity-api/participant/search**"
+        method: GET
+        roles:
+          - NOTARY
+      - path: "/identity-api/participant/certificate/*"
+        method: DELETE
+        roles:
+          - IATTR_M
       ### users-roles
       - path: "/user-api/agent/identity-attributes"
         method: GET
@@ -309,6 +361,10 @@ appConfig:
           - T1UAR_M
       - path: "/user-api/role/*/identity-attributes"
         method: POST
+        roles:
+          - T1UAR_M
+      - path: "/user-api/role/*/identity-attributes"
+        method: PUT
         roles:
           - T1UAR_M
       - path: "/user-api/role/delete-attribute"
@@ -372,13 +428,15 @@ appConfig:
       - path: "/sap-api/identity-attribute/unassign-participant/*"
         method: DELETE
         roles:
-          - NOTARY
           - IATTR_M
       - path: "/sap-api/identity-attribute/assign-participant/*"
         method: PUT
         roles:
-          - NOTARY
           - IATTR_M
+      - path: "/sap-api/identity-attribute/search**"
+        method: GET
+        roles:
+          - NOTARY
       - path: "/sap-api/identity-attribute/assign/*/*"
         method: PUT
         roles:

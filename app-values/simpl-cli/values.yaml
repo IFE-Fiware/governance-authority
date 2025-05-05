@@ -24,7 +24,6 @@ initAuthority:
     master:
       realm: master
       user: admin
-      password: admin
       clientId: admin-cli
 initParticipant:
   enabled: false
