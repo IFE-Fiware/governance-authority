@@ -12,19 +12,6 @@ spec:
   - repoURL: {{ .Values.values.repo_URL }}
     targetRevision: {{ .Values.values.branch }}
     ref: values
-  - repoURL: {{ .Values.postgresql.repo_URL }}
-    targetRevision: {{ .Values.postgresql.targetRevision }}
-    chart: {{ .Values.postgresql.chart_name }}
-    helm:
-      valueFiles:
-        {{- range .Values.postgresql.valueFiles }}
-        - $values/app-values/Postgresql/{{ . }}
-        {{- end }}
-      values: |
-        fullnameOverride: {{ .Values.postgresql.fullnameOverride }}
-        {{- if .Values.postgresql.primary }}
-        primary: {{- toYaml .Values.postgresql.primary | nindent 10 }}
-        {{- end }}
   - repoURL: {{ .Values.keycloak.repo_URL }}
     targetRevision: {{ .Values.keycloak.targetRevision }}
     chart: {{ .Values.keycloak.chart_name }}
@@ -34,10 +21,18 @@ spec:
         - $values/app-values/Keycloak/{{ . }}
         {{- end }}
       values: |
-        fullnameOverride: {{ .Values.keycloak.fullnameOverride }}
-        apiUrl: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
+        fullnameOverride: {{ .Values.keycloak.nameOverride }}
+        apiUrl: "https://participant.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
+        auth:
+          adminPassword: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin"
         externalDatabase:
-          host: "postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local"
+          host: "pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
+          database: {{ .Values.namespaceTag }}_keycloak
+          user: {{ .Values.namespaceTag }}_keycloak
+          password: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-keycloak"
         extraEnvVars:
         - name: KC_HOSTNAME_ADMIN
           value: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
@@ -66,12 +61,17 @@ spec:
         - $values/app-values/ejbca/{{ . }}
         {{- end }}
       values: |
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         fullnameOverride: {{ .Values.ejbca.fullnameOverride }}
         hostname: &hostname ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local
         ejbca:
           env:
             HTTPSERVER_HOSTNAME: *hostname
-            DATABASE_JDBC_URL: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/ejbca"
+            DATABASE_JDBC_URL: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_ejbca"
+            DATABASE_USER: {{ .Values.cluster.namespace }}_ejbca
+            DATABASE_PASSWORD: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-ejbca
           initContainers:
           - name: ejbca-init
             image: code.europa.eu:4567/simpl/simpl-open/development/iaa/ejbca-preconfig:1.0.0
@@ -83,17 +83,17 @@ spec:
               - name: MANAGEMENT_END_ENTITY_USERNAME
                 value: SuperAdmin
               - name: MANAGEMENT_END_ENTITY_PASSWORD
-                value: {{ .Values.ejbcakeys.keystore.password }}
+                value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-ejbca#keystorepass
               - name: DATABASE_JDBC_URL
-                value: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/ejbca"
+                value: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_ejbca"
               - name: DATABASE_USER
-                value: ejbca
+                value: {{ .Values.cluster.namespace }}_ejbca
               - name: DATABASE_PASSWORD
-                value: ejbca2123
+                value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-ejbca
               - name: T1_GATEWAY
                 value: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
               - name: NAMESPACE
-                value: {{ .Values.namespaceTag }}
+                value: {{ .Values.cluster.namespace }}
             command:
             - "./entrypoint.sh" 
         nginx:
@@ -101,23 +101,21 @@ spec:
         {{- if .Values.ejbca.resources }}
         resources: {{- toYaml .Values.ejbca.resources | nindent 10 }}
         {{- end }}
-  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_cloud_gateway.projectID }}/packages/helm/stable"
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.tier1_gateway.projectID }}/packages/helm/stable"
     path: ''
-    targetRevision: {{ .Values.simpl_cloud_gateway.targetRevision }}
-    chart: {{ .Values.simpl_cloud_gateway.chart_name }}
+    targetRevision: {{ .Values.tier1_gateway.targetRevision }}
+    chart: {{ .Values.tier1_gateway.chart_name }}
     helm:
       valueFiles:
-        {{- range .Values.simpl_cloud_gateway.valueFiles }}
-        - $values/app-values/Simpl-Cloud-Gateway/{{ . }}
+        {{- range .Values.tier1_gateway.valueFiles }}
+        - $values/app-values/tier1-gateway/{{ . }}
         {{- end }}
       values: |
-        global:
-          cors:
-            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
-          hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          ingress:
-            issuer: {{ .Values.cluster.issuer }}
+        hostT1: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+        cors:
+          allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+        ingress:
+          issuer: {{ .Values.cluster.issuer }}
         usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         securityAttributesProviderUrl: http://security-attributes-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         keycloakUrl: http://keycloak.{{ .Values.cluster.namespace }}.svc.cluster.local
@@ -125,8 +123,8 @@ spec:
         ejbcaUrl: http://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30080
         identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
-        {{- if .Values.simpl_cloud_gateway.resources }}
-        resources: {{- toYaml .Values.simpl_cloud_gateway.resources | nindent 10 }}
+        {{- if .Values.tier1_gateway.resources }}
+        resources: {{- toYaml .Values.tier1_gateway.resources | nindent 10 }}
         {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_fe.projectID }}/packages/helm/stable"
     path: "''"
@@ -165,8 +163,13 @@ spec:
         - $values/app-values/SAP/{{ . }}
         {{- end }}
       values: |
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         db:
-          url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/securityattributesprovider"
+          url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_securityattributesprovider"
+          username: {{ .Values.namespaceTag }}_securityattributesprovider
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-securityattributesprovider
         microservices:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           onboardingUrl: http://onboarding.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
@@ -183,32 +186,50 @@ spec:
         - $values/app-values/Users-Roles/{{ . }}
         {{- end }}
       values: |
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
+        hostT1: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
+        authorityHostT2: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         global:
-          hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          hostTls: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-          cors:
-            allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
           ingress:
             issuer: {{ .Values.cluster.issuer }}
+        keycloak:
+          master:
+            password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin
         db:
-          url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/usersroles"
+          url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_usersroles"
+          username: {{ .Values.namespaceTag }}_usersroles
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-usersroles
+        env:
+        - name: KAFKA_USERSROLES
+          value: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-kafka-credentials#{{ .Values.cluster.namespace }}_usersroles"
+        redis:
+          host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         microservices:
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        kafkaConfig:
+          spring:
+            kafka:
+              bootstrap-servers: kafka.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:9092
+              consumer:
+                group-id: users-roles
+                properties:
+                  security.protocol: SASL_PLAINTEXT
+                  sasl.mechanism: PLAIN
+                  sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="{{ .Values.cluster.namespace }}_usersroles" password="${KAFKA_USERSROLES}";
+              admin:
+                auto-create: true
+          simpl:
+            kafka:
+              topic:
+                prefix: iaa.{{ .Values.cluster.namespace }}.
+              inbox:
+                topic:
+                  pattern: iaa\.{{ .Values.cluster.namespace }}\..*
         {{- if .Values.users_roles.resources }}
         resources: {{- toYaml .Values.users_roles.resources | nindent 10 }}
-        {{- end }}
-  - repoURL: {{ .Values.redis.repo_URL }}
-    targetRevision: {{ .Values.redis.targetRevision }}
-    chart: {{ .Values.redis.chart_name }}
-    helm:
-      valueFiles:
-        {{- range .Values.redis.valueFiles }}
-        - $values/app-values/Redis/{{ . }}
-        {{- end }}
-      values: |
-        fullnameOverride: {{ .Values.redis.fullnameOverride }}
-        {{- if .Values.redis.master }}
-        master: {{- toYaml .Values.redis.master | nindent 10 }}
         {{- end }}
   {{- if .Values.xsfc_catalogue.enabled }}      
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.xsfc_catalogue.projectID }}/packages/helm/stable"
@@ -255,25 +276,54 @@ spec:
         - $values/app-values/onboarding/{{ . }}
         {{- end }}
       values: |
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         db:
-          url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/onboarding"
+          url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_onboarding"
+          username: {{ .Values.namespaceTag }}_onboarding
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-onboarding
+        env:
+        - name: KAFKA_ONBOARDING
+          value: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-kafka-credentials#{{ .Values.cluster.namespace }}_onboarding"
         microservices:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        kafkaConfig:
+        spring:
+          kafka:
+            bootstrap-servers: kafka.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:9092
+            producer:
+              properties:
+                security.protocol: SASL_PLAINTEXT
+                sasl.mechanism: PLAIN
+                sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="{{ .Values.cluster.namespace }}_onboarding" password="${KAFKA_ONBOARDING}";
+            admin:
+              auto-create: true
+        simpl:
+          kafka:
+            topic:
+              prefix: iaa.{{ .Release.Namespace }}.
         {{- if .Values.onboarding.resources }}
         resources: {{- toYaml .Values.onboarding.resources | nindent 10 }}
         {{- end }}
-  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.tls_gateway.projectID }}/packages/helm/stable"
+  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.tier2_gateway.projectID }}/packages/helm/stable"
     path: ''
-    targetRevision: {{ .Values.tls_gateway.targetRevision }}
-    chart: {{ .Values.tls_gateway.chart_name }}
+    targetRevision: {{ .Values.tier2_gateway.targetRevision }}
+    chart: {{ .Values.tier2_gateway.chart_name }}
     helm:
       valueFiles:
-        {{- range .Values.tls_gateway.valueFiles }}
-        - $values/app-values/tls-gateway/{{ . }}
+        {{- range .Values.tier2_gateway.valueFiles }}
+        - $values/app-values/tier2-gateway/{{ . }}
         {{- end }}
       values: |
-        global:  
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
+        env:
+        - name: KAFKA_TIER2GW
+          value: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-kafka-credentials#{{ .Values.cluster.namespace }}_tier2gw"
+        global:
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
         microservices:
@@ -283,11 +333,10 @@ spec:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         redis:
-          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
+          host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         hostT2: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
-        {{- if .Values.tls_gateway.resources }}
-        resources: {{- toYaml .Values.tls_gateway.resources | nindent 10 }}
-        {{- end }}
+
         appConfig:
           spring:
             cloud:
@@ -299,16 +348,40 @@ spec:
                       - Path=/sap-api/mtls/**
                     filters:
                       - StripPrefix=1
+                  - id: sap-v1
+                    uri: ${sap.url}
+                    predicates:
+                      - Path=/sapApi/v1/mtls/**
+                    filters:
+                      - StripPrefix=1
                   - id: identity-provider
                     uri: ${identity-provider.url}
                     predicates:
                       - Path=/identity-api/mtls/**
                     filters:
                       - StripPrefix=1
+                  - id: identity-provider-v1
+                    uri: ${identity-provider.url}
+                    predicates:
+                      - Path=/identityApi/v1/mtls/**
+                    filters:
+                      - StripPrefix=1
+                  - id: identity-provider-v1-tmp
+                    uri: ${identity-provider.url}
+                    predicates:
+                      - Path=/identity-api/v1/mtls/**
+                    filters:
+                      - StripPrefix=1
                   - id: users-roles
                     uri: ${users-roles.url}
                     predicates:
                       - Path=/user-api/mtls/**
+                    filters:
+                      - StripPrefix=1
+                  - id: users-roles-v1
+                    uri: ${users-roles.url}
+                    predicates:
+                      - Path=/userApi/v1/mtls/**
                     filters:
                       - StripPrefix=1
                   - id: fc-service
@@ -323,6 +396,24 @@ spec:
                       - Path=/adapter/**
                     filters:
                       - StripPrefix=1
+        kafkaConfig:
+          spring:
+            kafka:
+              bootstrap-servers: kafka.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:9092
+              consumer:
+                properties:
+                  security.protocol: SASL_PLAINTEXT
+                  sasl.mechanism: PLAIN
+                  sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="{{ .Values.cluster.namespace }}_tier2gw" password="${KAFKA_TIER2GW}";
+              admin:
+                auto-create: true
+          simpl:
+            kafka:
+              topic:
+                prefix: iaa.{{ .Values.cluster.namespace }}.
+        {{- if .Values.tier2_gateway.resources }}
+        resources: {{- toYaml .Values.tier2_gateway.resources | nindent 10 }}
+        {{- end }}
   {{- if .Values.adapter.enabled }}                    
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.adapter.projectID }}/packages/helm/stable"
     path: ''
@@ -352,11 +443,17 @@ spec:
         - $values/app-values/identity-provider/{{ . }}
         {{- end }}
       values: |
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         hostT2: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         db:
-          url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/identityprovider"
+          url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_identityprovider"
+          username: {{ .Values.namespaceTag }}_identityprovider
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-identityprovider
         redis:
-          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
+          host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         global:
           hostBe: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           hostFe: authority.fe.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
@@ -372,7 +469,7 @@ spec:
           enrollConfig:
             url: "https://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30443"
           keystore:
-            password: {{ .Values.ejbcakeys.keystore.password }}
+            password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-ejbca#keystorepass
         {{- if .Values.identity_provider.resources }}
         resources: {{- toYaml .Values.identity_provider.resources | nindent 10 }}
         {{- end }}
@@ -386,17 +483,40 @@ spec:
         - $values/app-values/auth-provider/{{ . }}
         {{- end }}
       values: |
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         urlAuthorityT2: "tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
         db:
-          url: "jdbc:postgresql://postgresql.{{ .Values.cluster.namespace }}.svc.cluster.local:5432/authenticationprovider"
+          url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_authenticationprovider"
+          username: {{ .Values.namespaceTag }}_authenticationprovider
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-authenticationprovider
+        env:
+        - name: KAFKA_AUTHPROVIDER
+          value: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-kafka-credentials#{{ .Values.cluster.namespace }}_authprovider"
         microservices:
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
-          identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         simpl:
           certificate:
             san: "tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
         redis:
-          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"    
+          host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
+        kafkaConfig:
+          spring:
+            kafka:
+              bootstrap-servers: kafka.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:9092
+              producer:
+                properties:
+                  security.protocol: SASL_PLAINTEXT
+                  sasl.mechanism: PLAIN
+                  sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="{{ .Values.cluster.namespace }}_authprovider" password="${KAFKA_AUTHPROVIDER}";
+              admin:
+                auto-create: true
+          simpl:
+            kafka:
+              topic:
+                prefix: iaa.{{ .Values.cluster.namespace }}.
         {{- if .Values.auth_provider.resources }}
         resources: {{- toYaml .Values.auth_provider.resources | nindent 10 }}
         {{- end }}
@@ -423,16 +543,16 @@ spec:
               name: Elasticsearch Service
               id: elasticsearch:9200
               schedule: '@every 5s'
-              hosts: ["elastic-elasticsearch-es-http.{{ .Values.cluster.namespace }}.svc:9200"]
+              hosts: ["elastic-elasticsearch-es-http.{{ .Values.cluster.commonToolsNamespace }}.svc:9200"]
             - type: tcp
               name: Kibana GUI
               id: kibana:443
               schedule: '@every 5s'
-              hosts: ["kibana.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}:443"]
+              hosts: ["kibana.{{ .Values.cluster.commonToolsNamespace }}.{{ .Values.domainSuffix }}:443"]
             - type: icmp
               id: kibana/icmp
               name: Kibana ICMP
-              hosts: ["elastic-kibana-kb-http.{{ .Values.cluster.namespace }}.svc"]
+              hosts: ["elastic-kibana-kb-http.{{ .Values.cluster.commonToolsNamespace }}.svc"]
               schedule: '*/5 * * * * * *'
   {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_cli.projectID }}/packages/helm/stable"
@@ -446,6 +566,9 @@ spec:
         - $values/app-values/simpl-cli/{{ . }}
         {{- end }}
       values: |
+        podAnnotations:
+          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         initAuthority:
           hostT1: authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
           csr:
@@ -457,6 +580,8 @@ spec:
           keycloak:
             internalHost: "keycloak.{{ .Release.Namespace }}.svc.cluster.local"
             url: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
+            master:
+              password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin
           microservices:
             usersRolesUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/cli/userApi/v1/
             securityAttributesProviderUrl: https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/cli/sapApi/v1/
