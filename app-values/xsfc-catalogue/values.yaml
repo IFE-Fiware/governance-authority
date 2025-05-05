@@ -109,24 +109,7 @@ storage:
   path: /mnt/data/postgresql
 
 postgresql:
-  fullnameOverride: xsfc-postgres
-  nameOverride: xsfc-postgres
-  auth:
-    postgresPassword: postgres
-    username: keycloak
-    password: keycloak
-    database: keycloak
-  primary:
-    persistence:
-      enabled: true
-    initdb:
-      user: postgres
-      password: postgres
-      scripts:
-        00_init_keycloak.sql: |  
-          CREATE USER keycloak WITH PASSWORD 'keycloak';
-          CREATE DATABASE "keycloak" WITH OWNER keycloak;
-          GRANT ALL PRIVILEGES ON DATABASE keycloak TO $POSTGRES_USER;
+  enabled: false
   
 keycloak:
   enabled: false
