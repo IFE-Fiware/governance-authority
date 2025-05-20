@@ -74,11 +74,11 @@ spec:
   source:
     repoURL: 'https://code.europa.eu/api/v4/projects/902/packages/helm/stable'
     path: '""'
-    targetRevision: 1.3.0                   # version of package
+    targetRevision: 1.3.1                   # version of package
     helm:
       values: |
         values:
-          branch: v1.3.0                    # branch of repo with values - for released version it should be the release branch
+          branch: v1.3.1                    # branch of repo with values - for released version it should be the release branch
         project: default                    # Project to which the namespace is attached
         namespaceTag: authority1            # identifier of deployment and part of fqdn
         domainSuffix: int.simpl-europe.eu   # last part of fqdn
@@ -91,7 +91,7 @@ spec:
           commonToolsNamespace: common      # namespace where main monitoring stack is deployed
           issuer: dev-int-dns01             # certificate issuer name
         hashicorp:
-          service: "http://vault-common.common.svc.cluster.local:8200"  # local service path to your vault
+          service: "https://vault.common.domainsuffix"  # link to your vault ingress (apply domain suffix)
           role: dev-int-role                # role created in vault for access
           secretEngine: dev-int             # container for secrets in your vault
         monitoring:
@@ -114,7 +114,7 @@ There are a couple of variables you need to replace - described below. The rest 
 ```
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git   # repo URL
-  branch: v1.3.0                    # branch of repo with values - for released version it should be the release branch
+  branch: v1.3.1                    # branch of repo with values - for released version it should be the release branch
 
 project: default                                  # Project to which the namespace is attached
 namespaceTag: authority1                          # identifier of deployment and part of fqdn
@@ -131,7 +131,7 @@ cluster:
   issuer: dev-int-dns01                           # certificate issuer name
 
 hashicorp:
-  service: "http://vault-common.common.svc.cluster.local:8200"  # local service path to your vault
+  service: "https://vault.common.domainsuffix"    # link to your vault ingress (apply domain suffix)
   role: dev-int-role                              # role created in vault for access
   secretEngine: dev-int                           # container for secrets in your vault
 
