@@ -30,8 +30,8 @@ spec:
           adminPassword: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin"
         externalDatabase:
           host: "pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
-          database: {{ .Values.namespaceTag }}_keycloak
-          user: {{ .Values.namespaceTag }}_keycloak
+          database: {{ .Values.cluster.namespace }}_keycloak
+          user: {{ .Values.cluster.namespace }}_keycloak
           password: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-keycloak"
         extraEnvVars:
         - name: KC_HOSTNAME_ADMIN
@@ -168,7 +168,7 @@ spec:
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         db:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_securityattributesprovider"
-          username: {{ .Values.namespaceTag }}_securityattributesprovider
+          username: {{ .Values.cluster.namespace }}_securityattributesprovider
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-securityattributesprovider
         microservices:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
@@ -199,7 +199,7 @@ spec:
             password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin
         db:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_usersroles"
-          username: {{ .Values.namespaceTag }}_usersroles
+          username: {{ .Values.cluster.namespace }}_usersroles
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-usersroles
         env:
         - name: KAFKA_USERSROLES
@@ -281,7 +281,7 @@ spec:
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         db:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_onboarding"
-          username: {{ .Values.namespaceTag }}_onboarding
+          username: {{ .Values.cluster.namespace }}_onboarding
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-onboarding
         env:
         - name: KAFKA_ONBOARDING
@@ -303,7 +303,7 @@ spec:
         simpl:
           kafka:
             topic:
-              prefix: iaa.{{ .Release.Namespace }}.
+              prefix: iaa.{{ .Values.cluster.namespace }}.
         {{- if .Values.onboarding.resources }}
         resources: {{- toYaml .Values.onboarding.resources | nindent 10 }}
         {{- end }}
@@ -449,7 +449,7 @@ spec:
         hostT2: tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}
         db:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_identityprovider"
-          username: {{ .Values.namespaceTag }}_identityprovider
+          username: {{ .Values.cluster.namespace }}_identityprovider
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-identityprovider
         redis:
           host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
@@ -489,7 +489,7 @@ spec:
         urlAuthorityT2: "tls.authority.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}"
         db:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_authenticationprovider"
-          username: {{ .Values.namespaceTag }}_authenticationprovider
+          username: {{ .Values.cluster.namespace }}_authenticationprovider
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-authenticationprovider
         env:
         - name: KAFKA_AUTHPROVIDER
@@ -576,9 +576,9 @@ spec:
             o: {{ .Values.namespaceTag }}
             ou: {{ .Values.namespaceTag }}
           ejbca:
-            internalHost: ejbca-community-helm.{{ .Release.Namespace }}.svc.cluster.local
+            internalHost: ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local
           keycloak:
-            internalHost: "keycloak.{{ .Release.Namespace }}.svc.cluster.local"
+            internalHost: "keycloak.{{ .Values.cluster.namespace }}.svc.cluster.local"
             url: "https://authority.be.{{ .Values.namespaceTag }}.{{ .Values.domainSuffix }}/auth"
             master:
               password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin
