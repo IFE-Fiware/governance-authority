@@ -1,16 +1,15 @@
-## 1.3.0 (2025-05-06)
-
-No changes.
-
-
 # Changelog
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2025-05-20
+- Readme file fixes.
+- Fixed usernames for databases.
+
 ## [1.3.0] - 2025-04-18
-- Updated many components to implement Consumer version 1.3.0.
+- Updated many components to implement Authority version 1.3.0.
 - Moved Redis and PostgreSQL components to Common Agent.
 - Added Notification component to Common Agent.
 

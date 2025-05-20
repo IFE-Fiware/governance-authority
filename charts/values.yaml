@@ -17,7 +17,7 @@ cluster:
   issuer: ${CLUSTERISSUER}
 
 hashicorp:
-  service: "http://vault-ha.vault-ha.svc.cluster.local:8200"
+  service: "https://vault.common.domainsuffix"
   role: dev-int-role
   secretEngine: ${SECRETENGINE}
 
