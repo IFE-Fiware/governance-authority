@@ -24,6 +24,33 @@ appConfig:
               - Path=/userApi/**
             filters:
               - StripPrefix=1
+          - id: onboarding-redirect-0
+            uri: ${onboarding.url}
+            predicates:
+              - Path=/onboarding-api/onboarding-template/*
+            filters:
+              - name: RewritePath
+                args:
+                  regexp: "/onboarding-api/onboarding-template/(?<segment>.*)"
+                  replacement: "/v1/onboardingProcedureTemplates/$\\{segment}"
+          - id: onboarding-redirect-1
+            uri: ${onboarding.url}
+            predicates:
+              - Path=/onboarding-api/onboarding-template
+            filters:
+              - name: RewritePath
+                args:
+                  regexp: "/onboarding-api/onboarding-templates"
+                  replacement: "/v1/onboardingProcedureTemplates"
+          - id: onboarding-redirect-2
+            uri: ${onboarding.url}
+            predicates:
+              - Path=/onboarding-api/onboarding-request
+            filters:
+              - name: RewritePath
+                args:
+                  regexp: "/onboarding-api/onboarding-request"
+                  replacement: "/v1/onboardingRequests"            
           - id: onboarding
             uri: ${onboarding.url}
             predicates:
@@ -166,15 +193,17 @@ appConfig:
   springdoc:
     swagger-ui:
       urls:
-        - url: /sap-api/v3/api-docs
+        - url: /v3/api-docs
+          name: Tier 1 Gateway
+        - url: /sapApi/v3/api-docs
           name: Security Attributes Provider Service
-        - url: /onboarding-api/v3/api-docs
+        - url: /onboardingApi/v3/api-docs
           name: Onboarding Service
-        - url: /user-api/v3/api-docs
+        - url: /userApi/v3/api-docs
           name: Users & Roles Service
-        - url: /identity-api/v3/api-docs
+        - url: /identityApi/v3/api-docs
           name: Identity Provider Service
-        - url: /auth-api/v3/api-docs
+        - url: /authApi/v3/api-docs
           name: Authentication Provider Service
   
   keycloak:
@@ -190,7 +219,9 @@ appConfig:
       - method: GET
         path: "/v3/api-docs/**"
       - method: GET
-        path: "/actuator/**"
+        path: "/actuator/health/**"
+      - method: GET
+        path: "/actuator/info/**"
   
       - method: POST
         path: "/ocsp"
@@ -204,11 +235,23 @@ appConfig:
       - method: GET
         path: "/authApi/v1/credentials" 
 
+
       - method: GET
-        path: "/onboarding-api/participant-type"
+        path: /onboardingApi/v1/participantTypes
       - method: POST
-        path: "/onboarding-api/onboarding-request"
+        path: /onboardingApi/v1/onboardingRequests
   
+      - method: GET
+        path: /userApi/v1/info/version
+      - method: GET
+        path: /sapApi/v1/info/version
+      - method: GET
+        path: /identityApi/v1/info/version
+      - method: GET
+        path: /onboardingApi/v1/info/version
+      - method: GET
+        path: /authApi/v1/info/version
+    
     denied-urls:
       - method: GET
         path: "/auth-api/keypair"
@@ -226,69 +269,50 @@ appConfig:
 
     rbac:
       ### onboarding
-      - path: "/onboarding-api/onboarding-request/*/status"
-        roles:
-          - NOTARY
-      - path: "/onboarding-api/onboarding-request/*/document"
+      - path: "/onboardingApi/v1/onboardingRequests/*/documents"
         method: POST
         roles:
           - NOTARY
-      - path: "/onboarding-api/participant-type/*"
+      - path: "/onboardingApi/v1/onboardingStatus/*"
         roles:
           - T2IAA_M
-      - path: "/onboarding-api/onboarding-status/*"
+      - path: "/onboardingApi/v1/mimeTypes/*"
         roles:
           - T2IAA_M
-      - path: "/onboarding-api/onboarding-template/*"
+      - path: "/onboardingApi/v1/mimeTypes"
         roles:
           - T2IAA_M
-      - path: "/onboarding-api/mime-type/*"
-        roles:
-          - T2IAA_M
-      - path: "/onboarding-api/mime-type"
-        roles:
-          - T2IAA_M
-      - path: "/onboarding-api/credential-request"
-        method: POST
-        roles:
           - NOTARY
-          - T1UAR_M
-      - path: "/onboarding-api/onboarding-request"
+      - path: "/onboardingApi/v1/onboardingRequests"
         method: GET
         roles:
           - APPLICANT
           - NOTARY
           - T2IAA_M
-      - path: "/onboarding-api/onboarding-request"
+      - path: "/onboardingApi/v1/onboardingRequests"
         method: POST
         roles:
           - APPLICANT
           - NOTARY
-      - path: "/onboarding-api/onboarding-request"
+      - path: "/onboardingApi/v1/onboardingRequests"
         method: PATCH
         roles:
           - APPLICANT
           - NOTARY
-      - path: "/onboarding-api/onboarding-request/*"
+      - path: "/onboardingApi/v1/onboardingRequests/*"
         method: GET
         roles:
           - APPLICANT
           - NOTARY
-      - path: "/onboarding-api/onboarding-request/*/id-document"
-        method: PATCH
-        roles:
-          - APPLICANT
-          - NOTARY
-      - path: "/onboarding-api/onboarding-request/*/document/*"
+      - path: "/onboardingApi/v1/onboardingRequests/*/documents/*"
         method: GET
         roles:
           - APPLICANT
           - NOTARY
-      - path: "/onboarding-api/onboarding-request/*/expiration-timeframe"
+      - path: "/onboardingApi/v1/onboardingRequests/*/expirationTimeframe"
         method: PATCH
         roles:
           - NOTARY
-
       - path: /onboarding-api/v1/onboardingRequests/*/evaluateFaultRules
         method: POST
         roles:
@@ -297,8 +321,16 @@ appConfig:
         method: POST
         roles:
           - NOTARY
-
-      - path: /onboarding-api/v1/onboardingProcedureTemplates/*/validationRules
+      - path: /onboardingApi/v1/onboardingRequests/*/identityAttributes
+        method: GET
+        roles:
+          - NOTARY
+      - path: /onboardingApi/v1/onboardingRequests/*/identityAttributes
+        method: PUT
+        roles:
+          - NOTARY
+      
+      - path: /onboardingApi/v1/onboardingProcedureTemplates/*/validationRules
         method: POST
         roles:
           - T2IAA_M
@@ -306,8 +338,7 @@ appConfig:
         method: GET
         roles:
           - T2IAA_M
-
-      - path: /onboarding-api/v1/onboardingProcedureTemplates/*/validationRules/*
+      - path: /onboardingApi/v1/onboardingProcedureTemplates/*/validationRules/*
         method: GET
         roles:
           - T2IAA_M
@@ -315,7 +346,15 @@ appConfig:
         method: PUT
         roles:
           - T2IAA_M
-          
+      - path: /onboardingApi/v1/onboardingProcedureTemplates/*/identityAttributes
+        method: GET
+        roles:
+          - T2IAA_M
+      - path: /onboardingApi/v1/onboardingProcedureTemplates/*/identityAttributes
+        method: PUT
+        roles:
+          - T2IAA_M         
+ 
       ### identity provider
       - path: "/identity-api/participant/*"
         method: PUT
@@ -337,6 +376,21 @@ appConfig:
         method: DELETE
         roles:
           - IATTR_M
+
+      - path: "/identityApi/v1/credentials/*"
+        roles:
+          - IATTR_M
+
+      - path: "/identityApi/v1/credentials/*/renew"
+        method: POST
+        roles:
+          - IATTR_M
+
+      - path: "/identityApi/v1/credentials/*/download"
+        method: GET
+        roles:
+          - APPLICANT
+          
       ### users-roles
       - path: "/user-api/agent/identity-attributes"
         method: GET
@@ -441,10 +495,29 @@ appConfig:
         method: PUT
         roles:
           - NOTARY
+      - method: POST
+        path: "/auth-api/keypair/import"
+        roles:
+          - ONBOARDER_M 
+      - path: "/auth-api/keypair/**"
+        roles:
+          - ONBOARDER_M 
+      - method: POST
+        path: "/auth-api/csr/generate"
+        roles:
+          - ONBOARDER_M 
       - path: "/auth-api/keypair"
         method: HEAD
         roles:
           - ONBOARDER_M
+
+      - path: "/authApi/v1/keypairs/**"
+        roles:
+          - ONBOARDER_M 
+      - method: POST
+        path: "/authApi/v1/csr/generate"
+        roles:
+          - ONBOARDER_M  
 
     logging:
       business:
@@ -463,3 +536,6 @@ appConfig:
           config:
             operations:
               - REJECT_ONBOARDING_REQUEST
+
+
+
