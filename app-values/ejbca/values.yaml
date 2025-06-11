@@ -11,4 +11,4 @@ services:
     type: ClusterIP
 
 serviceAccount:
-  name: ejbca-init-sa
+  name: ejbca-svc-account
