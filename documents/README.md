@@ -36,6 +36,57 @@ This project contains the configuration files required for deploying an applicat
 | nfs-provisioner        | 4.0.x or newer  | Backend for *Read/Write many* volumes. <br/> Other version *might* work but tests were performed using 4.0.x version. <br/> Image used: `registry.k8s.io/sig-storage/nfs-provisioner:v4.0.8` |
 | argocd                 | 2.11.x or newer | Used as GitOps tool . App of apps concept. <br/> Other version *might* work but tests were performed using 2.11.x version. <br/> Image used: `quay.io/argoproj/argocd:v2.11.3` |
 
+**Tools like nginx-ingress,cert-manager,external-dns,kubernetes are provided by DevSecOps team on each OVH cluster and are maintaned by them. You should not attempt to install any of those tools as they are already provided. All kubernetes LoadBalancer services and ingresses are exposed automatically.**
+
+If you want to see helm configuration of each tool we are providing please see [fleet repository](https://code.europa.eu/simpl/simpl-open/Operations/fleet) with helm values for each tool.
+
+From fleet file like nfs-server you can create helm values file and apply it via `kubectl` command.
+
+For example in fleet:
+
+```yaml
+defaultNamespace: nfs-server
+targetCustomizations:
+- name: nfs-server
+  helm:
+    releaseName: nfs-server
+    chart: "nfs-subdir-external-provisioner"
+    repo: "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/"
+    version: ""
+    force: false
+    timeoutSeconds: 0
+    values:
+      persistence:
+        enabled: true
+        storageClass: csi-cinder-high-speed
+        size: 10Gi
+  clusterSelector:
+    matchLabels:
+      nfs-server: true
+```
+
+Turn it into values.yaml file with provided custom values:
+
+```yaml
+persistence:
+  enabled: true
+  storageClass: csi-cinder-high-speed
+  size: 10Gi
+```
+
+Than apply helm chart with created values file:
+
+```
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner -n <namespace> -f values.yaml
+```
+
+Here are references to documentations for each tool provided:
+- [ArgoCD](https://confluence.simplprogramme.eu/display/SIMPL/02+-+ArgoCD)
+- [NFS provisioner](https://confluence.simplprogramme.eu/display/SIMPL/07+-+NFS+Server+for+provisioning+RWX+PVs)
+- [External-DNS](https://confluence.simplprogramme.eu/display/SIMPL/16+-+external-dns)
+- [Cert-Manager and Nginx-Ingress](https://confluence.simplprogramme.eu/display/SIMPL/27+-+Certificates)
+
 ## Installation
 
 The deployment is based on master helm chart which, when applied on Kubernetes cluster, should deploy the Authority to it using ArgoCD. 
