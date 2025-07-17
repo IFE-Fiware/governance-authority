@@ -29,80 +29,28 @@ This project contains the configuration files required for deploying an applicat
 
 | Pre-Requisites         |     Version     | Description                                                                                                                                     |
 | ---------------------- |     :-----:     | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| DNS sub-domain name    |       N/A       | This domain will be used to address all services of the agent. <br/> example: `*.authority1.int.simpl-europe.eu`                            |  
+| DNS sub-domain name    |       N/A       | This domain will be used to address all services of the agent. <br/> example: `*.authority03.testint.simpl-europe.eu`                            |  
+| external-dns    | bitnami/external-dns:0.16.1 | Currently version docker.io/bitnami/external-dns:0.16.1-debian-12-r should be used as externaldns. Unfortunately, using a newer version caused DNS to work incorrectly. |  
 | Kubernetes Cluster     | 1.29.x or newer | Other version *might* work but tests were performed using 1.29.x version                                                                        |
 | nginx-ingress          | 1.10.x or newer | Used as ingress controller. <br/> Other version *might* work but tests were performed using 1.10.x version. <br/> Image used: `registry.k8s.io/ingress-nginx/controller:v1.10.0`  |
-| cert-manager           | 1.15.x or newer | Used for automatic cert management. <br/> Other version *might* work but tests were performed using 1.15.x version. <br/> Image used: `quay.io/jetstack/cert-manager-controller::v1.15.3` |
+| cert-manager           | 1.15.x or newer | Used for automatic cert management. <br/> Other version *might* work but tests were performed using 1.15.x version. <br/> Image used: `quay.io/jetstack/cert-manager-controller:v1.15.3` |
 | nfs-provisioner        | 4.0.x or newer  | Backend for *Read/Write many* volumes. <br/> Other version *might* work but tests were performed using 4.0.x version. <br/> Image used: `registry.k8s.io/sig-storage/nfs-provisioner:v4.0.8` |
 | argocd                 | 2.11.x or newer | Used as GitOps tool . App of apps concept. <br/> Other version *might* work but tests were performed using 2.11.x version. <br/> Image used: `quay.io/argoproj/argocd:v2.11.3` |
 
-**Tools like nginx-ingress,cert-manager,external-dns,kubernetes are provided by DevSecOps team on each OVH cluster and are maintaned by them. You should not attempt to install any of those tools as they are already provided. All kubernetes LoadBalancer services and ingresses are exposed automatically.**
+## DNS entries 
 
-If you want to see helm configuration of each tool we are providing please see [fleet repository](https://code.europa.eu/simpl/simpl-open/Operations/fleet) with helm values for each tool.
-
-From fleet file like nfs-server you can create helm values file and apply it via `kubectl` command.
-
-For example in fleet:
-
-```yaml
-defaultNamespace: nfs-server
-targetCustomizations:
-- name: nfs-server
-  helm:
-    releaseName: nfs-server
-    chart: "nfs-subdir-external-provisioner"
-    repo: "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/"
-    version: ""
-    force: false
-    timeoutSeconds: 0
-    values:
-      persistence:
-        enabled: true
-        storageClass: csi-cinder-high-speed
-        size: 10Gi
-  clusterSelector:
-    matchLabels:
-      nfs-server: true
-```
-
-Turn it into values.yaml file with provided custom values:
-
-```yaml
-persistence:
-  enabled: true
-  storageClass: csi-cinder-high-speed
-  size: 10Gi
-```
-
-Than apply helm chart with created values file:
-
-```
-helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
-helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner -n <namespace> -f values.yaml
-```
-
-Here are references to documentations for each tool provided:
-- [ArgoCD](https://confluence.simplprogramme.eu/display/SIMPL/02+-+ArgoCD)
-- [NFS provisioner](https://confluence.simplprogramme.eu/display/SIMPL/07+-+NFS+Server+for+provisioning+RWX+PVs)
-- [External-DNS](https://confluence.simplprogramme.eu/display/SIMPL/16+-+external-dns)
-- [Cert-Manager and Nginx-Ingress](https://confluence.simplprogramme.eu/display/SIMPL/27+-+Certificates)
+| Entry Name | Entries |
+| ------------- | --------------------------------------------------------------------------------------------------- |
+| adapter-ingress | adapter.(namespace).int.simpl-europe.eu
+| simpl-fe-ingress | authority.fe.(namespace).int.simpl-europe.eu/sap<br>authority.fe.(namespace).int.simpl-europe.eu/onboarding<br>authority.fe.(namespace).int.simpl-europe.eu/users-roles<br>authority.fe.(namespace).int.simpl-europe.eu/participant-utility 
+| simpl-ingress | a&#8203;uthority.be.(namespace).int.simpl-europe.eu
+| xsfc-service | xsfc-server-service.(namespace).int.simpl-europe.eu
 
 ## Installation
 
 The deployment is based on master helm chart which, when applied on Kubernetes cluster, should deploy the Authority to it using ArgoCD. 
 
 ### Prerequisites
-
-#### Create the Namespace
-Once the namespace variable is set, you can create the namespace using the following kubectl command:
-
-`kubectl create namespace authority1`
-
-#### Verify the Namespace
-To ensure that the namespace was created successfully, run the following command:
-
-`kubectl get namespaces`
-<br/>This will list all the namespaces in your cluster, and you should see the one you just created listed.
 
 #### Vault related tasks
 
@@ -119,30 +67,31 @@ When you create it, you set up the values below (example values)
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: 'authority1-deployer'               # name of the deploying app in argocd
+  name: 'authority03-deployer'             # name of the deploying app in argocd
 spec:
   project: default
   source:
     repoURL: 'https://code.europa.eu/api/v4/projects/902/packages/helm/stable'
     path: '""'
-    targetRevision: 2.0.0                   # version of package
+    targetRevision: 2.1.0                   # version of package
     helm:
       values: |
         values:
-          branch: v2.0.0                   # branch of repo with values - for released version it should be the release branch
+          branch: v2.1.0                   # branch of repo with values - for released version it should be the release branch
         project: default                    # Project to which the namespace is attached
-        namespaceTag: authority1            # identifier of deployment and part of fqdn
+        namespaceTag: 
+          authority: authority03            # identifier of deployment and part of fqdn for this agent
+          common: common03                  # identifier of deployment and part of fqdn for common components
         domainSuffix: int.simpl-europe.eu   # last part of fqdn
         argocd:
-          appname: authority1               # name of generated argocd app 
+          appname: authority03              # name of generated argocd app 
           namespace: argocd                 # namespace of your argocd
         cluster:
           address: https://kubernetes.default.svc
-          namespace: authority1             # where the app will be deployed
+          namespace: authority03             # where the app will be deployed
           commonToolsNamespace: common      # namespace where main monitoring stack is deployed
           issuer: dev-int-dns01             # certificate issuer name
         hashicorp:
-          service: "https://vault.common.domainsuffix"  # link to your vault ingress (apply domain suffix)
           role: dev-int-role                # role created in vault for access
           secretEngine: dev-int             # container for secrets in your vault
         monitoring:
@@ -150,7 +99,7 @@ spec:
     chart: authority
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: authority1                    # where the package will be deployed
+    namespace: authority03                  # where the package will be deployed
 ```
 
 ### Manual deployment
@@ -165,24 +114,24 @@ There are a couple of variables you need to replace - described below. The rest 
 ```
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git   # repo URL
-  branch: v1.3.0                    # branch of repo with values - for released version it should be the release branch
-
+  branch: v2.1.0                    # branch of repo with values - for released version it should be the release branch
 project: default                                  # Project to which the namespace is attached
-namespaceTag: authority1                          # identifier of deployment and part of fqdn
+
+namespaceTag: 
+  authority: authority03            # identifier of deployment and part of fqdn for this agent
+  common: common03                  # identifier of deployment and part of fqdn for common components
 domainSuffix: int.simpl-europe.eu                 # last part of fqdn
 
 argocd:
-  appname: authority1                             # name of generated argocd app 
-  namespace: argocd                               # namespace of your argocd
-
+  appname: authority03              # name of generated argocd app 
+  namespace: argocd                 # namespace of your argocd
 cluster:
   address: https://kubernetes.default.svc
-  namespace: authority1                           # where the package will be deployed
+  namespace: authority03                          # where the package will be deployed
   commonToolsNamespace: common                    # namespace where main monitoring stack is deployed
   issuer: dev-int-dns01                           # certificate issuer name
 
 hashicorp:
-  service: "https://vault.common.domainsuffix"    # link to your vault ingress (apply domain suffix)
   role: dev-int-role                              # role created in vault for access
   secretEngine: dev-int                           # container for secrets in your vault
 
@@ -198,6 +147,21 @@ Use the command prompt. Proceed to the folder where you have the Chart.yaml file
 Now you can deploy the agent:
 
 `helm install authority . `
+
+
+After starting the deployment synchronization process, the expected namespace will be created.
+
+
+Initially, the status observed e.g. in ArgoCD will indicate the creation of new pods:
+
+<img src="images/Authority_ArgoCD01.png" alt="ArgoCD01" width="600"><BR>
+
+Be patient!... Depending on the configuration, this step can take up to 30 minutes!
+
+At the end, all pods should be created correctly:
+
+<img src="images/Authority_ArgoCD02.png" alt="ArgoCD02" width="600"><BR>
+
 
 ## Additional steps
 
@@ -215,3 +179,67 @@ If you encounter issues during deployment, check the following:
 - Ensure that ArgoCD is properly set up and running.
 - Verify that the namespace exists in your Kubernetes cluster.
 - Check the ArgoCD application logs and Helm error messages for specific issues.
+
+
+# Typical error:
+
+However, sometimes, probably due to cluster performance issues, an error related to identity-provider and Tier2-gateway appears:<BR>
+
+<img src="images/Error_identity_provider_01.png" alt="Error_identity_provider_01"><BR>
+
+<img src="images/Error_identity_provider_02.png" alt="Error_identity_provider_02"><BR>
+
+
+The cause of the error should be checked. We can do this in Rancher by checking the ivents occurring on this pod:<BR>
+
+<img src="images/Error_identity_provider_03.png" alt="Error_identity_provider_03"><BR>
+
+<img src="images/Error_identity_provider_04.png" alt="Error_identity_provider_04"><BR>
+
+Unfortunately, a typical, frequently occurring error is the failure to automatically create an appropriate secret:<BR>
+
+<img src="images/Error_identity_provider_05.png" alt="Error_identity_provider_05"><BR>
+
+Unfortunately, to fix this error we need to delete two instances of the postgres databases.
+
+In rancher please find the address to the postgres database:<BR>
+
+<img src="images/Error_identity_provider_06.png" alt="Error_identity_provider_06"><BR>
+
+Access to the database is described in the document: https://code.europa.eu/simpl/simpl-open/development/agents/common_components/-/blob/main/documents/POSTGRESQL_ADMINISTRATION.md?ref_type=heads<BR>
+However to log in we use the account admin@testint.simpl-europe.eu with password from the vault from the commonXX-pgadmin-credentials key for the "password" entry:<BR>
+<img src="images/Error_identity_provider_07.png" alt="Error_identity_provider_07" width="600"><BR>
+
+<img src="images/Error_identity_provider_08.png" alt="Error_identity_provider_08" width="400"><BR>
+
+After accessing the website above, if you extend the Servers list, you will see the following request for password.
+Password is in the same vault secret, in key named "postgres".<BR>
+
+<img src="images/Error_identity_provider_07_2.png" alt="Error_identity_provider_07_2" width="600"><BR>
+
+Now please remove two databases: authority03_ejbca and authority03_identityprovider:<BR>
+<img src="images/Error_identity_provider_09.png" alt="Error_identity_provider_09"><BR>
+<img src="images/Error_identity_provider_10.png" alt="Error_identity_provider_10"><BR>
+
+In the Common namespace restart pg-operator-commonXX (deploy) and check if the previously deleted databases have been created:<BR>
+<img src="images/Error_identity_provider_11.png" alt="Error_identity_provider_11"><BR>
+
+Next in namespace Authority delete identity_provider (deploy):<BR>
+<img src="images/Error_identity_provider_12.png" alt="Error_identity_provider_12"><BR>
+
+and ejbca-community-helm (deploy):<BR>
+<img src="images/Error_identity_provider_14.png" alt="Error_identity_provider_14"><BR>
+
+After full synchronization of the entire namespace Authority, the previously missing secret will already exist:<BR>
+<img src="images/Error_identity_provider_15.png" alt="Error_identity_provider_15" width="600"><BR>
+<img src="images/Error_identity_provider_16.png" alt="Error_identity_provider_16"><BR>
+
+All that's left is to restart tier2-gateway (deploy) and all pods should work properly:<BR>
+<img src="images/Error_identity_provider_17.png" alt="Error_identity_provider_17"><BR>
+
+
+
+
+
+
+

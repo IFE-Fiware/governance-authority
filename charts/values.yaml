@@ -8,6 +8,9 @@ namespaceTag:
   authority: ${AUTHNAMESPACETAG}
   common: ${COMMONSPACETAG}
 
+resourcePreset: default
+# resourcePreset: low
+
 argocd:
   appname: ${NAMESPACE}
   namespace: argocd
@@ -19,8 +22,7 @@ cluster:
   issuer: ${CLUSTERISSUER}
 
 hashicorp:
-  service: "https://vault.common.domainsuffix"
-  role: dev-int-role
+  role:  ${SECRETROLE}
   secretEngine: ${SECRETENGINE}
 
 keycloak:
@@ -31,8 +33,11 @@ keycloak:
   resourcesPreset: "none"
   resources:
     requests:
-      cpu: "0"
-      memory: "0"
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
   valueFiles:
     - values.yaml
 
@@ -43,55 +48,72 @@ ejbca:
   fullnameOverride: ejbca-community-helm
   resources:
     requests:
-      cpu: "0"
-      memory: "0"
+      cpu: "500m"
+      memory: "1024Mi"
+    limits:
+      cpu: "500m"
+      memory: "1024Mi" 
   valueFiles:
     - values.yaml
 
 tier1_gateway:
   projectID: "772"
-  targetRevision: 1.5.0
+  targetRevision: 2.0.0
   chart_name: tier1-gateway
   resources:
     requests:
-      cpu: "0"
-      memory: "0"
+      cpu: "400m"
+      memory: "512Mi"
+    limits:
+      cpu: "400m"
+      memory: "512Mi"  
   valueFiles:
     - values.yaml
 
+
 simpl_fe:
   projectID: "769"
-  targetRevision: 1.5.4
+  targetRevision: 2.0.1
   chart_name: simpl-fe
   resources:
     requests:
-      cpu: "0"
-      memory: "0"
+      cpu: "400m"
+      memory: "512Mi"
+    limits:
+      cpu: "400m"
+      memory: "512Mi" 
   valueFiles:
     - values.yaml
     - values-authority.yaml
 
 sap:
   projectID: "861"
-  targetRevision: 1.5.0
+  targetRevision: 2.0.0
   chart_name: security-attributes-provider
   resources:
     requests:
-      cpu: "0"
-      memory: "0"
+      cpu: "400m"
+      memory: "512Mi"
+    limits:
+      cpu: "400m"
+      memory: "512Mi" 
   valueFiles:
     - values.yaml
 
 users_roles:
   projectID: "771"
-  targetRevision: 1.5.0
+  targetRevision: 2.0.0
   chart_name: users-roles
   resources:
     requests:
-      cpu: "0"
-      memory: "0"
+      cpu: "400m"
+      memory: "512Mi"
+    limits:
+      cpu: "400m"
+      memory: "512Mi" 
   valueFiles:
     - values.yaml
+
 
 xsfc_catalogue:
   enabled: true
@@ -100,24 +122,30 @@ xsfc_catalogue:
   chart_name: fc-service
   resources:
     requests:
-      cpu: "0"
-      memory: "0"
+      cpu: "500m"
+      memory: "2Gi"
+    limits:
+      cpu: "500m"
+      memory: "2Gi" 
   valueFiles:
     - values.yaml
 
 onboarding:
   projectID: "770"
-  targetRevision: 1.5.0
+  targetRevision: 2.0.0
   chart_name: onboarding
   resources:
     requests:
-      cpu: "0"
-      memory: "0"
+      cpu: "400m"
+      memory: "512Mi"
+    limits:
+      cpu: "400m"
+      memory: "512Mi" 
 
 adapter:
   enabled: true
   projectID: "759"
-  targetRevision: 1.0.6
+  targetRevision: 1.0.9
   chart_name: poc-charts
   fullnameOverride: adapter
   valueFiles:
@@ -125,52 +153,59 @@ adapter:
 
 tier2_gateway:
   projectID: "860"
-  targetRevision: 1.5.0
+  targetRevision: 2.0.0
   chart_name: tier2-gateway
   resources:
     requests:
-      cpu: "0"
-      memory: "0"
+      cpu: "400m"
+      memory: "512Mi"
+    limits:
+      cpu: "400m"
+      memory: "512Mi" 
   valueFiles:
     - values.yaml
     - values-routes-authority.yaml
 
+
 identity_provider:
   projectID: "913"
-  targetRevision: 1.5.0
+  targetRevision: 2.0.0
   chart_name: identity-provider
   fullnameOverride: identity-provider
   resources:
     requests:
-      cpu: "0"
-      memory: "0"
+      cpu: "400m"
+      memory: "512Mi"
+    limits:
+      cpu: "400m"
+      memory: "512Mi" 
   valueFiles:
     - values.yaml
 
 auth_provider:
   projectID: "939"
-  targetRevision: 1.5.0
+  targetRevision: 2.0.0
   chart_name: authentication-provider
   resources:
     requests:
-      cpu: "0"
-      memory: "0"
+      cpu: "400m"
+      memory: "400Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi" 
   valueFiles:
     - values.yaml
 
 monitoring:
   enabled: true
   projectID: "828"
-  targetRevision: 0.1.14
+  targetRevision: 0.1.15
   chart_name: eck-monitoring
   fullnameOverride: elastic
-  valueFiles:
-    - values.yaml
-
-simpl_cli:
-  projectID: "882"
-  targetRevision: 1.5.0
-  chart_name: simpl-cli
-  fullnameOverride: simpl-cli
+  resources:
+    filebeat:
+      requests:
+        memory: "100Mi"
+        cpu: "100m"
   valueFiles:
     - values.yaml

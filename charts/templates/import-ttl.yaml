@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: import-ttl-job
+  namespace: {{ .Values.cluster.namespace }}
 data:
   import-ttl.sh: |
     #!/bin/bash
@@ -53,6 +54,7 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
+  namespace: {{ .Values.cluster.namespace }}
   name: import-ttl-job
   annotations:
     "helm.sh/hook": post-install,post-upgrade
