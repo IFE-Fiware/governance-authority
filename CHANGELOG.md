@@ -4,117 +4,143 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2025-06-06
-- Updated many components to implement Governance Authority version 2.0.0.
+## [2.1.0] - 2025-06-27
+- Updated many components to implement Governance Authority version 2.1.0.
+- Remove component simpl-cli
 
 
 ### Onboarding
 
-#### 1.5.0 (2025-05-12)
+#### 2.0.0 (2025-06-03)
 
 #### Added
-- SIMPL-12213 Licenses files in the repositories
-- SIMPL-7929 
-- SIMPL-7928
+- Maven goal to automatically add openapi from simpl-api-iaa 
+- Added POST /onboardingProcedureTemplates
+- SIMPL-12206
+- Add FK constraints from onboarding_template and onboarding_request to participant_type.id
+- Added Configuration Properties section
+- Added the API Documentation section
 
 #### Changed
-- Add invoke Security Attributes provider directly for identity attributes assignment
-- SIMPL-11639
+- Declared url of validation endpoint for a content check validation rule can... 
+- Removed ingress spec from chart
+- Removed request body from /onboardingRequests/{onboardingRequestId}/approve
+- Removed property auto-approval.identity-attributes-from-sap
 
 #### Fixed
-- Validation Rule update now update correctly also the document template linked to the rule
-- Remarks are deleted when a document is uploaded again 
-- SIMPL-11951 
-- During creation of an onboarding request, only valid validation rules are linked to the request 
-- When fault rules evaluation is triggered, the status of the rule is changed to IN_PROGRESS
-- SIMPL-11639
+- Validation rule can't be created if declared document template isn't bound to...
+- OnboardingProcedureTemplate is fetched by it id instead of participantTypeId
+- RuleName attribute correctly valued in remarks for presence check rules and... 
+
+
+## Simpl Cloud gateway (Tier 1)
+
+#### 2.0.0 (2025-06-03)
+
+#### Added
+- Added Configuration Properties section
+- Added the API Documentation section (merge request)
 
 
 ### Users Roles
 
-#### 1.5.0 (2025-05-12)
+#### 2.0.0 (2025-06-03)
 
 #### Added
-- SIMPL-12213 Licenses files in the repositories
-
-
-### Simpl Cloud gateway (Tier 1)
-
-#### 1.5.0 (2025-05-12)
-
-#### Added
-- SIMPL-12213 Licenses files in the repositories
-
-
-### Security Attributes Provider
-
-#### 1.5.0 (2025-05-12)
-
-#### Added
-- SIMPL-12213 Licenses files in the repositories
+- Drop table identity attribute
+- Added Configuration Properties section
+- Added API Documentation section
+- Maven goal to automatically add openapi from simpl-api-iaa
+- Search roles by multiple names
 
 #### Changed
-- SIMPL-11472
-
-
-### TLS Gateway (Tier 2)
-
-#### 1.5.0 (2025-05-12)
-
-#### Added
-- SIMPL-12213 Licenses files in the repositories
+- Removed deprecated API
+- Removed ingress spec from chart
+- Removed keycloak.client-to-realm-role-migration properties
+- SIMPL-11765 Remove version v0 APIs fom IAA components
 
 
 ### SIMPL FE
 
-#### 1.5.3 (2025-05-15)
+#### 2.0.1 (2025-06-05)
+
+#### Changed
+- Fixed the display of assigned identity attributes and those for the user
+
+#### 2.0.0 (2025-06-03)
+
+#### Added
+- SIMPL-10530
+- SIMPL-10533
+- SIMPL-11766
+- SIMPL-8228
+- SIMPL-8227
+
+#### Changed
+- SIMPL-8338
+
+
+### TLS Gateway (Tier 2)
+
+#### 2.0.0 (2025-06-03)
 No changes.
-
-#### 1.5.2 (2025-05-14)
-
-#### Fixed
-- fixed data to send for assign and unassign, change simple array of string in array of type id
-
-#### 1.5.1 (2025-05-13)
-
-#### Fixed
-- fixed update table information after approve
-- use the participantId
--
-#### Changed
-- label changed
-
-#### 1.5.0 (2025-05-12)
-
-#### Added
-- SIMPL-10556
-- SIMPL-10979
-- SIMPL-8226
-- SIMPL-10558
-
-
-### Identity Provider
-
-#### 1.5.0 (2025-05-12)
-
-#### Added
-- SIMPL-12213 Licenses files in the repositories
-- Added simpl.proof-or-possession property tree
-
-#### Changed
-- Changed POST /participants that now doesn't accept identityAttributes attribute
-- SIMPL-10873
 
 
 ### Authentication Provider
 
-#### 1.5.0 (2025-05-12)
+#### 2.0.0 (2025-06-03)
 
 #### Added
-- SIMPL-12213 Licenses files in the repositories
+- Maven goal to automatically add openapi from simpl-api-iaa
+- SIMPL-12367 Integrate the reviewed APIs into the Keycloak Authenticator extension
+- Added Configuration Properties section
+- Added the API Documentation section
 
 #### Changed
-- SIMPL-12042
+- Removed microservice.users-roles.url property
+- Removed deprecated API
+- CredentialInitializerImpl
+- Removed ingress spec from chart
+- SIMPL-11765 Remove version v0 APIs fom IAA components
+
+
+### Identity Provider
+
+#### 2.0.0 (2025-06-03)
+
+#### Added
+- Maven goal to automatically add openapi from simpl-api-iaa
+- SIMPL-12357
+- Added Configuration Properties section
+- Created the README.md file
+
+#### Changed
+- Removed dependency from onboarding
+- Removed microservice.users-roles.url property
+- Removed deprecated API
+- Removed ingress spec from chart
+- Removed table certificate from data model
+- SIMPL-11765
+
+#### Fixed
+- SIMPL-12644
+
+
+### Security Attributes Provider
+
+#### 2.0.0 (2025-06-03)
+
+#### Added
+- Added Configuration Properties section
+- Added README.md
+- Maven goal to automatically add openapi from simpl-api-iaa
+
+#### Changed
+- Removed microservice.onboarding.url property
+- Removed ingress spec from chart
+- Removed deprecated endpoints
+- Removed identity_attribute_participant_type table from db
+- SIMPL-11765
 
 
 ### xsfc-catalogue
@@ -125,15 +151,27 @@ No changes.
 
 ### catalogue query mapper adapter
 
-#### 1.0.6 (2025-05-05)
+#### 1.0.9 (2025-06-23)
+
+#### Added
+- SIMPL-4447 added interfaces for services
 
 #### Changed
-- SIMPL-4449 Fix sonar
+- SIMPL-13497
+- SIMPL-12683
+- SIMPL-10754
+- SIMPL-12683
+- SIMPL-4447
+- SIMPL-12683
 
 
 ### Filebeat
 
-#### 0.1.14 (2025-05-12)
+#### 0.1.15 (2025-06-05)
 
 #### Changed
+- Edited dashboard for heartbeat
+- SIMPL-13099
+- SIMPL-12666 Removed unused fields
+- Changed configuration because of change in business pods names.
 - SIMPL-12666 Remove unused fields

@@ -24,7 +24,7 @@ spec:
         fullnameOverride: {{ .Values.keycloak.nameOverride }}
         apiUrl: "https://participant.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}"
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         auth:
           adminPassword: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin"
@@ -42,15 +42,56 @@ spec:
           value: "http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080"
         - name: KEYCLOAK_BASE_URL
           value: "https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}/auth"
+        - name: AUTHENTICATION_PROVIDER_BASE_URL
+          value: "http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080" 
         - name: REALM
           value: "authority"
         - name: KEYCLOAK_EXTRA_ARGS
           value: --import-realm
+        initContainers:
+        - name: import-realm
+          image: nginx:latest 
+          command: ["/bin/sh", "-c"]
+          env:
+            - name: REDIRECT_URIS
+              value: |-
+                [ "https://authority.fe.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}/*" ]
+            - name: REALM_NAME
+              value: realm
+            - name: URL
+              value: https://code.europa.eu/simpl/simpl-open/development/iaa/charts/-/raw/develop/samples/keycloak-realms/2.0.0/authority-realm-export.json?ref_type=heads
+          args:
+            - |
+              curl ${URL} | envsubst '$REDIRECT_URIS' > /config/${REALM_NAME}.json;   
+          volumeMounts:
+            - name: realm-volume
+              mountPath: /config 
+        - name: init-spi
+          image: curlimages/curl
+          command: ["/bin/sh", "-c"]
+          env:
+            - name: ARTIFACT
+              value: keycloak-authenticator
+            - name: URL
+              value: https://code.europa.eu/api/v4/projects/915/packages/maven/com/aruba/simpl/keycloak-authenticator/2.0.0/keycloak-authenticator-2.0.0.jar
+          args:
+            - |
+              curl -o /custom-spi/${ARTIFACT}.jar ${URL};
+          volumeMounts:
+          - name: spi-volume
+            mountPath: /custom-spi        
         {{- if .Values.keycloak.resourcesPreset }}
         resourcesPreset: {{ .Values.keycloak.resourcesPreset }}
         {{- end }}
-        {{- if .Values.keycloak.resources }}
+        {{- if eq .Values.resourcePreset "low" }}
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+        {{- else }}
+          {{- if .Values.keycloak.resources }}
         resources: {{- toYaml .Values.keycloak.resources | nindent 10 }}
+          {{- end }}
         {{- end }}
   - repoURL: {{ .Values.ejbca.repo_URL }}
     targetRevision: {{ .Values.ejbca.targetRevision }}
@@ -62,7 +103,7 @@ spec:
         {{- end }}
       values: |
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         fullnameOverride: {{ .Values.ejbca.fullnameOverride }}
         hostname: &hostname ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local
@@ -98,8 +139,15 @@ spec:
             - "./entrypoint.sh" 
         nginx:
           host: *hostname
-        {{- if .Values.ejbca.resources }}
+        {{- if eq .Values.resourcePreset "low" }}
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+        {{- else }}
+          {{- if .Values.ejbca.resources }}
         resources: {{- toYaml .Values.ejbca.resources | nindent 10 }}
+          {{- end }}
         {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.tier1_gateway.projectID }}/packages/helm/stable"
     path: ''
@@ -140,8 +188,15 @@ spec:
           - name: authentication-provider
             internalUrl: "http://authentication-provider.{{ .Release.Namespace }}.svc.cluster.local:8080/v1"
             detailUrl: "https://authority.be.{{ .Release.Namespace }}.{{ .Values.domainSuffix }}/authApi/v1/"
-        {{- if .Values.tier1_gateway.resources }}
+        {{- if eq .Values.resourcePreset "low" }}
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+        {{- else }}
+          {{- if .Values.tier1_gateway.resources }}
         resources: {{- toYaml .Values.tier1_gateway.resources | nindent 10 }}
+          {{- end }}
         {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_fe.projectID }}/packages/helm/stable"
     path: "''"
@@ -167,8 +222,15 @@ spec:
           value: "authority"
         - name: KEYCLOAK_CLIENT_ID
           value: "frontend-cli"
-        {{- if .Values.simpl_fe.resources }}
+        {{- if eq .Values.resourcePreset "low" }}
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+        {{- else }}
+          {{- if .Values.simpl_fe.resources }}
         resources: {{- toYaml .Values.simpl_fe.resources | nindent 10 }}
+          {{- end }}
         {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.sap.projectID }}/packages/helm/stable"
     path: ''
@@ -181,7 +243,7 @@ spec:
         {{- end }}
       values: |
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         db:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_securityattributesprovider"
@@ -190,8 +252,15 @@ spec:
         microservices:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           onboardingUrl: http://onboarding.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
-        {{- if .Values.sap.resources }}
+        {{- if eq .Values.resourcePreset "low" }}
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+        {{- else }}
+          {{- if .Values.sap.resources }}
         resources: {{- toYaml .Values.sap.resources | nindent 10 }}
+          {{- end }}
         {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.users_roles.projectID }}/packages/helm/stable"
     path: ''
@@ -204,7 +273,7 @@ spec:
         {{- end }}
       values: |
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         hostT1: authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
         authorityHostT2: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
@@ -245,8 +314,15 @@ spec:
               inbox:
                 topic:
                   pattern: iaa\.{{ .Values.cluster.namespace }}\..*
-        {{- if .Values.users_roles.resources }}
+        {{- if eq .Values.resourcePreset "low" }}
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+        {{- else }}
+          {{- if .Values.users_roles.resources }}
         resources: {{- toYaml .Values.users_roles.resources | nindent 10 }}
+          {{- end }}
         {{- end }}
   {{- if .Values.xsfc_catalogue.enabled }}      
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.xsfc_catalogue.projectID }}/packages/helm/stable"
@@ -275,14 +351,20 @@ spec:
           annotations: 
             cert-manager.io/cluster-issuer: {{ .Values.cluster.issuer }}
         hashicorp:
-          service: {{ .Values.hashicorp.service }}
+          service: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           role: {{ .Values.hashicorp.role }}
           secretEngine: {{ .Values.hashicorp.secretEngine }}
-        neo4j:
+        {{- if eq .Values.resourcePreset "low" }}
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+        {{- else }}
           {{- if .Values.xsfc_catalogue.resources }}
-          resources: {{- toYaml .Values.xsfc_catalogue.resources | nindent 10 }}
+        resources: {{- toYaml .Values.xsfc_catalogue.resources | nindent 10 }}
           {{- end }}
-    {{- end }}      
+        {{- end }}
+  {{- end }}      
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.onboarding.projectID }}/packages/helm/stable"
     path: ''
     targetRevision: {{ .Values.onboarding.targetRevision }}
@@ -294,7 +376,7 @@ spec:
         {{- end }}
       values: |
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         db:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_onboarding"
@@ -321,8 +403,15 @@ spec:
           kafka:
             topic:
               prefix: iaa.{{ .Release.Namespace }}.
-        {{- if .Values.onboarding.resources }}
+        {{- if eq .Values.resourcePreset "low" }}
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+        {{- else }}
+          {{- if .Values.onboarding.resources }}
         resources: {{- toYaml .Values.onboarding.resources | nindent 10 }}
+          {{- end }}
         {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.tier2_gateway.projectID }}/packages/helm/stable"
     path: ''
@@ -335,7 +424,7 @@ spec:
         {{- end }}
       values: |
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         env:
         - name: KAFKA_TIER2GW
@@ -368,8 +457,15 @@ spec:
             kafka:
               topic:
                 prefix: iaa.{{ .Values.cluster.namespace }}.
-        {{- if .Values.tier2_gateway.resources }}
+        {{- if eq .Values.resourcePreset "low" }}
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+        {{- else }}
+          {{- if .Values.tier2_gateway.resources }}
         resources: {{- toYaml .Values.tier2_gateway.resources | nindent 10 }}
+          {{- end }}
         {{- end }}
   {{- if .Values.adapter.enabled }}                    
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.adapter.projectID }}/packages/helm/stable"
@@ -386,7 +482,7 @@ spec:
         ingress:
           host: adapter.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
         hashicorp:
-          service: {{ .Values.hashicorp.service }}
+          service: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           role: {{ .Values.hashicorp.role }}
           secretEngine: {{ .Values.hashicorp.secretEngine }}
   {{- end }}        
@@ -401,7 +497,7 @@ spec:
         {{- end }}
       values: |
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         hostT2: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
         db:
@@ -427,8 +523,15 @@ spec:
             url: "https://ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local:30443"
           keystore:
             password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-ejbca#keystorepass
-        {{- if .Values.identity_provider.resources }}
+        {{- if eq .Values.resourcePreset "low" }}
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+        {{- else }}
+          {{- if .Values.identity_provider.resources }}
         resources: {{- toYaml .Values.identity_provider.resources | nindent 10 }}
+          {{- end }}
         {{- end }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.auth_provider.projectID }}/packages/helm/stable"
     path: ''
@@ -441,7 +544,7 @@ spec:
         {{- end }}
       values: |
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
+          vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         urlAuthorityT2: "tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}"
         db:
@@ -474,8 +577,15 @@ spec:
             kafka:
               topic:
                 prefix: iaa.{{ .Values.cluster.namespace }}.
-        {{- if .Values.auth_provider.resources }}
+        {{- if eq .Values.resourcePreset "low" }}
+        resources:
+          requests:
+            cpu: "0"
+            memory: "0"
+        {{- else }}
+          {{- if .Values.auth_provider.resources }}
         resources: {{- toYaml .Values.auth_provider.resources | nindent 10 }}
+          {{- end }}
         {{- end }}
   {{- if .Values.monitoring.enabled }}
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.monitoring.projectID }}/packages/helm/stable"
@@ -493,54 +603,15 @@ spec:
         domainSuffix: {{ .Values.domainSuffix }}
         namespaceTag: {{ .Values.namespaceTag.authority }}
         mainNamespace: {{ .Values.cluster.commonToolsNamespace }}
-        heartbeat:
-          services:
-            heartbeat.monitors:
-            - type: tcp
-              name: Elasticsearch Service
-              id: elasticsearch:9200
-              schedule: '@every 5s'
-              hosts: ["elastic-elasticsearch-es-http.{{ .Values.cluster.commonToolsNamespace }}.svc:9200"]
-            - type: tcp
-              name: Kibana GUI
-              id: kibana:443
-              schedule: '@every 5s'
-              hosts: ["kibana.{{ .Values.cluster.commonToolsNamespace }}.{{ .Values.domainSuffix }}:443"]
-            - type: icmp
-              id: kibana/icmp
-              name: Kibana ICMP
-              hosts: ["elastic-kibana-kb-http.{{ .Values.cluster.commonToolsNamespace }}.svc"]
-              schedule: '*/5 * * * * * *'
+        filebeat:
+          {{- if eq .Values.resourcePreset "low" }}
+          resources:
+            requests:
+              cpu: "0"
+              memory: "0"
+          {{- else }}
+            {{- if .Values.monitoring.resources.filebeat }}
+          resources: {{- toYaml .Values.monitoring.resources.filebeat | nindent 12 }}
+            {{- end }}
+          {{- end }}
   {{- end }}
-  - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.simpl_cli.projectID }}/packages/helm/stable"
-    path: ''
-    targetRevision: {{ .Values.simpl_cli.targetRevision }}
-    chart: {{ .Values.simpl_cli.chart_name }}
-    helm:
-      releaseName: {{ .Values.simpl_cli.fullnameOverride }}
-      valueFiles:
-        {{- range .Values.simpl_cli.valueFiles }}
-        - $values/app-values/simpl-cli/{{ . }}
-        {{- end }}
-      values: |
-        podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: {{ .Values.hashicorp.service }}
-          vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
-        initAuthority:
-          hostT1: authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
-          csr:
-            cn: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
-            o: {{ .Values.namespaceTag.authority }}
-            ou: {{ .Values.namespaceTag.authority }}
-          ejbca:
-            internalHost: ejbca-community-helm.{{ .Release.Namespace }}.svc.cluster.local
-          keycloak:
-            internalHost: "keycloak.{{ .Release.Namespace }}.svc.cluster.local"
-            url: "https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}/auth"
-            master:
-              password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin
-          microservices:
-            usersRolesUrl: https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}/cli/userApi/v1/
-            securityAttributesProviderUrl: https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}/cli/sapApi/v1/
-            identityProviderUrl: https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}/cli/identityApi/v1/
-            authenticationProviderUrl: https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}/cli/authApi/v1/
