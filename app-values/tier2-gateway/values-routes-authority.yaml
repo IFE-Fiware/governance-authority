@@ -6,13 +6,7 @@ appConfig:
           - id: sap
             uri: ${sap.url}
             predicates:
-              - Path=/sap-api/mtls/**
-            filters:
-              - StripPrefix=1
-          - id: identity-provider
-            uri: ${identity-provider.url}
-            predicates:
-              - Path=/identity-api/mtls/**
+              - Path=/sapApi/v1/mtls/**
             filters:
               - StripPrefix=1
           - id: identity-provider
@@ -27,12 +21,6 @@ appConfig:
               - Path=/authApi/v1/mtls/**
             filters:
               - StripPrefix=1
-          - id: users-roles
-            uri: ${users-roles.url}
-            predicates:
-              - Path=/user-api/mtls/**
-            filters:
-              - StripPrefix=1
           - id: fc-service
             uri: "http://xsfc-service:8081"
             predicates:
@@ -45,12 +33,6 @@ appConfig:
             - Path=/adapter/**
             filters:
             - StripPrefix=1
-          - id: sap-v1
-            uri: ${sap.url}
-            predicates:
-              - Path=/sapApi/v1/mtls/**
-            filters:
-              - StripPrefix=1
 
 
   routes:
@@ -59,19 +41,9 @@ appConfig:
         path: "/actuator/**"
 
     abac:
-      - method: PATCH
-        path: "/identity-api/mtls/public-key"
-        disable-ephemeral-proof-check: true
-      - method: POST
-        path: "/identity-api/mtls/token"
-        disable-ephemeral-proof-check: true
       - method: GET
         path: "/identityApi/v1/mtls/whoami"
         disable-ephemeral-proof-check: true 
-      - method: POST
-        path: "/user-api/mtls/ephemeral-proof"
-        disable-ephemeral-proof-check: true
-
       - method: PATCH
         path: "/identityApi/v1/mtls/publicKey"
         disable-ephemeral-proof-check: true
@@ -81,6 +53,10 @@ appConfig:
       - method: POST
         path: "/authApi/v1/mtls/ephemeralProof"
         disable-ephemeral-proof-check: true
+      - method: GET
+        path: "/sapApi/v1/mtls/identityAttributes"
+        disable-ephemeral-proof-check: true
+
       - method: GET
         path: "/fc/**"
         disable-ephemeral-proof-check: true
@@ -99,34 +75,31 @@ appConfig:
       - method: GET
         path: "/adapter/**"
         disable-ephemeral-proof-check: true
-      - method: GET
-        path: "/sapApi/v1/mtls/identityAttributes"
-        disable-ephemeral-proof-check: true        
 
     logging:
       business:
-      - config:
-          operations:
-          - PING_REQUEST
-        method: GET
-        path: /user-api/mtls/ping
-      - config:
-          operations:
-          - ECHO_REQUEST
-        method: GET
-        path: /identity-api/mtls/echo
-      - config:
-          operations:
-          - PUBLISH_CATALOG
-        method: POST
-        path: /fc/self-descriptions/*
-      - config:
-          operations:
-          - PUBLISH_CATALOG
-        method: POST
-        path: /fc/self-descriptions
-      - config:
-          operations:
-          - SEARCH_CATALOG
-        method: POST
-        path: /adapter/api/v1/search/*
+        - method: GET
+          path: /authApi/v1/mtls/ping
+          config:
+            operations:
+              - PING_REQUEST
+        - method: GET
+          path: /identityApi/v1/mtls/echo
+          config:
+            operations:
+              - ECHO_REQUEST
+        - config:
+            operations:
+            - PUBLISH_CATALOG
+          method: POST
+          path: /fc/self-descriptions/*
+        - config:
+            operations:
+            - PUBLISH_CATALOG
+          method: POST
+          path: /fc/self-descriptions
+        - config:
+            operations:
+            - SEARCH_CATALOG
+          method: POST
+          path: /adapter/api/v1/search/*

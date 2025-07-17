@@ -1,3 +1,5 @@
+agentType: authority
+
 elasticsearch:
   count: 0
   
