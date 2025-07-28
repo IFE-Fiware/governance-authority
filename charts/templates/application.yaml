@@ -245,7 +245,7 @@ spec:
         podAnnotations:
           vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
-        datasource:
+        db:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_securityattributesprovider"
           username: {{ .Values.namespaceTag.authority }}_securityattributesprovider
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-securityattributesprovider
