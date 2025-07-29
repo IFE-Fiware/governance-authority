@@ -165,8 +165,14 @@ At the end, all pods should be created correctly:
 
 ## Additional steps
 
-In the current version, the automatic onboarding process has already been implemented using: init-authority-job.
-For this reason, manual onboarding activities are no longer necessary.
+
+### Onboarding
+
+In the current version, after the deployment process is complete, a manual onboarding deployment process is required. 
+
+The steps are described in the document:
+https://code.europa.eu/simpl/simpl-open/development/iaa/documentation/-/blob/main/versioned_docs/2.2.x/ONBOARD.md
+
 
 ### Monitoring
 
