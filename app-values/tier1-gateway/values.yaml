@@ -281,10 +281,12 @@ appConfig:
         path: "/onboardingApi/v1/mimeTypes"
         roles:
           - "T2IAA_M"
+          - "NOTARY"
       - method: "POST"
         path: "/onboardingApi/v1/mimeTypes"
         roles:
           - "T2IAA_M"
+          - "NOTARY"          
       - method: "GET"
         path: "/onboardingApi/v1/mimeTypes/supported"
         roles:
@@ -292,11 +294,12 @@ appConfig:
       - method: "DELETE"
         path: "/onboardingApi/v1/mimeTypes/{mimeTypeId}"
         roles:
-          - "T2IAA_M"
+          - "T2IAA_M"     
       - method: "GET"
         path: "/onboardingApi/v1/mimeTypes/{mimeTypeId}"
         roles:
           - "T2IAA_M"
+          - "NOTARY"          
       - method: "PUT"
         path: "/onboardingApi/v1/mimeTypes/{mimeTypeId}"
         roles:
