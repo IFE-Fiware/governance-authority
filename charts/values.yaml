@@ -196,6 +196,36 @@ auth_provider:
   valueFiles:
     - values.yaml
 
+redis:
+  repo_URL: 'https://charts.bitnami.com/bitnami'
+  targetRevision: 19.6.0
+  chart_name: redis
+  nameOverride: redis
+  resourcesPreset: "none"
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
+  valueFiles:
+    - values.yaml
+
+redis_commander:
+  enabled: true
+  repo_URL: 'https://github.com/joeferner/redis-commander.git'
+  targetRevision: master
+  nameOverride: redis-commander
+  path: 'k8s/helm-chart/redis-commander'
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  valueFiles:
+    - values.yaml
+
+
 monitoring:
   enabled: true
   projectID: "828"
