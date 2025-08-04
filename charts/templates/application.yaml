@@ -435,6 +435,7 @@ spec:
           service: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           role: {{ .Values.hashicorp.role }}
           secretEngine: {{ .Values.hashicorp.secretEngine }}
+        secretConfigPath: "{{ .Values.hashicorp.secretEngine }}/{{ .Values.cluster.namespace }}-xsfc-service"  
         {{- if eq .Values.resourcePreset "low" }}
         resources:
           requests:
@@ -566,6 +567,7 @@ spec:
           service: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           role: {{ .Values.hashicorp.role }}
           secretEngine: {{ .Values.hashicorp.secretEngine }}
+        secretConfigPath: "{{ .Values.hashicorp.secretEngine }}/{{ .Values.cluster.namespace }}-adapter-simpl-backend"  
   {{- end }}        
   - repoURL: "https://code.europa.eu/api/v4/projects/{{ .Values.identity_provider.projectID }}/packages/helm/stable"
     path: ''
