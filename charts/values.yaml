@@ -73,7 +73,7 @@ tier1_gateway:
 
 simpl_fe:
   projectID: "769"
-  targetRevision: 2.0.1
+  targetRevision: 2.2.2
   chart_name: simpl-fe
   resources:
     requests:

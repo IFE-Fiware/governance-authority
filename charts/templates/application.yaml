@@ -237,20 +237,20 @@ spec:
         microservices-info:
           microservices:
           - name: users-roles
-            internalUrl: "http://users-roles.{{ .Release.Namespace }}.svc.cluster.local:8080/v1"
-            detailUrl: "https://authority.be.{{ .Release.Namespace }}.{{ .Values.domainSuffix }}/userApi/v1/"
+            internalUrl: "http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080/v1"
+            detailUrl: "https://authority.be.{{ .Values.cluster.namespace }}.{{ .Values.domainSuffix }}/userApi/v1/"
           - name: sap
-            internalUrl: "http://security-attributes-provider.{{ .Release.Namespace }}.svc.cluster.local:8080/v1"
-            detailUrl: "https://authority.be.{{ .Release.Namespace }}.{{ .Values.domainSuffix }}/sapApi/v1/"
+            internalUrl: "http://security-attributes-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080/v1"
+            detailUrl: "https://authority.be.{{ .Values.cluster.namespace }}.{{ .Values.domainSuffix }}/sapApi/v1/"
           - name: identity-provider
-            internalUrl: "http://identity-provider.{{ .Release.Namespace }}.svc.cluster.local:8080/v1"
-            detailUrl: "https://authority.be.{{ .Release.Namespace }}.{{ .Values.domainSuffix }}/identityApi/v1/"
+            internalUrl: "http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080/v1"
+            detailUrl: "https://authority.be.{{ .Values.cluster.namespace }}.{{ .Values.domainSuffix }}/identityApi/v1/"
           - name: onboarding
-            internalUrl: "http://onboarding.{{ .Release.Namespace }}.svc.cluster.local:8080/v1"
-            detailUrl: "https://authority.be.{{ .Release.Namespace }}.{{ .Values.domainSuffix }}/onboardingApi/v1/"
+            internalUrl: "http://onboarding.{{ .Values.cluster.namespace }}.svc.cluster.local:8080/v1"
+            detailUrl: "https://authority.be.{{ .Values.cluster.namespace }}.{{ .Values.domainSuffix }}/onboardingApi/v1/"
           - name: authentication-provider
-            internalUrl: "http://authentication-provider.{{ .Release.Namespace }}.svc.cluster.local:8080/v1"
-            detailUrl: "https://authority.be.{{ .Release.Namespace }}.{{ .Values.domainSuffix }}/authApi/v1/"
+            internalUrl: "http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080/v1"
+            detailUrl: "https://authority.be.{{ .Values.cluster.namespace}}.{{ .Values.domainSuffix }}/authApi/v1/"
         {{- if eq .Values.resourcePreset "low" }}
         resources:
           requests:
@@ -483,7 +483,7 @@ spec:
         simpl:
           kafka:
             topic:
-              prefix: iaa.{{ .Release.Namespace }}.
+              prefix: iaa.{{ .Values.cluster.namespace }}.
         {{- if eq .Values.resourcePreset "low" }}
         resources:
           requests:
