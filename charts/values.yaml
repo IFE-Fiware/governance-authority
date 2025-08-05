@@ -88,7 +88,7 @@ simpl_fe:
 
 sap:
   projectID: "861"
-  targetRevision: 2.2.0
+  targetRevision: 2.2.1
   chart_name: security-attributes-provider
   resources:
     requests:
