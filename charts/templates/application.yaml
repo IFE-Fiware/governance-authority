@@ -317,6 +317,12 @@ spec:
               url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_securityattributesprovider"
               username: {{ .Values.namespaceTag.authority }}_securityattributesprovider
               password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-securityattributesprovider  
+            data:
+              redis:
+              host: redis-master.{{ .Values.namespaceTag.authority }}.svc.cluster.local
+              port: 6379
+              username: default
+              password: admin
         simpl:
           ephemeral-proof:
             issuer-url: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
