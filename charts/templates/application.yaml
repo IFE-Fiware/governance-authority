@@ -318,7 +318,6 @@ spec:
                 host: redis-master.{{ .Values.namespaceTag.authority }}.svc.cluster.local
                 port: 6379
                 username: default
-                password: admin
             datasource:
               url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_securityattributesprovider"
               username: {{ .Values.namespaceTag.authority }}_securityattributesprovider
