@@ -73,7 +73,7 @@ tier1_gateway:
 
 simpl_fe:
   projectID: "769"
-  targetRevision: 2.2.2
+  targetRevision: 2.2.3
   chart_name: simpl-fe
   resources:
     requests:
@@ -153,7 +153,7 @@ adapter:
 
 tier2_gateway:
   projectID: "860"
-  targetRevision: 2.2.1
+  targetRevision: 2.2.2
   chart_name: tier2-gateway
   resources:
     requests:
@@ -184,7 +184,7 @@ identity_provider:
 
 auth_provider:
   projectID: "939"
-  targetRevision: 2.2.1
+  targetRevision: 2.2.2
   chart_name: authentication-provider
   resources:
     requests:
