@@ -305,6 +305,8 @@ spec:
         - $values/app-values/SAP/{{ . }}
         {{- end }}
       values: |
+        env: 
+          SPRING_DATASOURCE_PASSWORD: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-securityattributesprovider
         podAnnotations:
           vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
@@ -320,8 +322,7 @@ spec:
                 username: default
             datasource:
               url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_securityattributesprovider"
-              username: {{ .Values.namespaceTag.authority }}_securityattributesprovider
-              password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-securityattributesprovider 
+              username: {{ .Values.namespaceTag.authority }}_securityattributesprovider 
         simpl:
           ephemeral-proof:
             issuer-url: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
