@@ -311,12 +311,12 @@ spec:
         microservices:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           onboardingUrl: http://onboarding.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
+        datasource:
+          url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_securityattributesprovider"
+          username: {{ .Values.namespaceTag.authority }}_securityattributesprovider
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-securityattributesprovider 
         appConfig:
-          spring:
-            datasource:
-              url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_securityattributesprovider"
-              username: {{ .Values.namespaceTag.authority }}_securityattributesprovider
-              password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-securityattributesprovider  
+          spring: 
             data:
               redis:
               host: redis-master.{{ .Values.namespaceTag.authority }}.svc.cluster.local
