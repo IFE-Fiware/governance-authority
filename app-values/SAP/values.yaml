@@ -4,3 +4,6 @@ autoscaling:
 env:
   - name: TEST
     value: vault:dev-int/data/common03-kafka-credentials#authority3_usersroles
+
+podAnnotations:
+  vault.security.banzaicloud.io/vault-agent: true
