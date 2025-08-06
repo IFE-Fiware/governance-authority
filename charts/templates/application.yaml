@@ -306,7 +306,7 @@ spec:
         {{- end }}
       values: |
         env: 
-          - name: SPRING_DATASOURCE_PASSWORD: 
+          - name: SPRING_DATASOURCE_PASSWORD
             value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-securityattributesprovider
         podAnnotations:
           vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
