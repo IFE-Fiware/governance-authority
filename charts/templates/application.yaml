@@ -319,10 +319,10 @@ spec:
           spring: 
             data:
               redis:
-              host: redis-master.{{ .Values.namespaceTag.authority }}.svc.cluster.local
-              port: 6379
-              username: default
-              password: admin
+                host: redis-master.{{ .Values.namespaceTag.authority }}.svc.cluster.local
+                port: 6379
+                username: default
+                password: admin
         simpl:
           ephemeral-proof:
             issuer-url: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
