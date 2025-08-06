@@ -1,2 +1,5 @@
 autoscaling:
   enabled: false
+
+env:
+  TEST: vault:dev-int/data/common03-kafka-credentials#authority3_usersroles
