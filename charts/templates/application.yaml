@@ -586,14 +586,13 @@ spec:
         - $values/app-values/identity-provider/{{ . }}
         {{- end }}
       values: |
+        env: 
+          - name: SPRING_DATASOURCE_PASSWORD
+            value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-identityprovider
         podAnnotations:
           vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
         hostT2: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
-        db:
-          url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_identityprovider"
-          username: {{ .Values.namespaceTag.authority }}_identityprovider
-          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-identityprovider
         redis:
           host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
@@ -617,6 +616,21 @@ spec:
           otlp:
             tracing:
               endpoint: http://collector.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}
+        appConfig:
+          spring:
+            datasource:
+              url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_identityprovider"
+              username: {{ .Values.namespaceTag.authority }}_identityprovider
+            ssl:
+              bundle:
+                jks:
+                  ejbca:
+                    key:
+                      alias: "superadmin"
+                    keystore:
+                       password: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-ejbca#keystorepass"
+                    truststore:
+                      password: "changeit"
         {{- if eq .Values.resourcePreset "low" }}
         resources:
           requests:
