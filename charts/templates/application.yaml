@@ -591,6 +591,8 @@ spec:
             value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-identityprovider
           - name: SPRING_SSL_BUNDLE_JKS_EJBCA_KEYSTORE_PASSWORD
             value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-ejbca#keystorepass
+          - name: SPRING_DATA_REDIS_PASSWORD
+            value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-redis#redis
         podAnnotations:
           vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}

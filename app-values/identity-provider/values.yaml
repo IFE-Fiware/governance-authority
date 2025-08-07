@@ -13,6 +13,11 @@ appConfig:
               alias: "superadmin"
             truststore:
               password: "changeit"
+    data:
+      redis:
+        host: redis-master
+        port: 6379
+        username: default
 
   microservice:
     security-attributes-provider:
