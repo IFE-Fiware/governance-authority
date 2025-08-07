@@ -589,6 +589,8 @@ spec:
         env: 
           - name: SPRING_DATASOURCE_PASSWORD
             value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-identityprovider
+          - name: SPRING_SSL_BUNDLE_JKS_EJBCA_KEYSTORE_PASSWORD
+            value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-ejbca#keystorepass
         podAnnotations:
           vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
@@ -597,12 +599,6 @@ spec:
             datasource:
               url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_identityprovider"
               username: {{ .Values.namespaceTag.authority }}_identityprovider
-            ssl:
-              bundle:
-                jks:
-                  ejbca:
-                    keystore:
-                      password: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-ejbca#keystorepass"
           management:
             otlp:
               tracing:

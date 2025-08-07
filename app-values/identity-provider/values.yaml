@@ -11,8 +11,6 @@ appConfig:
           ejbca:
             key:
               alias: "superadmin"
-            keystore:
-              password: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-ejbca#keystorepass"
             truststore:
               password: "changeit"
 
