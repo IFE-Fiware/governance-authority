@@ -113,10 +113,6 @@ volumeMounts:
     subPath: "truststore.jks"
     readOnly: true
 
-envFrom:
-  - configMapRef:
-      name: identity-provider-configmap
-
 nodeSelector: {}
 
 tolerations: []
