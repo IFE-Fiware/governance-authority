@@ -41,6 +41,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### SIMPL FE
 
+#### 2.2.3 (2025-08-04)
+
+#### Added
+- Explanation tooltip in echo page
+- Tooltip to explain disabled identity attributes
+
+#### 2.2.2 (2025-07-30)
+
+#### Changed
+- Identity attribute selection criteria for role
+
+#### Fixed
+- UI feedback for required inputs
+
+#### 2.2.1 (2025-07-29)
+
+#### Changed
+- Nx project configurations to align Sonarqube analysis
+
 #### 2.2.0 (2025-07-14)
 
 #### Added
@@ -64,6 +83,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### TLS Gateway (Tier 2)
 
+#### 2.2.2 (2025-08-05)
+
+#### Fixed
+- Fixed IdentityAttribute model
+
 #### 2.2.1 (2025-07-21)
 
 #### Fixed
@@ -77,6 +101,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ### Authentication Provider
+
+#### 2.2.3 (2025-08-06)
+
+#### Changed
+- SIMPL-14636 Updated to use agnostic annotation
+- CredentialId encoded in Base58BTC
+
+#### Fixed
+- SIMPL-13018
+
+#### 2.2.2 (2025-08-06)
+No changes.
 
 #### 2.2.1 (2025-07-22)
 No changes.
@@ -116,6 +152,14 @@ No changes.
 
 
 ### Security Attributes Provider
+
+#### 2.2.2 (2025-08-06)
+No changes.
+
+#### 2.2.0 (2025-08-04)
+
+#### Fixed
+- Now identity attributes are correctly stored in the ephemeral proof
 
 #### 2.2.0 (2025-07-14)
 
