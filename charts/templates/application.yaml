@@ -4,6 +4,12 @@ metadata:
   name: {{ .Values.argocd.appname }}
   namespace: {{ .Values.argocd.namespace }}
 spec:
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - ApplyOutOfSyncOnly=true
+      - CreateNamespace=true
+      - ServerSideApply=true
   project: {{ .Values.project }}
   destination:
     server: {{ .Values.cluster.address }}
