@@ -385,7 +385,7 @@ spec:
         - name: KAFKA_USERSROLES
           value: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-kafka-credentials#{{ .Values.cluster.namespace }}_usersroles"
         redis:
-          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
+          host: "redis-master.{{ .Values.namespaceTag.authority }}.svc.cluster.local"
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         microservices:
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
@@ -534,7 +534,7 @@ spec:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         redis:
-          host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
+          host: "redis-master.{{ .Values.namespaceTag.authority }}.svc.cluster.local"
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         hostT2: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
         kafkaConfig:
@@ -648,7 +648,7 @@ spec:
           certificate:
             san: "tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}"
         redis:
-          host: "redis-master.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local"
+          host: "redis-master.{{ .Values.namespaceTag.authority }}.svc.cluster.local"
           password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         kafkaConfig:
           spring:
