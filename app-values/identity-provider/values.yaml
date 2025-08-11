@@ -2,8 +2,6 @@ serviceAccount:
   name: "ejbca-svc-account"
 
 appConfig:
-  ejbca:
-    url: "https://ejbca-community-helm:30443"
   spring:
     ssl:
       bundle:
@@ -24,7 +22,6 @@ appConfig:
       url: "http://security-attributes-provider:8080"
 
   ejbca:
-    url: "https://ejbca-community-helm:30443"
     profile-name: "Onboarding TLS Profile"
     end-entity-name: "Onboarding End Entity"
     ca-name: "OnBoardingCA"
