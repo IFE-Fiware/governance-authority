@@ -21,6 +21,7 @@ fullnameOverride: "xsfc-service"
 
 podSecurityContext: 
   allowPrivilegeEscalation: false
+  runAsNonRoot: true
 
 serviceAccountEnabled: "true"
 
