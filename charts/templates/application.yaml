@@ -534,8 +534,8 @@ spec:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         redis:
-          host: "redis-master.{{ .Values.namespaceTag.authority }}.svc.cluster.local"
-          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
+          host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
+          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-redis#redis
         hostT2: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
         kafkaConfig:
           spring:
