@@ -217,12 +217,57 @@ At the end, all pods should be created correctly:
 ## Additional steps
 
 
-### Onboarding
+### Authority Initialization
 
-In the current version, after the deployment process is complete, a manual onboarding deployment process is required. 
+In the current version, after the deployment process is complete, a manual initialization process is required. 
 
-The steps are described in the document:
-https://code.europa.eu/simpl/simpl-open/development/iaa/documentation/-/blob/main/versioned_docs/2.2.x/ONBOARD.md
+kubectl will be necessary for this step, in order to port-forward required services.
+
+In order to initialise the authority and obtain a valid certificate for mTLS communication with other participants, the following requests must be performed:
+
+```bash
+kubectl port-forward svc/authentication-provider 8080:8080 
+kubectl port-forward svc/identity-provider 8090:8080
+
+export AUTHORITY_AUTH_PROVIDER=localhost:8080
+export AUTHORITY_IDENTITY_PROVIDER=localhost:8090
+
+# Generating keypair...
+curl -X POST "$AUTHORITY_AUTH_PROVIDER/v1/keypairs/generate"
+
+# Generating CSR...
+curl -X POST "$AUTHORITY_AUTH_PROVIDER/v1/csr/generate" \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "commonName": "<tier2 hostname>",
+  "country": "<country>",
+  "organization": "<organization name>",
+  "organizationalUnit": "<organizational unit name>"
+}' > csr.pem
+
+# Creating Authority participant
+PARTICIPANT_ID=$(curl -X POST "$AUTHORITY_IDENTITY_PROVIDER/v1/participants" \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "organization": "<organization name>",
+  "participantType": "GOVERNANCE_AUTHORITY"
+}' | sed -E 's/^"(.*)"$/\1/')
+
+# Uploading CSR ..
+curl -X POST "$AUTHORITY_IDENTITY_PROVIDER/v1/participants/$PARTICIPANT_ID/csr" \
+-F "csr=@/path/to/csr.pem"
+
+# Downloading credentials ...
+curl "$AUTHORITY_IDENTITY_PROVIDER/v1/credentials/$PARTICIPANT_ID/download" \
+-o cert.pem
+
+# Uploading credentials ...
+curl -X POST "$AUTHORITY_AUTH_PROVIDER/v1/credentials" \
+-F "credential=@/path/to/cert.pem"
+```
+
+Above steps are taken from IAA documentation
+https://code.europa.eu/simpl/simpl-open/development/iaa/documentation/-/tree/main/versioned_docs/2.2.x#governance-authority-init-via-apis
 
 
 ### Monitoring
