@@ -19,8 +19,7 @@ global:
 fullnameOverride: "xsfc-service"
 
 
-podSecurityContext: 
-  allowPrivilegeEscalation: false
+podSecurityContext:
   runAsNonRoot: true
 
 serviceAccountEnabled: "true"
