@@ -217,13 +217,14 @@ At the end, all pods should be created correctly:
 ## Additional steps
 
 
-### Onboarding
+### Authority Initialization
 
-In the current version, after the deployment process is complete, a manual onboarding deployment process is required. 
+In the current version, after the deployment process is complete, a manual initialization process is required. 
 
 The steps are described in the document:
-https://code.europa.eu/simpl/simpl-open/development/iaa/documentation/-/blob/main/versioned_docs/2.2.x/ONBOARD.md
+https://code.europa.eu/simpl/simpl-open/development/iaa/documentation/-/tree/main/versioned_docs/2.2.x#governance-authority-init-via-apis
 
+kubectl will be necessary for this step, in order to port-forward required services.
 
 ### Monitoring
 
