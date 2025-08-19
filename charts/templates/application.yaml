@@ -458,7 +458,6 @@ spec:
           neo4j:
             resources:
               cpu: "500m"
-              memory: "0"
         {{- else }}
           {{- if .Values.xsfc_catalogue.resources }}
         resources: {{- toYaml .Values.xsfc_catalogue.resources | nindent 10 }}
