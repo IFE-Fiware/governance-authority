@@ -457,7 +457,7 @@ spec:
         neo4j:
           neo4j:
             resources:
-              cpu: "0"
+              cpu: "500m"
               memory: "0"
         {{- else }}
           {{- if .Values.xsfc_catalogue.resources }}
