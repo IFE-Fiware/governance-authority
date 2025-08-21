@@ -169,7 +169,7 @@ tier2_gateway:
 
 identity_provider:
   projectID: "913"
-  targetRevision: 2.3.1
+  targetRevision: 2.3.2
   chart_name: identity-provider
   fullnameOverride: identity-provider
   resources:
@@ -184,7 +184,7 @@ identity_provider:
 
 auth_provider:
   projectID: "939"
-  targetRevision: 2.3.3
+  targetRevision: 2.3.4
   chart_name: authentication-provider
   resources:
     requests:
