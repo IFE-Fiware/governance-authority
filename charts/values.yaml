@@ -125,7 +125,7 @@ xsfc_catalogue:
       cpu: "500m"
       memory: "2Gi"
     limits:
-      cpu: "1"
+      cpu: "2"
       memory: "4Gi" 
   valueFiles:
     - values.yaml
