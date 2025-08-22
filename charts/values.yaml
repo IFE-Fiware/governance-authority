@@ -125,8 +125,8 @@ xsfc_catalogue:
       cpu: "500m"
       memory: "2Gi"
     limits:
-      cpu: "500m"
-      memory: "2Gi" 
+      cpu: "1"
+      memory: "4Gi" 
   valueFiles:
     - values.yaml
 
@@ -139,8 +139,8 @@ onboarding:
       cpu: "400m"
       memory: "512Mi"
     limits:
-      cpu: "400m"
-      memory: "512Mi" 
+      cpu: "1"
+      memory: "1Gi" 
 
 adapter:
   enabled: true
@@ -177,8 +177,8 @@ identity_provider:
       cpu: "400m"
       memory: "512Mi"
     limits:
-      cpu: "400m"
-      memory: "512Mi" 
+      cpu: "1"
+      memory: "1Gi"
   valueFiles:
     - values.yaml
 
