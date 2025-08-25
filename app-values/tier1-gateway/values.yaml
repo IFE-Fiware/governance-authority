@@ -26,9 +26,19 @@ appConfig:
         - Path=/fc/**
         filters:
         - StripPrefix=1
-    public-urls:
-      - method: "GET"
+    abac:
+      - method: GET
         path: "/fc/**"
+        disable-ephemeral-proof-check: true
+      - method: POST
+        path: "/fc/**"
+        disable-ephemeral-proof-check: true
+      - method: PUT
+        path: "/fc/**"
+        disable-ephemeral-proof-check: true
+      - method: DELETE
+        path: "/fc/**"
+        disable-ephemeral-proof-check: true
   
   keycloak:
     app:
