@@ -26,6 +26,9 @@ appConfig:
         - Path=/fc/**
         filters:
         - StripPrefix=1
+    public-urls:
+      - method: "GET"
+        path: "/fc/**"
   
   keycloak:
     app:
