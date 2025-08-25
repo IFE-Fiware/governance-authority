@@ -17,6 +17,15 @@ appConfig:
           name: Authentication Provider Service V1
         - url: /openapi/tier1gateway-v1.yaml
           name: Application Info V1
+
+  external-routes:
+    spring-route-definitions:
+      - id: fc-service
+        uri: "http://xsfc-service:8081"
+        predicates:
+        - Path=/fc/**
+        filters:
+        - StripPrefix=1
   
   keycloak:
     app:
