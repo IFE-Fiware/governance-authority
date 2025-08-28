@@ -11,3 +11,4 @@ appConfig:
       redis:
         port: "6379"
         username: "default"
+        password: ""
