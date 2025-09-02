@@ -7,8 +7,6 @@
     * [Tools](#tools)
   * [Installation](#installation)
     * [Prerequisites](#prerequisites)
-      * [Create the Namespace](#create-the-namespace)
-      * [Verify the Namespace](#verify-the-namespace)
     * [Deployment using ArgoCD](#deployment-using-argocd)
     * [Manual deployment](#manual-deployment)
       * [Files preparation](#files-preparation)
