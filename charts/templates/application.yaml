@@ -28,8 +28,6 @@ spec:
         {{- end }}
       values: |
         fullnameOverride: {{ .Values.redis.nameOverride }}
-        auth:
-          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         master:
           podAnnotations:
             vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
@@ -315,7 +313,10 @@ spec:
           - name: SPRING_DATASOURCE_PASSWORD
             value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-securityattributesprovider
           - name: SPRING_DATA_REDIS_PASSWORD
-            value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-redis#redis
+            valueFrom:
+              secretKeyRef:
+                name: redis-secrets
+                key: redis
         podAnnotations:
           vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
@@ -384,9 +385,13 @@ spec:
         env:
         - name: KAFKA_USERSROLES
           value: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-kafka-credentials#{{ .Values.cluster.namespace }}_usersroles"
+        - name: SPRING_DATA_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secrets
+              key: redis
         redis:
           host: "redis-master.{{ .Values.namespaceTag.authority }}.svc.cluster.local"
-          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-redis#redis
         microservices:
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         kafkaConfig:
@@ -528,6 +533,11 @@ spec:
         env:
         - name: KAFKA_TIER2GW
           value: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-kafka-credentials#{{ .Values.cluster.namespace }}_tier2gw"
+        - name: SPRING_DATA_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secrets
+              key: redis
         global:
           cors:
             allowOrigin: https://authority.fe.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
@@ -539,7 +549,6 @@ spec:
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         redis:
           host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
-          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-redis#redis
         hostT2: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
         kafkaConfig:
           spring:
@@ -602,7 +611,10 @@ spec:
           - name: SPRING_SSL_BUNDLE_JKS_EJBCA_KEYSTORE_PASSWORD
             value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-ejbca#keystorepass
           - name: SPRING_DATA_REDIS_PASSWORD
-            value: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-redis#redis
+            valueFrom:
+              secretKeyRef:
+                name: redis-secrets
+                key: redis
         podAnnotations:
           vault.security.banzaicloud.io/vault-addr: "https://vault.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.hashicorp.role }}
@@ -648,6 +660,11 @@ spec:
         env:
         - name: KAFKA_AUTHPROVIDER
           value: "vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.commonToolsNamespace }}-kafka-credentials#{{ .Values.cluster.namespace }}_authprovider"
+        - name: SPRING_DATA_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secrets
+              key: redis
         microservices:
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         simpl:
@@ -655,7 +672,6 @@ spec:
             san: "tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}"
         redis:
           host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
-          password: vault:{{ .Values.hashicorp.secretEngine }}/data/{{ .Values.cluster.namespace }}-redis#redis
         kafkaConfig:
           spring:
             kafka:
