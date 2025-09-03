@@ -481,6 +481,7 @@ spec:
       values: |
         ingress:
           host: adapter-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}
+          clusterIssuer: {{ .Values.cluster.issuer }}
         hashicorp:
           service: "https://vault-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           role: {{ .Values.hashicorp.role }}
