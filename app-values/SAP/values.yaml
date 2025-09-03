@@ -12,3 +12,6 @@ appConfig:
         port: "6379"
         username: "default"
         password: ""
+  simpl:
+    ephemeral-proof:
+      expire-after: 3m
