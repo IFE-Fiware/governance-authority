@@ -17,3 +17,4 @@ podSecurityContext:
 ingress:
   tls:
     secretName: adapter-simpl-backend-tls
+  clusterIssuer: ${CLUSTERISSUER}
