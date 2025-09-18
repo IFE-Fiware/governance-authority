@@ -21,6 +21,10 @@ spec:
         - $values/app-values/Keycloak/{{ . }}
         {{- end }}
       values: |
+        image:
+          repository: bitnamilegacy/keycloak
+        security:
+          allowInsecureImages: true
         fullnameOverride: {{ .Values.keycloak.nameOverride }}
         apiUrl: "https://participant.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}"
         podAnnotations:
