@@ -72,7 +72,7 @@ spec:
       containers:
       - name: script-runner
         image: quay.io/curl/curl
-        command: ["/bin/sh", "/postconfig/import-ttl.sh", "https://xsfc-server-service.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}"]
+        command: ["/bin/sh", "/postconfig/import-ttl.sh", "http://xsfc-service:8081"]
         volumeMounts:
         - name: postconfig-volume
           mountPath: /postconfig

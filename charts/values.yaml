@@ -1,6 +1,6 @@
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git
-  branch: v1.3.0
+  branch: v2.3.0
 
 project: ${PROJECT}
 domainSuffix: ${DOMAINSUFFIX}
@@ -21,7 +21,7 @@ cluster:
   commonToolsNamespace: ${COMMONNAMESPACE}
   issuer: ${CLUSTERISSUER}
 
-hashicorp:
+secrets:
   role:  ${SECRETROLE}
   secretEngine: ${SECRETENGINE}
 
@@ -58,7 +58,7 @@ ejbca:
 
 tier1_gateway:
   projectID: "772"
-  targetRevision: 2.0.0
+  targetRevision: 2.4.0
   chart_name: tier1-gateway
   resources:
     requests:
@@ -70,10 +70,9 @@ tier1_gateway:
   valueFiles:
     - values.yaml
 
-
 simpl_fe:
   projectID: "769"
-  targetRevision: 2.0.1
+  targetRevision: 2.4.0
   chart_name: simpl-fe
   resources:
     requests:
@@ -88,7 +87,7 @@ simpl_fe:
 
 sap:
   projectID: "861"
-  targetRevision: 2.0.0
+  targetRevision: 2.4.0
   chart_name: security-attributes-provider
   resources:
     requests:
@@ -102,7 +101,7 @@ sap:
 
 users_roles:
   projectID: "771"
-  targetRevision: 2.0.0
+  targetRevision: 2.4.0
   chart_name: users-roles
   resources:
     requests:
@@ -118,7 +117,7 @@ users_roles:
 xsfc_catalogue:
   enabled: true
   projectID: "820"
-  targetRevision: 1.0.7
+  targetRevision: 1.0.11
   chart_name: fc-service
   resources:
     requests:
@@ -132,7 +131,7 @@ xsfc_catalogue:
 
 onboarding:
   projectID: "770"
-  targetRevision: 2.0.0
+  targetRevision: 2.4.0
   chart_name: onboarding
   resources:
     requests:
@@ -145,7 +144,7 @@ onboarding:
 adapter:
   enabled: true
   projectID: "759"
-  targetRevision: 1.0.9
+  targetRevision: 1.0.13
   chart_name: poc-charts
   fullnameOverride: adapter
   valueFiles:
@@ -153,7 +152,7 @@ adapter:
 
 tier2_gateway:
   projectID: "860"
-  targetRevision: 2.0.0
+  targetRevision: 2.4.0
   chart_name: tier2-gateway
   resources:
     requests:
@@ -169,7 +168,7 @@ tier2_gateway:
 
 identity_provider:
   projectID: "913"
-  targetRevision: 2.0.0
+  targetRevision: 2.4.0
   chart_name: identity-provider
   fullnameOverride: identity-provider
   resources:
@@ -184,7 +183,7 @@ identity_provider:
 
 auth_provider:
   projectID: "939"
-  targetRevision: 2.0.0
+  targetRevision: 2.4.2
   chart_name: authentication-provider
   resources:
     requests:
@@ -192,14 +191,71 @@ auth_provider:
       memory: "400Mi"
     limits:
       cpu: "500m"
-      memory: "512Mi" 
+      memory: "1Gi" 
   valueFiles:
     - values.yaml
+
+redis:
+  repo_URL: 'https://charts.bitnami.com/bitnami'
+  targetRevision: 19.6.0
+  chart_name: redis
+  nameOverride: redis
+  resourcesPreset: "none"
+  resources:
+    requests:
+      cpu: "0"
+      memory: "0"
+  valueFiles:
+    - values.yaml
+
+redis_commander:
+  enabled: true
+  repo_URL: 'https://github.com/joeferner/redis-commander.git'
+  targetRevision: master
+  nameOverride: redis-commander
+  path: 'k8s/helm-chart/redis-commander'
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  valueFiles:
+    - values.yaml
+
+tier2_proxy:
+  projectID: "1112"
+  targetRevision: 1.0.1
+  chart_name: tier2-proxy
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "500Mi"
+    limits:
+      cpu: "500m"
+      memory: "500Mi"
+
+simpl_schema_manager:
+  enabled: true
+  projectID: "1124"
+  targetRevision: 0.0.3
+  chart_name: simpl-schema-manager-charts
+  fullnameOverride: simpl-schema-manager
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"  
+  valueFiles:
+    - values.yaml      
 
 monitoring:
   enabled: true
   projectID: "828"
-  targetRevision: 0.1.15
+  targetRevision: 0.1.18
   chart_name: eck-monitoring
   fullnameOverride: elastic
   resources:
