@@ -1,62 +1,20 @@
 appConfig:
-  spring:
-    cloud:
-      gateway:
-        routes:
-          - id: sap
-            uri: ${sap.url}
-            predicates:
-              - Path=/sapApi/v1/mtls/**
-            filters:
-              - StripPrefix=1
-          - id: identity-provider
-            uri: ${identity-provider.url}
-            predicates:
-              - Path=/identityApi/v1/mtls/**
-            filters:
-              - StripPrefix=1
-          - id: authentication-provider
-            uri: ${authentication-provider.url}
-            predicates:
-              - Path=/authApi/v1/mtls/**
-            filters:
-              - StripPrefix=1
-          - id: fc-service
-            uri: "http://xsfc-service:8081"
-            predicates:
-            - Path=/fc/**
-            filters:
-            - StripPrefix=1
-          - id: adapter-service
-            uri: "http://adapter-service:8084"
-            predicates:
-            - Path=/adapter/**
-            filters:
-            - StripPrefix=1
-
-
-  routes:
-    public-urls:
-      - method: GET
-        path: "/actuator/**"
+  external-routes:
+    spring-route-definitions:
+      - id: fc-service
+        uri: "http://xsfc-service:8081"
+        predicates:
+        - Path=/fc/**
+        filters:
+        - StripPrefix=1
+      - id: adapter-service
+        uri: "http://adapter-service:8084"
+        predicates:
+        - Path=/adapter/**
+        filters:
+        - StripPrefix=1
 
     abac:
-      - method: GET
-        path: "/identityApi/v1/mtls/whoami"
-        disable-ephemeral-proof-check: true 
-      - method: PATCH
-        path: "/identityApi/v1/mtls/publicKey"
-        disable-ephemeral-proof-check: true
-      - method: POST
-        path: "/identityApi/v1/mtls/token"
-        disable-ephemeral-proof-check: true
-      - method: POST
-        path: "/authApi/v1/mtls/ephemeralProof"
-        disable-ephemeral-proof-check: true
-      - method: GET
-        path: "/sapApi/v1/mtls/identityAttributes"
-        disable-ephemeral-proof-check: true
-
       - method: GET
         path: "/fc/**"
         disable-ephemeral-proof-check: true

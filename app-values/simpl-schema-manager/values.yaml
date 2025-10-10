@@ -1,0 +1,6 @@
+ingress:
+  enabled: false
+
+serviceAccount:
+  enabled: true
+  name: simpl-schema-manager-service-account

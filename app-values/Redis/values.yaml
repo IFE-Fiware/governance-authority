@@ -1,7 +1,26 @@
 replica:
   replicaCount: 0
+master:
+  serviceAccount: 
+    create: true
+    name: redis-master-service-account
+  automountServiceAccountToken: true
+  livenessProbe: 
+    enabled: false
+  readinessProbe:
+    enabled: false
 architecture: standalone
 
+secretAnnotations:
+  vault.security.banzaicloud.io/vault-path: "kubernetes"
+  vault.security.banzaicloud.io/vault-skip-verify: "true"
+
 auth:
-  # Defaults to a random 10-character alphanumeric string if not set
-  password: "admin" 
+  existingSecret: redis-secrets
+  existingSecretPasswordKey: redis
+
+image:
+  repository: bitnamilegacy/redis
+security:
+  allowInsecureImages: true
+  
