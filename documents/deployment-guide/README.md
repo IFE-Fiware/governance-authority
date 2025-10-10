@@ -1,21 +1,22 @@
 # Governance Authority Agent
 
 <!-- TOC -->
-* [Governance Authority Agent](#governance-authority-agent)
-  * [Description](#description)
-  * [Pre-Requisites](#pre-requisites)
-    * [Tools](#tools)
-  * [Installation](#installation)
-    * [Prerequisites](#prerequisites)
-      * [Create the Namespace](#create-the-namespace)
-      * [Verify the Namespace](#verify-the-namespace)
-    * [Deployment using ArgoCD](#deployment-using-argocd)
-    * [Manual deployment](#manual-deployment)
-      * [Files preparation](#files-preparation)
-      * [Deployment](#deployment)
-  * [Additional steps](#additional-steps)
-    * [Monitoring](#monitoring)
-* [Troubleshooting](#troubleshooting)
+- [Governance Authority Agent](#governance-authority-agent)
+  - [Description](#description)
+  - [Prerequisites](#prerequisites)
+    - [Tools](#tools)
+    - [DNS entries](#dns-entries)
+  - [Deployment](#deployment)
+    - [Deployment using ArgoCD](#deployment-using-argocd)
+    - [Manual deployment](#manual-deployment)
+      - [Files preparation](#files-preparation)
+      - [Deployment](#deployment)
+  - [Additional steps and remarks](#additional-steps-and-remarks)
+    - [Initialization](#initialization)
+    - [Tier2-proxy status](#tier2-proxy-status)
+    - [Monitoring](#monitoring)
+  - [Troubleshooting](#troubleshooting)
+    - [Identity Provider failure](#identity-provider-failure)
 <!-- TOC -->
 
 ## Description
@@ -23,13 +24,13 @@ This project contains the configuration files required for deploying an applicat
 - the deployment will be done by master helm chart allowing to deploy a **Governance Authority** agent using a single command.
 - templates of values.yaml files used inside *Integration* environment under `app-values` folder
 
-## Pre-Requisites
+## PreRequisites
 
 ### Tools
 
 | Pre-Requisites         |     Version     | Description                                                                                                                                     |
 | ---------------------- |     :-----:     | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| DNS sub-domain name    |       N/A       | This domain will be used to address all services of the agent. <br/> example: `*.authority03.testint.simpl-europe.eu`                            |  
+| DNS sub-domain name    |       N/A       | This domain will be used to address all services of the agent. <br/> example: `*.authority03.(domainsuffix).simpl-europe.eu`                            |  
 | external-dns    | bitnami/external-dns:0.16.1 | Currently version docker.io/bitnami/external-dns:0.16.1-debian-12-r should be used as externaldns. Unfortunately, using a newer version caused DNS to work incorrectly. |  
 | Kubernetes Cluster     | 1.29.x or newer | Other version *might* work but tests were performed using 1.29.x version                                                                        |
 | nginx-ingress          | 1.10.x or newer | Used as ingress controller. <br/> Other version *might* work but tests were performed using 1.10.x version. <br/> Image used: `registry.k8s.io/ingress-nginx/controller:v1.10.0`  |
@@ -37,24 +38,18 @@ This project contains the configuration files required for deploying an applicat
 | nfs-provisioner        | 4.0.x or newer  | Backend for *Read/Write many* volumes. <br/> Other version *might* work but tests were performed using 4.0.x version. <br/> Image used: `registry.k8s.io/sig-storage/nfs-provisioner:v4.0.8` |
 | argocd                 | 2.11.x or newer | Used as GitOps tool . App of apps concept. <br/> Other version *might* work but tests were performed using 2.11.x version. <br/> Image used: `quay.io/argoproj/argocd:v2.11.3` |
 
-## DNS entries 
+### DNS entries 
 
 | Entry Name | Entries |
 | ------------- | --------------------------------------------------------------------------------------------------- |
-| adapter-ingress | adapter.(namespace).int.simpl-europe.eu
-| simpl-fe-ingress | authority.fe.(namespace).int.simpl-europe.eu/sap<br>authority.fe.(namespace).int.simpl-europe.eu/onboarding<br>authority.fe.(namespace).int.simpl-europe.eu/users-roles<br>authority.fe.(namespace).int.simpl-europe.eu/participant-utility 
-| simpl-ingress | a&#8203;uthority.be.(namespace).int.simpl-europe.eu
-| xsfc-service | xsfc-server-service.(namespace).int.simpl-europe.eu
+| adapter-ingress | adapter.(namespaceTag).(domainSuffix) |
+| simpl-fe-ingress | authority.fe.(namespaceTag).(domainSuffix)/sap<br>authority.fe.(namespaceTag).(domainSuffix)/ onboarding<br>authority.fe.(namespaceTag).(domainSuffix)/users-roles<br>authority.fe.(namespaceTag).(domainSuffix)/ participant-utility |
+| simpl-ingress | a&#8203;uthority.be.(namespaceTag).(domainSuffix) |
+| xsfc-service | xsfc-server-service.(namespaceTag).(domainSuffix) |
 
-## Installation
+## Deployment
 
 The deployment is based on master helm chart which, when applied on Kubernetes cluster, should deploy the Authority to it using ArgoCD. 
-
-### Prerequisites
-
-#### Vault related tasks
-
-All the secrets are now generated and stored automatically on deployment of Common namespace.
 
 ### Deployment using ArgoCD
 
@@ -63,7 +58,7 @@ targetRevision is the package version.
 
 When you create it, you set up the values below (example values)
 
-```
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -73,16 +68,16 @@ spec:
   source:
     repoURL: 'https://code.europa.eu/api/v4/projects/902/packages/helm/stable'
     path: '""'
-    targetRevision: 2.1.2                   # version of package
+    targetRevision: 2.3.0                  # version of package
     helm:
       values: |
         values:
-          branch: v2.1.2                   # branch of repo with values - for released version it should be the release branch
+          branch: v2.3.0                 # branch of repo with values - for released version it should be the release branch
         project: default                    # Project to which the namespace is attached
         namespaceTag: 
           authority: authority03            # identifier of deployment and part of fqdn for this agent
           common: common03                  # identifier of deployment and part of fqdn for common components
-        domainSuffix: int.simpl-europe.eu   # last part of fqdn
+        domainSuffix: example.com           # last part of fqdn
         argocd:
           appname: authority03              # name of generated argocd app 
           namespace: argocd                 # namespace of your argocd
@@ -111,16 +106,16 @@ Another way for deployment, is to unpack the released package to a folder on a h
 There is basically one file that you need to modify - values.yaml. 
 There are a couple of variables you need to replace - described below. The rest you don't need to change. 
 
-```
+```yaml
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git   # repo URL
-  branch: v2.1.2                    # branch of repo with values - for released version it should be the release branch
+  branch: v2.3.0                   # branch of repo with values - for released version it should be the release branch
 project: default                                  # Project to which the namespace is attached
 
 namespaceTag: 
   authority: authority03            # identifier of deployment and part of fqdn for this agent
   common: common03                  # identifier of deployment and part of fqdn for common components
-domainSuffix: int.simpl-europe.eu                 # last part of fqdn
+domainSuffix: example.com                # last part of fqdn
 
 argocd:
   appname: authority03              # name of generated argocd app 
@@ -163,10 +158,18 @@ At the end, all pods should be created correctly:
 <img src="images/Authority_ArgoCD02.png" alt="ArgoCD02" width="600"><BR>
 
 
-## Additional steps
+## Additional steps and remarks
 
-In the current version, the automatic onboarding process has already been implemented using: init-authority-job.
-For this reason, manual onboarding activities are no longer necessary.
+### Initialization
+
+After the deployment process is complete, a manual initialization process of the authority is required. 
+
+The steps are described in the document:
+https://code.europa.eu/simpl/simpl-open/development/iaa/documentation/-/tree/main/versioned_docs/2.4.x#governance-authority-init-via-apis
+
+### Tier2-proxy status
+
+Please keep in mind that until the agent is properly initialized, the tier2-proxy component will not work properly.
 
 ### Monitoring
 
@@ -180,10 +183,9 @@ If you encounter issues during deployment, check the following:
 - Verify that the namespace exists in your Kubernetes cluster.
 - Check the ArgoCD application logs and Helm error messages for specific issues.
 
+## Identity Provider failure
 
-# Typical error:
-
-However, sometimes, probably due to cluster performance issues, an error related to identity-provider and Tier2-gateway appears:<BR>
+Sometimes, probably due to cluster performance issues, an error related to identity-provider and Tier2-gateway appears:<BR>
 
 <img src="images/Error_identity_provider_01.png" alt="Error_identity_provider_01"><BR>
 
@@ -207,7 +209,7 @@ In rancher please find the address to the postgres database:<BR>
 <img src="images/Error_identity_provider_06.png" alt="Error_identity_provider_06"><BR>
 
 Access to the database is described in the document: https://code.europa.eu/simpl/simpl-open/development/agents/common_components/-/blob/main/documents/POSTGRESQL_ADMINISTRATION.md?ref_type=heads<BR>
-However to log in we use the account admin@testint.simpl-europe.eu with password from the vault from the commonXX-pgadmin-credentials key for the "password" entry:<BR>
+However to log in we use the account admin@(domainsuffix) with password from the vault from the commonXX-pgadmin-credentials key for the "password" entry:<BR>
 <img src="images/Error_identity_provider_07.png" alt="Error_identity_provider_07" width="600"><BR>
 
 <img src="images/Error_identity_provider_08.png" alt="Error_identity_provider_08" width="400"><BR>
@@ -236,7 +238,6 @@ After full synchronization of the entire namespace Authority, the previously mis
 
 All that's left is to restart tier2-gateway (deploy) and all pods should work properly:<BR>
 <img src="images/Error_identity_provider_17.png" alt="Error_identity_provider_17"><BR>
-
 
 
 
