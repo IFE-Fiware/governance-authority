@@ -68,16 +68,17 @@ spec:
   source:
     repoURL: 'https://code.europa.eu/api/v4/projects/902/packages/helm/stable'
     path: '""'
-    targetRevision: 2.3.0                  # version of package
+    targetRevision: 2.3.1                  # version of package
     helm:
       values: |
         values:
-          branch: v2.3.0                 # branch of repo with values - for released version it should be the release branch
+          branch: v2.3.1                 # branch of repo with values - for released version it should be the release branch
         project: default                    # Project to which the namespace is attached
         namespaceTag: 
           authority: authority03            # identifier of deployment and part of fqdn for this agent
           common: common03                  # identifier of deployment and part of fqdn for common components
         domainSuffix: example.com           # last part of fqdn
+        resourcePreset: default             # set to "low" to disable requests of resources
         argocd:
           appname: authority03              # name of generated argocd app 
           namespace: argocd                 # namespace of your argocd
@@ -86,9 +87,9 @@ spec:
           namespace: authority03             # where the app will be deployed
           commonToolsNamespace: common      # namespace where main monitoring stack is deployed
           issuer: dev-int-dns01             # certificate issuer name
-        hashicorp:
-          role: dev-int-role                # role created in vault for access
-          secretEngine: dev-int             # container for secrets in your vault
+        secrets:
+          role: example-role                # role created in vault for access
+          secretEngine: example            # container for secrets in your vault
         monitoring:
           enabled: true                     # you can set it to false if you don't have common monitoring stack
     chart: authority
@@ -109,14 +110,14 @@ There are a couple of variables you need to replace - described below. The rest 
 ```yaml
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git   # repo URL
-  branch: v2.3.0                   # branch of repo with values - for released version it should be the release branch
+  branch: v2.3.1                   # branch of repo with values - for released version it should be the release branch
 project: default                                  # Project to which the namespace is attached
 
 namespaceTag: 
   authority: authority03            # identifier of deployment and part of fqdn for this agent
   common: common03                  # identifier of deployment and part of fqdn for common components
 domainSuffix: example.com                # last part of fqdn
-
+resourcePreset: default             # set to "low" to disable requests of resources
 argocd:
   appname: authority03              # name of generated argocd app 
   namespace: argocd                 # namespace of your argocd
@@ -126,9 +127,9 @@ cluster:
   commonToolsNamespace: common                    # namespace where main monitoring stack is deployed
   issuer: dev-int-dns01                           # certificate issuer name
 
-hashicorp:
-  role: dev-int-role                              # role created in vault for access
-  secretEngine: dev-int                           # container for secrets in your vault
+secrets:
+  role: example-role                              # role created in vault for access
+  secretEngine: example                          # container for secrets in your vault
 
 monitoring:
   enabled: true                     # you can set it to false if you don't have common monitoring stack
