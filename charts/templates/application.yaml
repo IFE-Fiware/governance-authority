@@ -186,7 +186,7 @@ spec:
             DATABASE_PASSWORD: vault:{{ .Values.secrets.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-ejbca
           initContainers:
           - name: ejbca-init
-            image: code.europa.eu:4567/simpl/simpl-open/development/iaa/ejbca-preconfig:1.0.0
+            image: code.europa.eu:4567/simpl/simpl-open/development/iaa/ejbca-preconfig:1.0.3
             imagePullPolicy: IfNotPresent
             securityContext: {}
             env:
