@@ -20,7 +20,8 @@ auth:
   existingSecretPasswordKey: redis
 
 image:
-  repository: bitnamilegacy/redis
+  repository: redis
+  tag: 7.2.5
 security:
   allowInsecureImages: true
   
