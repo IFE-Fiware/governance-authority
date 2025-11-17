@@ -130,8 +130,8 @@ cluster:
   issuer: dev-int-dns01                           # certificate issuer name
 
 secrets:
-  role: example-role                              # role created in vault for access
-  secretEngine: example                          # container for secrets in your vault
+  role: example-role                              # role created in OpenBao for access
+  secretEngine: example                          # container for secrets in your OpenBao
 
 monitoring:
   enabled: true                     # you can set it to false if you don't have common monitoring stack
@@ -212,7 +212,7 @@ In rancher please find the address to the postgres database:<BR>
 <img src="images/Error_identity_provider_06.png" alt="Error_identity_provider_06"><BR>
 
 Access to the database is described in the document: https://code.europa.eu/simpl/simpl-open/development/agents/common_components/-/blob/main/documents/POSTGRESQL_ADMINISTRATION.md?ref_type=heads<BR>
-However to log in we use the account admin@(domainsuffix) with password from the vault from the commonXX-pgadmin-credentials key for the "password" entry:<BR>
+However to log in we use the account admin@(domainsuffix) with password from the OpenBao from the commonXX-pgadmin-credentials key for the "password" entry:<BR>
 <img src="images/Error_identity_provider_07.png" alt="Error_identity_provider_07" width="600"><BR>
 
 <img src="images/Error_identity_provider_08.png" alt="Error_identity_provider_08" width="400"><BR>
