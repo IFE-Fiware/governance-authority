@@ -42,10 +42,10 @@ This project contains the configuration files required for deploying an applicat
 
 | Entry Name | Entries |
 | ------------- | --------------------------------------------------------------------------------------------------- |
-| adapter-ingress | adapter.(namespaceTag).(domainSuffix) |
+| redis-commander		     | redis-commander.(namespaceTag).(domainSuffix) |
 | simpl-fe-ingress | authority.fe.(namespaceTag).(domainSuffix)/sap<br>authority.fe.(namespaceTag).(domainSuffix)/ onboarding<br>authority.fe.(namespaceTag).(domainSuffix)/users-roles<br>authority.fe.(namespaceTag).(domainSuffix)/ participant-utility |
 | simpl-ingress | a&#8203;uthority.be.(namespaceTag).(domainSuffix) |
-| xsfc-service | xsfc-server-service.(namespaceTag).(domainSuffix) |
+| tier2-gateway | tls.authority.(namespaceTag).(domainSuffix) |
 
 ## Deployment
 
