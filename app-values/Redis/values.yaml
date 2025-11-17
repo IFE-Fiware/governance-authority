@@ -21,7 +21,7 @@ auth:
 
 image:
   repository: redis
-  tag: 7.2.5
+  tag: 7.2
 security:
   allowInsecureImages: true
   
