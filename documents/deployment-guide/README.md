@@ -20,7 +20,9 @@
 <!-- TOC -->
 
 ## Description
-This project contains the configuration files required for deploying an application using Helm and ArgoCD. 
+
+This project contains the configuration files required for deploying an application using Helm and ArgoCD.
+
 - the deployment will be done by master helm chart allowing to deploy a **Governance Authority** agent using a single command.
 - templates of values.yaml files used inside *Integration* environment under `app-values` folder
 
@@ -54,7 +56,7 @@ The deployment is based on master helm chart which, when applied on Kubernetes c
 ### Deployment using ArgoCD
 
 You can easily deploy the agent using ArgoCD. All the values mentioned in the sections below you can input in ArgoCD deployment. The repoURL gets the package directly from code.europa.eu.
-targetRevision is the package version. 
+targetRevision is the package version.
 
 When you create it, you set up the values below (example values)
 
@@ -68,11 +70,11 @@ spec:
   source:
     repoURL: 'https://code.europa.eu/api/v4/projects/902/packages/helm/stable'
     path: '""'
-    targetRevision: 2.3.1                  # version of package
+    targetRevision: 2.4.0                  # version of package
     helm:
       values: |
         values:
-          branch: v2.3.1                 # branch of repo with values - for released version it should be the release branch
+          branch: v2.4.0                 # branch of repo with values - for released version it should be the release branch
         project: default                    # Project to which the namespace is attached
         namespaceTag: 
           authority: authority03            # identifier of deployment and part of fqdn for this agent
@@ -102,15 +104,15 @@ spec:
 
 #### Files preparation
 
-Another way for deployment, is to unpack the released package to a folder on a host where you have kubectl and helm available and configured. 
+Another way for deployment, is to unpack the released package to a folder on a host where you have kubectl and helm available and configured.
 
-There is basically one file that you need to modify - values.yaml. 
-There are a couple of variables you need to replace - described below. The rest you don't need to change. 
+There is basically one file that you need to modify - values.yaml.
+There are a couple of variables you need to replace - described below. The rest you don't need to change.
 
 ```yaml
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git   # repo URL
-  branch: v2.3.1                   # branch of repo with values - for released version it should be the release branch
+  branch: v2.4.0                   # branch of repo with values - for released version it should be the release branch
 project: default                                  # Project to which the namespace is attached
 
 namespaceTag: 
@@ -135,18 +137,16 @@ monitoring:
   enabled: true                     # you can set it to false if you don't have common monitoring stack
 ```
 
-#### Deployment
+#### Deployment Command to execute
 
-After you have prepared the values file, you can start the deployment. 
-Use the command prompt. Proceed to the folder where you have the Chart.yaml file and execute the following command. The dot at the end is crucial - it points to current folder to look for the chart. 
+After you have prepared the values file, you can start the deployment.
+Use the command prompt. Proceed to the folder where you have the Chart.yaml file and execute the following command. The dot at the end is crucial - it points to current folder to look for the chart.
 
 Now you can deploy the agent:
 
-`helm install authority . `
-
+`helm install authority .`
 
 After starting the deployment synchronization process, the expected namespace will be created.
-
 
 Initially, the status observed e.g. in ArgoCD will indicate the creation of new pods:
 
@@ -158,6 +158,7 @@ At the end, all pods should be created correctly:
 
 <img src="images/Authority_ArgoCD02.png" alt="ArgoCD02" width="600"><BR>
 
+## Additional steps and remarks
 
 ## Additional steps and remarks
 
@@ -174,10 +175,11 @@ Please keep in mind that until the agent is properly initialized, the tier2-prox
 
 ### Monitoring
 
-Filebeat components for monitoring are included in this release.   
+Filebeat components for monitoring are included in this release.
 Their deployment can be disabled by switching the value monitoring.enabled to false.
 
-# Troubleshooting
+## Troubleshooting
+
 If you encounter issues during deployment, check the following:
 
 - Ensure that ArgoCD is properly set up and running.
@@ -216,7 +218,7 @@ However to log in we use the account admin@(domainsuffix) with password from the
 <img src="images/Error_identity_provider_08.png" alt="Error_identity_provider_08" width="400"><BR>
 
 After accessing the website above, if you extend the Servers list, you will see the following request for password.
-Password is in the same vault secret, in key named "postgres".<BR>
+Password is in the same OpenBao secret, in key named "postgres".<BR>
 
 <img src="images/Error_identity_provider_07_2.png" alt="Error_identity_provider_07_2" width="600"><BR>
 

@@ -1,6 +1,6 @@
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git
-  branch: v2.3.0
+  branch: v2.4.0
 
 project: ${PROJECT}
 domainSuffix: ${DOMAINSUFFIX}
