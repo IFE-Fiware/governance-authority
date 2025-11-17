@@ -90,8 +90,8 @@ spec:
           commonToolsNamespace: common      # namespace where main monitoring stack is deployed
           issuer: dev-int-dns01             # certificate issuer name
         secrets:
-          role: example-role                # role created in vault for access
-          secretEngine: example            # container for secrets in your vault
+          role: example-role                # role created in OpenBao for access
+          secretEngine: example            # container for secrets in your OpenBao
         monitoring:
           enabled: true                     # you can set it to false if you don't have common monitoring stack
     chart: authority
