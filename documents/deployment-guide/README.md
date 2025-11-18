@@ -3,7 +3,7 @@
 <!-- TOC -->
 - [Governance Authority Agent](#governance-authority-agent)
   - [Description](#description)
-  - [Prerequisites](#prerequisites)
+  - [PreRequisites](#prerequisites)
     - [Tools](#tools)
     - [DNS entries](#dns-entries)
   - [Deployment](#deployment)
@@ -26,7 +26,7 @@ This project contains the configuration files required for deploying an applicat
 - the deployment will be done by master helm chart allowing to deploy a **Governance Authority** agent using a single command.
 - templates of values.yaml files used inside *Integration* environment under `app-values` folder
 
-## Prerequisites
+## PreRequisites
 
 ### Tools
 
