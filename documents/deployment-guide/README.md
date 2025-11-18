@@ -33,7 +33,7 @@ This project contains the configuration files required for deploying an applicat
 | Pre-Requisites         |     Version     | Description                                                                                                                                     |
 | ---------------------- |     :-----:     | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | DNS sub-domain name    |       N/A       | This domain will be used to address all services of the agent. <br/> example: `*.authority03.(domainsuffix).simpl-europe.eu`                            |  
-| external-dns    | bitnami/external-dns:0.16.1 | Currently version docker.io/bitnami/external-dns:0.16.1-debian-12-r should be used as externaldns. Unfortunately, using a newer version caused DNS to work incorrectly. |  
+| external-dns    | 0.16.1 or newer | Used for DNS entries creation. <br/> Other version *might* work but tests were performed using 0.16.1-debian-12-r6 version. <br/> Image used: `docker.io/bitnamilegacy/external-dns:0.16.1-debian-12-r6` | 
 | Kubernetes Cluster     | 1.29.x or newer | Other version *might* work but tests were performed using 1.29.x version                                                                        |
 | nginx-ingress          | 1.10.x or newer | Used as ingress controller. <br/> Other version *might* work but tests were performed using 1.10.x version. <br/> Image used: `registry.k8s.io/ingress-nginx/controller:v1.10.0`  |
 | cert-manager           | 1.15.x or newer | Used for automatic cert management. <br/> Other version *might* work but tests were performed using 1.15.x version. <br/> Image used: `quay.io/jetstack/cert-manager-controller:v1.15.3` |
@@ -44,9 +44,10 @@ This project contains the configuration files required for deploying an applicat
 
 | Entry Name | Entries |
 | ------------- | --------------------------------------------------------------------------------------------------- |
-| adapter-ingress | adapter.(namespaceTag).(domainSuffix) |
+| redis-commander		     | redis-commander.(namespaceTag).(domainSuffix) |
 | simpl-fe-ingress | authority.fe.(namespaceTag).(domainSuffix)/sap<br>authority.fe.(namespaceTag).(domainSuffix)/ onboarding<br>authority.fe.(namespaceTag).(domainSuffix)/users-roles<br>authority.fe.(namespaceTag).(domainSuffix)/ participant-utility |
-| simpl-ingress | a&#8203;uthority.be.(namespaceTag).(domainSuffix) |
+| simpl-ingress | authority.be.(namespaceTag).(domainSuffix) |
+| tier2-gateway | tls.authority.(namespaceTag).(domainSuffix) |
 
 ## Deployment
 
@@ -69,11 +70,11 @@ spec:
   source:
     repoURL: 'https://code.europa.eu/api/v4/projects/902/packages/helm/stable'
     path: '""'
-    targetRevision: 2.3.2                  # version of package
+    targetRevision: 2.4.0                  # version of package
     helm:
       values: |
         values:
-          branch: v2.3.2                 # branch of repo with values - for released version it should be the release branch
+          branch: v2.4.0                 # branch of repo with values - for released version it should be the release branch
         project: default                    # Project to which the namespace is attached
         namespaceTag: 
           authority: authority03            # identifier of deployment and part of fqdn for this agent
@@ -111,7 +112,7 @@ There are a couple of variables you need to replace - described below. The rest 
 ```yaml
 values:
   repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git   # repo URL
-  branch: v2.3.2                   # branch of repo with values - for released version it should be the release branch
+  branch: v2.4.0                   # branch of repo with values - for released version it should be the release branch
 project: default                                  # Project to which the namespace is attached
 
 namespaceTag: 
