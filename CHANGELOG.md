@@ -1,4 +1,5 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -6,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.4.0] - 2025-11-15
 - Updated many components to implement Consumer version 2.4.0.
-
 
 ### Onboarding
 
@@ -18,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Fixed
 - SIMPL-6964
 
-
 ### Simpl Cloud gateway (Tier 1)
 
 #### 2.5.0 (2025-09-29)
@@ -29,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Fixed
 - Https constraints applied in Content Security Policy only when https origins are present
 
+- SIMPL-14971
+
+#### Changed
+
+- SIMPL-15701
 
 ### Users Roles
 
@@ -43,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SIMPL-12860
 - SIMPL-16081
 
+- SIMPL-16771
 
 ### SIMPL FE
 
@@ -58,7 +63,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Fixed
 - SIMPL-16738
 
-
 ### TLS Gateway (Tier 2)
 
 #### 2.5.0 (2025-09-29)
@@ -69,14 +73,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Fixed
 - SIMPL-14604
 
+- SIMPL-10191
 
 ### Tier 2 Proxy
 
 #### 1.0.1 (2025-08-06)
 
 #### Fixed
-- Fixed base docker image
 
+- Fixed base docker image
 
 ### Authentication Provider
 
@@ -104,7 +109,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Fixed
 - SIMPL-16621
 
-
 ### Identity Provider
 
 #### 2.5.2 (2025-10-07)
@@ -127,6 +131,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Fixed
 - SIMPL-12640
 
+- SIMPL-15701
 
 ### Security Attributes Provider
 
@@ -143,26 +148,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Fixed
 - SIMPL-14604
 
+- Update ephemeral-proof expiration to 3 minutes
 
 ### xsfc-catalogue
 
 #### 1.0.11 (2025-09-05)
 
 #### Added
+
 - SIMPL-11277
 
 #### Changed
+
 - SIMPL-17539
 - SIMPL-5947
-
 
 ### catalogue query mapper adapter
 
 #### 1.0.13 (2025-09-08)
 
 #### Added
-- SIMPL-11277
 
+- SIMPL-11277
 
 ### Filebeat
 
