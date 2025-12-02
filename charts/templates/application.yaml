@@ -30,7 +30,7 @@ spec:
         fullnameOverride: {{ .Values.redis.nameOverride }}
         master:
           podAnnotations:
-            vault.security.banzaicloud.io/vault-addr: "https://secrets.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
+            vault.security.banzaicloud.io/vault-addr: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
             vault.security.banzaicloud.io/vault-role: {{ .Values.secrets.role }}
           {{- if .Values.redis.resourcesPreset }}
           resourcesPreset: {{ .Values.redis.resourcesPreset }}
@@ -59,13 +59,13 @@ spec:
         fullnameOverride: {{ .Values.redis_commander.nameOverride }}
         ingress:
           hosts:
-          - host: redis-commander.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
+          - host: redis-commander-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}
             paths:
               - "/"
           tls:
           - secretName: redis-commander-tls
             hosts:
-              - redis-commander.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
+              - redis-commander-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}
           annotations:
             cert-manager.io/cluster-issuer: {{ .Values.cluster.issuer }}
         {{- if eq .Values.resourcePreset "low" }}
@@ -93,9 +93,9 @@ spec:
         security:
           allowInsecureImages: true
         fullnameOverride: {{ .Values.keycloak.nameOverride }}
-        apiUrl: "https://participant.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}"
+        apiUrl: "https://participant-be-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}"
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: "https://secrets.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
+          vault.security.banzaicloud.io/vault-addr: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.secrets.role }}
         auth:
           adminPassword: "vault:{{ .Values.secrets.secretEngine }}/data/{{ .Values.cluster.namespace }}-keycloak#admin"
@@ -106,13 +106,13 @@ spec:
           password: "vault:{{ .Values.secrets.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-keycloak"
         extraEnvVars:
         - name: KC_HOSTNAME_ADMIN
-          value: "https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}/auth"
+          value: "https://authority-be-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}/auth"
         - name: KC_HOSTNAME
-          value: "https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}/auth"
+          value: "https://authority-be-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}/auth"
         - name: USERS_ROLES_BASE_URL
           value: "http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080"
         - name: KEYCLOAK_BASE_URL
-          value: "https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}/auth"
+          value: "https://authority-be-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}/auth"
         - name: AUTHENTICATION_PROVIDER_BASE_URL
           value: "http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080" 
         - name: REALM
@@ -126,7 +126,7 @@ spec:
           env:
             - name: REDIRECT_URIS
               value: |-
-                [ "https://authority.fe.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}/*" ]
+                [ "https://authority-fe-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}/*" ]
             - name: REALM_NAME
               value: realm
             - name: URL
@@ -174,7 +174,7 @@ spec:
         {{- end }}
       values: |
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: "https://secrets.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
+          vault.security.banzaicloud.io/vault-addr: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.secrets.role }}
         fullnameOverride: {{ .Values.ejbca.fullnameOverride }}
         hostname: &hostname ejbca-community-helm.{{ .Values.cluster.namespace }}.svc.cluster.local
@@ -203,7 +203,7 @@ spec:
               - name: DATABASE_PASSWORD
                 value: vault:{{ .Values.secrets.secretEngine }}/data/{{ .Values.cluster.namespace }}-postgres-passwords#{{ .Values.cluster.namespace }}-ejbca
               - name: T1_GATEWAY
-                value: authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
+                value: authority-be-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}
               - name: NAMESPACE
                 value: {{ .Values.cluster.namespace }}
             command:
@@ -230,9 +230,9 @@ spec:
         - $values/app-values/tier1-gateway/{{ . }}
         {{- end }}
       values: |
-        hostT1: authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
+        hostT1: authority-be-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}
         cors:
-          allowOrigin: https://authority.fe.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+          allowOrigin: https://authority-fe-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }},https://authority-be-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
         ingress:
           issuer: {{ .Values.cluster.issuer }}
         usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
@@ -281,14 +281,14 @@ spec:
       values: |
         ingress:
           issuer: {{ .Values.cluster.issuer }}
-        hostFe: authority.fe.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
+        hostFe: authority-fe-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}
         cors:
-          allowOrigin: https://authority.fe.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:4203,http://localhost:3000
+          allowOrigin: https://authority-fe-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }},https://authority-be-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:4203,http://localhost:3000
         env:
         - name: API_URL
-          value: "https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}"
+          value: "https://authority-be-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}"
         - name: KEYCLOAK_URL
-          value: "https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}/auth"
+          value: "https://authority-be-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}/auth"
         - name: KEYCLOAK_REALM
           value: "authority"
         - name: KEYCLOAK_CLIENT_ID
@@ -322,7 +322,7 @@ spec:
                 name: redis-secrets
                 key: redis
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: "https://secrets.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
+          vault.security.banzaicloud.io/vault-addr: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.secrets.role }}
         microservices:
           identityProviderUrl: http://identity-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
@@ -337,7 +337,7 @@ spec:
               username: {{ .Values.namespaceTag.authority }}_securityattributesprovider 
         simpl:
           ephemeral-proof:
-            issuer-url: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
+            issuer-url: tls-authority-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}
             expire-after: 3m
             proof-of-possession:
               signature-algorithm: ECDSA
@@ -372,10 +372,10 @@ spec:
         {{- end }}
       values: |
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: "https://secrets.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
+          vault.security.banzaicloud.io/vault-addr: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.secrets.role }}
-        hostT1: authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
-        authorityHostT2: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
+        hostT1: authority-be-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}
+        authorityHostT2: tls-authority-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}
         global:
           ingress:
             issuer: {{ .Values.cluster.issuer }}
@@ -442,11 +442,11 @@ spec:
           tls:
             - secretName: xsfc-server-tls
               hosts:
-                - xsfc-server-service.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
+                - xsfc-server-service-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}
           annotations: 
             cert-manager.io/cluster-issuer: {{ .Values.cluster.issuer }}
         hashicorp:
-          service: "https://secrets.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
+          service: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           role: {{ .Values.secrets.role }}
           secretEngine: {{ .Values.secrets.secretEngine }}
         secretConfigPath: "{{ .Values.secrets.secretEngine }}/{{ .Values.cluster.namespace }}-xsfc-service"  
@@ -478,7 +478,7 @@ spec:
         {{- end }}
       values: |
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: "https://secrets.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
+          vault.security.banzaicloud.io/vault-addr: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.secrets.role }}
         db:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_onboarding"
@@ -526,7 +526,7 @@ spec:
         {{- end }}
       values: |
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: "https://secrets.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
+          vault.security.banzaicloud.io/vault-addr: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.secrets.role }}
         env:
         - name: KAFKA_TIER2GW
@@ -538,7 +538,7 @@ spec:
               key: redis
         global:
           cors:
-            allowOrigin: https://authority.fe.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }},https://authority.be.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
+            allowOrigin: https://authority-fe-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }},https://authority-be-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }},http://localhost:4202,http://localhost:3000
         microservices:
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
           keycloakUrl: http://keycloak.{{ .Values.cluster.namespace }}.svc.cluster.local
@@ -547,7 +547,7 @@ spec:
           authenticationProviderUrl: http://authentication-provider.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         redis:
           host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
-        hostT2: tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}
+        hostT2: tls-authority-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}
         kafkaConfig:
           spring:
             kafka:
@@ -608,7 +608,7 @@ spec:
         ingress:
           enabled: false
         hashicorp:
-          service: "https://secrets.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
+          service: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           role: {{ .Values.secrets.role }}
           secretEngine: {{ .Values.secrets.secretEngine }}
         secretConfigPath: "{{ .Values.secrets.secretEngine }}/{{ .Values.cluster.namespace }}-adapter-simpl-backend"  
@@ -634,7 +634,7 @@ spec:
                 name: redis-secrets
                 key: redis
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: "https://secrets.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
+          vault.security.banzaicloud.io/vault-addr: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.secrets.role }}
         appConfig:
           ejbca:
@@ -668,9 +668,9 @@ spec:
         {{- end }}
       values: |
         podAnnotations:
-          vault.security.banzaicloud.io/vault-addr: "https://secrets.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
+          vault.security.banzaicloud.io/vault-addr: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           vault.security.banzaicloud.io/vault-role: {{ .Values.secrets.role }}
-        urlAuthorityT2: "tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}"
+        urlAuthorityT2: "tls-authority-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}"
         db:
           url: "jdbc:postgresql://pg-cluster.{{ .Values.cluster.commonToolsNamespace }}.svc.cluster.local:5432/{{ .Values.cluster.namespace }}_authenticationprovider"
           username: {{ .Values.namespaceTag.authority }}_authenticationprovider
@@ -687,7 +687,7 @@ spec:
           usersRolesUrl: http://users-roles.{{ .Values.cluster.namespace }}.svc.cluster.local:8080
         simpl:
           certificate:
-            san: "tls.authority.{{ .Values.namespaceTag.authority }}.{{ .Values.domainSuffix }}"
+            san: "tls-authority-{{ .Values.namespaceTag.authority }}-{{ .Values.domainSuffix }}"
         redis:
           host: "redis-master.{{ .Values.cluster.namespace }}.svc.cluster.local"
         kafkaConfig:
@@ -756,7 +756,7 @@ spec:
         {{- end }}
       values: |
         hashicorp:
-          service: "https://secrets.{{ .Values.namespaceTag.common }}.{{ .Values.domainSuffix }}"
+          service: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           role: {{ .Values.secrets.role }}
           secretEngine: {{ .Values.secrets.secretEngine }}
         {{- if eq .Values.resourcePreset "low" }}
