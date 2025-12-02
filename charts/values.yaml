@@ -1,6 +1,6 @@
 values:
-  repo_URL: https://code.europa.eu/simpl/simpl-open/development/agents/governance-authority.git
-  branch: v2.4.0
+  repo_URL: https://github.com/IFE-Fiware/governance-authority.git
+  branch: v2.4.0-IFE
 
 project: ${PROJECT}
 domainSuffix: ${DOMAINSUFFIX}
