@@ -607,6 +607,7 @@ spec:
       values: |
         ingress:
           enabled: false
+          clusterIssuer: {{ .Values.cluster.issuer }}
         hashicorp:
           service: "https://secrets-{{ .Values.namespaceTag.common }}-{{ .Values.domainSuffix }}"
           role: {{ .Values.secrets.role }}
