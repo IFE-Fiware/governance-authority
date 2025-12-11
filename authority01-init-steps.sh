@@ -1,3 +1,8 @@
+kubectl --namespace authority01 port-forward svc/identity-provider 8090:8080 &
+kubectl --namespace authority01 port-forward svc/authentication-provider 8080:8080 &
+
+export AUTHORITY_IDENTITY_PROVIDER=localhost:8090
+export AUTHORITY_AUTH_PROVIDER=localhost:8080
 
 curl -X POST "$AUTHORITY_AUTH_PROVIDER/v1/keypairs/generate"
 
